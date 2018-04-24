@@ -17,8 +17,13 @@ library(tidyverse)
 ```{r}
 pilotdata <- read_csv("data-raw/pilotdata.csv")
 
+# Fix up the names.
 
-devtools::use_data(pilotdata)
+pilotdata <- pilotdata %>% 
+  rename(latplot = 'Plotted lat.',
+         lngplot = 'Plotted long.')
+
+devtools::use_data(pilotdata, overwrite = T)
 
 ```
 

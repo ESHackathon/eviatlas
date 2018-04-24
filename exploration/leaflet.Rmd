@@ -13,6 +13,16 @@ knitr::opts_chunk$set(echo = TRUE)
 library(tidyverse)
 library(leaflet)
 library(ggmap)
+library(eviatlas)
+
+```
+
+
+```{r}
+# For some reason, I'm having issues with readr, so I'll munge the data here - for now.
+
+lat <- pilotdata$`Plotted lat.`
+lng <- pilotdata$`Plotted long.`
 
 ```
 
@@ -21,36 +31,18 @@ library(ggmap)
 
 As a starting point, create a map that plots the points on a leaflet map and sizes the points by $n$. 
 
-## Basics
+## Get points on a map
 
-### Dummy dataset
+```{r Plot dd}
 
-```{r data}
-(dd <- tibble(
-  location = c("melbourne", "stockholm"),
-  participants = c(45, 28)
-))
+pilotdata %>% 
+  leaflet() %>% 
+  addTiles() %>% 
+  addMarkers(lng = lng,
+             lat = lat)
+
 
 ```
 
-
-```{r Calculate longlat}
-dd <- dd %>% 
-   mutate(latlon = geocode(location, source = "dsk"))
-
-```
-
-```{r}
-
-```
-
-
-```{r Plot}
-leaflet(dd$latlon) %>% addTiles() %>% addMarkers() 
-
-```
-
-
-## Okay, now let's do this with a real dataset
 
 
