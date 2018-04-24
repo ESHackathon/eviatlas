@@ -1,9 +1,9 @@
 #------------------------------------
-#' Simple R code to create heatmap from dataset
+#' Simple R code to create GenTimeTrend from dataset
 #' Created For	  : ES Hackathon 2018
 #' @param idata Input data frame
 #' @param selcols List of strings with column names
-#' @return Returns a heatmap object showing number of literature under different categories in user specified \code{selcols}
+#' @return Returns a GenTimeTrend object showing number of literature under different categories in user specified \code{selcols}
 #'
 #' @author Ezgi Tanriver-Ayder 24 April 2018
 #'
@@ -39,7 +39,7 @@ idata <- as.data.frame(read.csv(file=ifile,skip=0,blank.lines.skip=TRUE))
       add_count_(selcols) %>%
       complete_(selcols, fill = list(n=0)) %>% distinct()
 
-  # Plot Heatmap ------
+  # Plot Time Trend ------
     # Plot bar chart
     iyears<- min(seldata$Year):max(seldata$Year)
     timemp<- ggplot(seldata, aes_string(x=colnames(seldata[1]),y=colnames(seldata[2]))) +
@@ -59,5 +59,5 @@ idata <- as.data.frame(read.csv(file=ifile,skip=0,blank.lines.skip=TRUE))
     message("GenTimeTrend: Year not found")
   } # if col exists
 
-  return(heatmp)
+  return(timemp)
  }
