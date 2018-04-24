@@ -1,0 +1,56 @@
+---
+title: "Leaflet map"
+author: "Charles T. Gray"
+date: "23 April 2018"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r packages}
+library(tidyverse)
+library(leaflet)
+library(ggmap)
+
+```
+
+
+## Objective 
+
+As a starting point, create a map that plots the points on a leaflet map and sizes the points by $n$. 
+
+## Basics
+
+### Dummy dataset
+
+```{r data}
+(dd <- tibble(
+  location = c("melbourne", "stockholm"),
+  participants = c(45, 28)
+))
+
+```
+
+
+```{r Calculate longlat}
+dd <- dd %>% 
+   mutate(latlon = geocode(location, source = "dsk"))
+
+```
+
+```{r}
+
+```
+
+
+```{r Plot}
+leaflet(dd$latlon) %>% addTiles() %>% addMarkers() 
+
+```
+
+
+## Okay, now let's do this with a real dataset
+
+

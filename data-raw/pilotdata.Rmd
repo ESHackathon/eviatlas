@@ -1,0 +1,24 @@
+---
+title: "Pilotdata"
+author: "Charles T. Gray"
+date: "24 April 2018"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+```{r}
+library(tidyverse)
+```
+
+```{r}
+pilotdata <- read_csv("data-raw/pilotdata.csv")
+
+
+devtools::use_data(pilotdata)
+
+```
+
