@@ -62,7 +62,8 @@ shinyServer(
   })
   
   output$heatmap <- renderPlot({
-    heatmp
+    # heatmp
+    GenHeatMap(heatmap_test, c('Extracted.by', 'Country'))
   })
 
   filteredData <- reactive({
@@ -72,7 +73,9 @@ shinyServer(
 
 
   output$map <- renderLeaflet({
-    leaflet() %>% addTiles()
+    leaflet() %>% 
+      addTiles() %>%
+      setView(18.0955533, 59.3338257, zoom = 3)
   })
 
   observe({
@@ -87,4 +90,3 @@ shinyServer(
   
   
 })
-
