@@ -16,6 +16,9 @@ shinyServer(
       filter(Country %in% input$filter_table_countries)
   })
   
+  output$filevalue <- renderPrint({
+    str(input$file)
+  })
   
     # show data using DataTable
   output$table <- renderDataTable({

@@ -50,10 +50,13 @@ library(ggvis)
                       wellPanel(dataTableOutput("table"))))),
         
         tabItem(tabName = "heatmap",
+                wellPanel(box()),
                 wellPanel(plotOutput("heatmap"))),
         
         tabItem(tabName = "about",
-                fluidRow(fileInput("file", label="Upload .csv file")),
+                fluidRow(fileInput("file", label = h3("File input: Upload CSV File"))),
+                hr(),
+                fluidRow(column(4, verbatimTextOutput("filevalue"))),
                 fluidRow(height = '100%',
                          h1('Systematic Map Criteria'),
                          h4('Systematic Maps are overviews of the quantity and quality of evidence in relation to a broad (open) question of policy or management relevance. The process and rigour of the mapping exercise is the same as for systematic review except that no evidence synthesis is attempted to seek an answer to the question. A critical appraisal of the quality of the evidence is strongly encouraged but may be limited to a subset or sample of papers when the quantity of articles is very large (and even be absent in exceptional circumstances). Authors should note that all systematic maps published in Environmental Evidence will have been conducted according to the CEE process. Please contact the Editors at an early stage of planning your review. More guidance can be found here.'),
