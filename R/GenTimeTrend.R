@@ -1,9 +1,9 @@
 #------------------------------------
-#' Simple R code to create heatmap from dataset
+#' Simple R code to create GenTimeTrend from dataset
 #' Created For	  : ES Hackathon 2018
 #' @param idata Input data frame
 #' @param selcols List of strings with column names
-#' @return Returns a heatmap object showing number of literature under different categories in user specified \code{selcols}
+#' @return Returns a timetrend object showing number of literature under different categories in user specified \code{selcols}
 #'
 #' @author Ezgi Tanriver-Ayder 24 April 2018
 #'
