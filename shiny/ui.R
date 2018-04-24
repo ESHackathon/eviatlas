@@ -49,7 +49,8 @@ library(ggvis)
                     column(width = 10,
                       wellPanel(dataTableOutput("table"))))),
         
-        tabItem(tabName = "heatmap"),
+        tabItem(tabName = "heatmap",
+                wellPanel(plotOutput("heatmap"))),
         
         tabItem(tabName = "about",
                 fluidRow(fileInput("file", label="Upload .csv file")),

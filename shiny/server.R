@@ -60,6 +60,10 @@ shinyServer(
       geom_violin(aes()) + 
       ggtitle("EviAtlas Plot 4")
   })
+  
+  output$heatmap <- renderPlot({
+    heatmp
+  })
 
   filteredData <- reactive({
     full_zips
@@ -68,8 +72,7 @@ shinyServer(
 
 
   output$map <- renderLeaflet({
-    leaflet() %>% addTiles() %>%
-      setView(-73.90, 40.7128, zoom = 5)
+    leaflet() %>% addTiles()
   })
 
   observe({
