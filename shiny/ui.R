@@ -1,5 +1,4 @@
 ## ui.R ##
-library(googleVis)
 library(shiny)
 library(shinydashboard)
 library(ggvis)
@@ -50,7 +49,14 @@ library(ggvis)
                       wellPanel(dataTableOutput("table"))))),
         
         tabItem(tabName = "heatmap",
-                wellPanel(box()),
+                fluidRow(box(selectInput("heat_select_x", label = h3("Select box"), 
+                                          choices = colnames(pilotdata), 
+                                          selected = colnames(pilotdata)[1]),
+                              fluidRow(column(3, verbatimTextOutput("heat_x_axis")))),
+                fluidRow(box(selectInput("heat_select_y", label = h3("Select box"), 
+                                         choices = colnames(pilotdata), 
+                                         selected = colnames(pilotdata)[2]),
+                             fluidRow(column(3, verbatimTextOutput("heat_y_axis")))))),
                 wellPanel(plotOutput("heatmap"))),
         
         tabItem(tabName = "about",

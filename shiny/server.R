@@ -20,6 +20,10 @@ shinyServer(
     str(input$file)
   })
   
+  output$heat_x_axis <- renderPrint({ input$heat_select_x })
+  output$heat_y_axis <- renderPrint({ input$heat_select_y })
+  
+  
     # show data using DataTable
   output$table <- renderDataTable({
     DT::datatable(data.explorer.table(), rownames = c(data.explorer.table)) %>% 
@@ -65,8 +69,8 @@ shinyServer(
   })
   
   output$heatmap <- renderPlot({
+      GenHeatMap(heatmap_test, c(input$heat_select_x, input$heat_select_y))
     # heatmp
-    GenHeatMap(heatmap_test, c('Extracted.by', 'Country'))
   })
 
   filteredData <- reactive({
