@@ -7,8 +7,6 @@
 #'
 #' @author Ezgi Tanriver-Ayder 24 April 2018
 #'
-#' @param df A dataframe
-#' @param year_column a vector of columns to use
 #' @keywords SystematicReview,
 #' @export
 
@@ -26,7 +24,7 @@ GenTimeTrend = function(idata, year_column = NULL, verbose = FALSE){
     year_column <- c("Year")
   }
 
-  if (length(which(colnames(idata)==year_column))>0){
+  if (length(which(colnames(idata) == year_column))>0){
     message("GenTimeTrend: Year column found")
 
 
@@ -42,8 +40,8 @@ GenTimeTrend = function(idata, year_column = NULL, verbose = FALSE){
       geom_bar(alpha=0.9, stat="identity",fill="light blue") +
       #geom_text(aes( label = colnames(seldata[2]))) + #fill = colnames(seldata[3]),
       scale_x_continuous(name="Year", breaks = iyears)+
-      labs(y="No of studies")+ ggtitle("Distribution of studies over time")+
-      theme_bw()+
+      labs(y="No of studies") + ggtitle("Distribution of studies over time") +
+      theme_bw() +
       theme(axis.line = element_line(colour = "black"),
             panel.background = element_blank(),
             plot.title = element_text(hjust = .5))
@@ -59,5 +57,3 @@ GenTimeTrend = function(idata, year_column = NULL, verbose = FALSE){
 
   return(timemp)
  }
-
-GenTimeTrend()
