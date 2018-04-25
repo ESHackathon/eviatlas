@@ -12,7 +12,8 @@ library(ggvis)
         menuItem("Bar Plots", tabName = "city", icon = icon("home")),
         menuItem("Study Map", tabName = "home", icon = icon("map")),
         menuItem("Heatmap", tabName = "heatmap", icon = icon("fire")),
-        menuItem("View Data", tabName = "data", icon = icon("database"))
+        menuItem("View Data", tabName = "data", icon = icon("database")),
+        menuItem("View Uploaded Data", tabName = "updata", icon = icon("database"))
         )
     )
 
@@ -38,6 +39,16 @@ library(ggvis)
                              home))),
         tabItem(tabName = "data",
                 # fluidRow(box(p(uiOutput("CLCLCL")))),
+                fluidRow(
+                    column(width = 2,
+                           tabBox(width = NULL,
+                                  tabPanel(h5("Filter"),
+                                   checkboxGroupInput('filter_table_countries', 'Countries to Display:',
+                                                      levels(pilotdata$Country), selected = levels(pilotdata$Country)))),
+                          tabBox(width=8)),
+                    column(width = 10,
+                      wellPanel(dataTableOutput("table"))))),
+        tabItem(tabName = "updata",
                 fluidRow(
                     column(width = 2,
                            tabBox(width = NULL,

@@ -44,7 +44,7 @@ shinyServer(
   })
 
   output$plot1 <- renderPlot({
-    GenTimeTrend()
+    GenTimeTrend(pilotdata)
   })
 
   output$plot2 <- renderPlot({
@@ -71,11 +71,6 @@ shinyServer(
       GenHeatMap(heatmap_test, c(input$heat_select_x, input$heat_select_y))
     # heatmp
   })
-
-  filteredData <- reactive({
-    full_zips
-  })
-
 
 
   output$map <- renderLeaflet({
