@@ -14,9 +14,6 @@
 #' GenHeatMap(mpg, colnames(mpg[c(1,4)]))
 #'
 GenHeatMap = function(idata, selcols, verbose = FALSE){
-  library(tidyverse)
-  library(ggplot2)
-
   # Convert columns to factors to allow for categorical classification for both numeric and character data -------
   tmp <- as.data.frame(sapply(idata[selcols], function(x) as.factor(x)))
 
@@ -26,7 +23,7 @@ GenHeatMap = function(idata, selcols, verbose = FALSE){
   ind <- which(colnames(seldata) %in% "value")
   colnames(seldata)[ind] <- "n"
 
-  if (verbose) {
+  if(verbose) {
     message("GenHeatMap: Counting of var combination completed.")
   }
 
