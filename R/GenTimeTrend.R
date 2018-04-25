@@ -19,7 +19,7 @@ library(ggplot2)
 library(reshape2)
 
 
-GenTimeTrend = function(idata = pilotdata, year_column = NULL, verbose = FALSE){
+GenTimeTrend = function(idata, year_column = NULL, verbose = FALSE){
 
   # Check if Year column exists -------
   if (!length(year_column)) {
