@@ -18,7 +18,6 @@ library(tidyverse)
 library(ggplot2)
 
 # # Inputs -------
-# ifile <- file.path(getwd(),"data-raw","pilotdata.csv")
 # data("pilotdata")
 # idata<-pilotdata
 # idxlonlat<- c(17,16)
