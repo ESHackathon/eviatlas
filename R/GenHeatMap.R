@@ -16,6 +16,13 @@
 #' GenHeatMap(mpg, colnames(mpg[c(1,4)]))
 #'
 GenHeatMap = function(idata, selcols, verbose = FALSE){
+  if(length(selcols)!=2) stop("Only two variables should be input.")
+
+  # Check which variable has the most unique entries. This is the x-axis.
+  len_var1 <- nrow(unique(idata[selcols[1]]))
+  len_var2 <- nrow(unique(idata[selcols[2]]))
+  if(len_var1 > len_var2) selcols <- selcols[c(2,1)]
+
   # Convert columns to factors to allow for categorical classification for both numeric and character data -------
   tmp <- as.data.frame(sapply(idata[selcols], function(x) as.factor(x)))
 
