@@ -11,10 +11,6 @@
 #'
 #' @author Sanita Dhaubanjar 24 April 2018
 #'
-#' @examples
-#' ## load the data sets
-#' GenHeatMap(mpg, colnames(mpg[c(1,4)]))
-#'
 GenHeatMap = function(idata, selcols, verbose = FALSE){
   if(length(selcols)!=2) stop("Only two variables should be input.")
 
@@ -34,6 +30,8 @@ GenHeatMap = function(idata, selcols, verbose = FALSE){
     message("GenHeatMap: Counting of var combination completed.")
   }
 
+
+
   # Plot Heatmap ------
   heatmp <- ggplot2::ggplot(seldata,
                             ggplot2::aes_string(x=seldata[,1], y=seldata[,2],
@@ -44,6 +42,11 @@ GenHeatMap = function(idata, selcols, verbose = FALSE){
           panel.background = ggplot2::element_blank()) +
     ggplot2::scale_fill_gradient(low = "white", high = "light blue",
                                  name = "No of studies")
+
+  if(length(unique(seldata[,1])) >=15)
+    heatmp <- heatmp + ggplot2::theme(ggplot2::axis.text.x = ggplot2::element_text(angle=45,
+                                                                                   hjust=.95))
+
 
   if(verbose) message("GenHeatMap: Heatmap created!")
 
