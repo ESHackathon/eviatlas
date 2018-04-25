@@ -2,21 +2,20 @@
 % Please edit documentation in R/GenHeatMap.R
 \name{GenHeatMap}
 \alias{GenHeatMap}
-\title{Simple R code to create heatmap from dataset
-Created For	  : ES Hackathon 2018}
+\title{Create heatmap from dataset}
 \usage{
 GenHeatMap(idata, selcols, verbose = FALSE)
 }
 \arguments{
 \item{idata}{Input data frame}
 
-\item{selcols}{List of strings with column names}
+\item{selcols}{Vector of strings with column names}
 }
 \value{
 Returns a heatmap object showing number of literature under different categories in user specified \code{selcols}
 }
 \description{
-Simple R code to create heatmap from dataset
+Feed in a dataset and get a heatmap in return
 Created For	  : ES Hackathon 2018
 }
 \examples{

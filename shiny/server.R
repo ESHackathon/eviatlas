@@ -10,26 +10,45 @@ library(shiny)
 shinyServer(
 
   function(input, output, session){
-  #customize data table output
-  data.explorer.table <- reactive({
-    pilotdata %>%
-      filter(Country %in% input$filter_table_countries)
-  })
 
-  output$filevalue <- renderPrint({
-    str(input$file)
-  })
+    #customize data table output
+  # data.explorer.table <- reactive({
+  #   pilotdata %>%
+  #     filter(Country %in% input$filter_table_countries)
+  # })
+  #
+  # output$filevalue <- renderPrint({
+  #   str(input$file)
+  # })
+  #
+  #   # show data using DataTable
+  # output$table <- renderDataTable({
+  #   DT::datatable(data.explorer.table(), rownames = c(data.explorer.table)) %>%
+  #     formatStyle(input$selected, background = "skyblue",
+  #                 fontWeight = 'bold')
+  # })
 
-  output$heat_x_axis <- renderPrint({ input$heat_select_x })
-  output$heat_y_axis <- renderPrint({ input$heat_select_y })
+
+    datasetInput <- eventReactive(input$pilotdata, {
+      switch(input$dataset,
+             colnames(pilotdata))
+    }, ignoreNULL = FALSE)
+
+    # Generate a summary of the dataset ----
+    output$summary <- renderPrint({
+      dataset <- datasetInput()
+      summary(dataset)
+    })
+
+    # Show the first "n" observations ----
+    # The use of isolate() is necessary because we don't want the table
+    # to update whenever input$obs changes (only when the user clicks
+    # the action button)
+    output$view <- renderTable({
+      head(datasetInput(), n = isolate(input$obs))
+    })
 
 
-    # show data using DataTable
-  output$table <- renderDataTable({
-    DT::datatable(data.explorer.table(), rownames = c(data.explorer.table)) %>%
-      formatStyle(input$selected, background = "skyblue",
-                  fontWeight = 'bold')
-  })
 
   # throwaway code for
   output$CLCLCL <- renderText(input$filter_table_countries)
@@ -61,17 +80,24 @@ shinyServer(
     c3
   })
 
-  output$plot4 <- renderPlot({
-    ggplot() +
-      geom_violin(aes()) +
-      ggtitle("EviAtlas Plot 4")
-  })
+
 
   output$heatmap <- renderPlot({
       GenHeatMap(heatmap_test, c(input$heat_select_x, input$heat_select_y))
     # heatmp
   })
 
+<<<<<<< Updated upstream
+=======
+  filteredData <- reactive({
+    full_zips
+  })
+
+
+  output$heat_x_axis <- renderPrint({ input$heat_select_x })
+  output$heat_y_axis <- renderPrint({ input$heat_select_y })
+
+>>>>>>> Stashed changes
 
   output$map <- renderLeaflet({
     leaflet() %>%

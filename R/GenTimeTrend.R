@@ -8,8 +8,9 @@
 #' @author Ezgi Tanriver-Ayder 24 April 2018
 #'
 #' @keywords SystematicReview,
-#' @export
+#' @export year_column="Year", verbose = FALSE){
 
+<<<<<<< Updated upstream
 library(dplyr)
 library(tidyr)
 library(tidyverse)
@@ -25,6 +26,10 @@ GenTimeTrend = function(idata, year_column = NULL, verbose = FALSE){
   }
 
   if (length(which(colnames(idata) == year_column))>0){
+=======
+  # Check if Year column exists ------
+  if(any(colnames(idata) %in% year_column))
+>>>>>>> Stashed changes
     message("GenTimeTrend: Year column found")
 
 
