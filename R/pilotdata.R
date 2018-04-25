@@ -5,4 +5,5 @@
 #' @format A dataframe.
 #' \describe{
 #'   \item{variables}{Todo}
+#'   }
 "pilotdata"

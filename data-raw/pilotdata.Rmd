@@ -15,7 +15,7 @@ library(tidyverse)
 ```
 
 ```{r}
-pilotdata <- read_csv("data-raw/pilotdata.csv")
+pilotdata <- read_csv("pilotdata.csv")
 
 # Fix up the names.
 
@@ -26,4 +26,5 @@ pilotdata <- pilotdata %>%
 devtools::use_data(pilotdata, overwrite = T)
 
 ```
+
 
