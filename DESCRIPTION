@@ -5,7 +5,7 @@ Authors@R: c(
     person("Charles", "Gray", email = "charlestigray@gmail.com", role = c("aut", "cre")),
     person("Sonia", "Mitchell", email = "soniamitchell@gmail.com", role = c("aut")))
 Description: A `leaflet`-integrated package that takes a dataset and generates a systematic map. 
-Depends: R (>= 3.4.2), leaflet, tidyverse
+Depends: R (>= 3.4.2), leaflet, tidyverse, reshape2, ggplot2
 License: What license is it under?
 Encoding: UTF-8
 LazyData: true
