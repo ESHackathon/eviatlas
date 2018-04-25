@@ -13,6 +13,6 @@ sys_map <- function(studies_data,
   studies_data %>%
     leaflet() %>%
     addTiles()  %>%
-    addMarkers(latitude = ~latitude,
-               longitude = ~longitude)
+    addMarkers(lat = ~latitude,
+               lng = ~longitude)
 }

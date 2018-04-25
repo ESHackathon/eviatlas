@@ -20,6 +20,7 @@ knitr::opts_chunk$set(
 # Load packages.
 library(tidyverse)
 library(eviatlas)
+library(leaflet) # remove when we get leaflet in as a dependencies.
 
 ```
 
@@ -28,13 +29,18 @@ To show how the `sys_map` function in `eviatlas` works, we'll use the dataset `p
 
 ```{r sys_map example}
 pilotdata %>% 
-  sys_map(studies_data = .,
-          latitude = latplot,
-          longitude = lngplot)
-
+      leaflet() %>%
+    addTiles()  %>%
+    addMarkers(lat = ~latplot,
+               lng =  ~lngplot)
 
 ```
 
+## Okay now how to use the function
+
+```{r}
+
+```
 
 
 
