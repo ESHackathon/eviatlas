@@ -38,14 +38,13 @@ GenHeatMap = function(idata, selcols, verbose = FALSE){
                                                 fill=seldata[,3])) +
     ggplot2::geom_raster(alpha=0.9) +
     ggplot2::geom_text(ggplot2::aes_string(label = colnames(seldata[3]))) +
-    theme(axis.line = ggplot2::element_line(colour = "black"),
+    ggplot2::theme(axis.line = ggplot2::element_line(colour = "black"),
           panel.background = ggplot2::element_blank()) +
     ggplot2::scale_fill_gradient(low = "white", high = "light blue",
                                  name = "No of studies")
 
   if(length(unique(seldata[,1])) >=15)
-    heatmp <- heatmp + ggplot2::theme(ggplot2::axis.text.x = ggplot2::element_text(angle=45,
-                                                                                   hjust=.95))
+    heatmp <- heatmp + ggplot2::theme(axis.text.x = ggplot2::element_text(angle=45, hjust=.95))
 
 
   if(verbose) message("GenHeatMap: Heatmap created!")
