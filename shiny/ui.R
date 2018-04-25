@@ -5,7 +5,7 @@ library(ggvis)
 
 
   sidebar <- dashboardSidebar(
-    
+
       sidebarUserPanel("", image = "http://www.pd4pic.com/images/building-flat-cartoon-trees-windows-doors-tall.png"),
       sidebarMenu(
         menuItem("About EviAtlas", tabName = "about", icon = icon("question")),
@@ -30,11 +30,11 @@ library(ggvis)
                     )
       )
       )
-  
+
   body <- dashboardBody(
       tabItems(
         tabItem(tabName = "home",
-                fluidRow(box(width = 15, 
+                fluidRow(box(width = 15,
                              home))),
         tabItem(tabName = "data",
                 # fluidRow(box(p(uiOutput("CLCLCL")))),
@@ -47,18 +47,18 @@ library(ggvis)
                           tabBox(width=8)),
                     column(width = 10,
                       wellPanel(dataTableOutput("table"))))),
-        
+
         tabItem(tabName = "heatmap",
-                fluidRow(box(selectInput("heat_select_x", label = h3("Select box"), 
-                                          choices = colnames(pilotdata), 
+                fluidRow(box(selectInput("heat_select_x", label = h3("Select box"),
+                                          choices = colnames(pilotdata),
                                           selected = colnames(pilotdata)[1]),
                               fluidRow(column(3, verbatimTextOutput("heat_x_axis")))),
-                fluidRow(box(selectInput("heat_select_y", label = h3("Select box"), 
-                                         choices = colnames(pilotdata), 
+                fluidRow(box(selectInput("heat_select_y", label = h3("Select box"),
+                                         choices = colnames(pilotdata),
                                          selected = colnames(pilotdata)[2]),
                              fluidRow(column(3, verbatimTextOutput("heat_y_axis")))))),
                 wellPanel(plotOutput("heatmap"))),
-        
+
         tabItem(tabName = "about",
                 fluidRow(fileInput("file", label = h3("File input: Upload CSV File"))),
                 hr(),
@@ -72,12 +72,12 @@ library(ggvis)
                          h4('We will consider publication of updates of existing systematic maps, typically from three years since the original search, but earlier if the development of the evidence base justifies the update.'),
                          br(),
                          h4('Length up to 20000 words.'))),
-        
+
         tabItem(tabName = "city",
                 fluidRow(height = "20%",
                   box(width = 9)),
                 fluidRow(height = "40%",
-                         box(width = 6, 
+                         box(width = 6,
                              plotOutput("plot1")),
                          box(width = 6,
                              plotOutput("plot2"))),
@@ -88,7 +88,7 @@ library(ggvis)
                              plotOutput("plot4")))
                 )
         ))
-  
+
   shinyUI(
     dashboardPage(
       dashboardHeader(title = "EviAtlas"),
