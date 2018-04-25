@@ -11,8 +11,7 @@
 #=========================
 
 coords2country_continent = function(ilonlat)
-{
-  library(rworldxtra)
+{ library(rworldxtra)
   library(rworldmap)
 
   countriesSP <- getMap(resolution='high') #you could use high res map from rworldxtra if you were concerned about detail
