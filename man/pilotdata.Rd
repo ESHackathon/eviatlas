@@ -4,7 +4,10 @@
 \name{pilotdata}
 \alias{pilotdata}
 \title{Development dataset}
-\format{An object of class \code{tbl_df} (inherits from \code{tbl}, \code{data.frame}) with 812 rows and 33 columns.}
+\format{A dataframe.
+\describe{
+  \item{variables}{Todo}
+  }}
 \usage{
 pilotdata
 }

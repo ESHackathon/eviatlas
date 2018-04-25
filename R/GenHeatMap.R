@@ -1,6 +1,8 @@
-#------------------------------------
-#' Simple R code to create heatmap from dataset
+#' Create heatmap from dataset
+#'
+#' Feed in a dataset and get a heatmap in return
 #' Created For	  : ES Hackathon 2018
+#'
 #' @param idata Input data frame
 #' @param selcols Vector of strings with column names
 #' @return Returns a heatmap object showing number of literature under different categories in user specified \code{selcols}

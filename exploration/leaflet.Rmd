@@ -11,38 +11,108 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ```{r packages}
 library(tidyverse)
-library(leaflet)
-library(ggmap)
 library(eviatlas)
+library(htmltools)
+library(leaflet)
+
+# qpal - for colour conversion
 
 ```
 
 
 ```{r}
-# For some reason, I'm having issues with readr, so I'll munge the data here - for now.
-
-lat <- pilotdata$`Plotted lat.`
-lng <- pilotdata$`Plotted long.`
-
-```
-
-
-## Objective 
-
-As a starting point, create a map that plots the points on a leaflet map and sizes the points by $n$. 
-
-## Get points on a map
-
-```{r Plot dd}
+# Okay, so this works.
 
 pilotdata %>% 
   leaflet() %>% 
-  addTiles() %>% 
-  addMarkers(lng = lng,
-             lat = lat)
+  addTiles()  %>% 
+  addMarkers(lng = ~lngplot,
+             lat = ~latplot)
+
+```
+
+## Add tooltips
+
+```{r popups one label}
+# Works with Year but doesn't work with Citation. Why?
+
+pilotdata %>% 
+  leaflet() %>% 
+  addTiles()  %>%  
+  addMarkers(lng = ~lngplot,
+             lat = ~latplot,
+             popup = ~paste(Year))  
 
 
 ```
 
+```{r popups more than one label}
+
+# This works.
+pilotdata %>% 
+  leaflet() %>% 
+  addTiles()  %>%  
+  addMarkers(lng = ~lngplot,
+             lat = ~latplot,
+             popup = ~paste(Year, "test"))  
+
+  
+
+```
+
+```{r}
+pilotdata %>% 
+  leaflet() %>% 
+  addTiles()  %>%  
+  addMarkers(lng = ~lngplot,
+             lat = ~latplot,
+             popup = ~paste(Year, "test", Year))  
+
+
+
+```
+
+```{r}
+
+pilotdata %>% 
+  leaflet() %>% 
+  addTiles()  %>%  
+  addMarkers(lng = ~lngplot,
+             lat = ~latplot,
+             popup = ~paste(Year, "test", pilotdata %>% 
+  leaflet() %>% 
+  addTiles()  %>%  
+  addMarkers(lng = ~lngplot,
+             lat = ~latplot,
+             popup = ~paste(Year, "test", Country))  ))  
+
+```
+
+```{r}
+pilotdata %>% 
+  head() %>% 
+  mutate(test = paste(Year, Country)) %>% select(test, Year, Country) 
+
+pilotdata %>% 
+  head() %>% 
+  mutate(test = paste(Year, Citation, Country)) %>% 
+  leaflet() %>% 
+  addTiles()  %>%  
+  addMarkers(lng = ~lngplot,
+             lat = ~latplot,
+            popup = ~htmlEscape(test))
+
+
+```
+
+```{r}
+pilotdata %>%
+  mutate(test = paste(Year, Country, Citation)) %>% 
+  leaflet() %>% 
+  addTiles()  %>%  
+  addMarkers(lng = ~lngplot,
+             lat = ~latplot,
+             popup = ~htmlEscape(test))
+```
 
 
