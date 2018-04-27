@@ -10,12 +10,15 @@
 #'
 #' @keywords SystematicReview,
 #' @export
-#'
+
 GenTimeTrend = function(idata, year_column = NULL, verbose = FALSE){
 
   # Check if Year column exists ------
-  if(any(colnames(idata) %in% year_column)) {
+  if(any(colnames(idata) %in% year_column) && verbose) {
     message("GenTimeTrend: Year column found")
+  } else {
+    message("GenTimeTrend: Year not found")
+  }
 
   tmp <- as.data.frame(sapply(idata[year_column], function(x) as.factor(x)))
 
@@ -37,12 +40,9 @@ GenTimeTrend = function(idata, year_column = NULL, verbose = FALSE){
                      panel.background = ggplot2::element_blank(),
                      plot.title = ggplot2::element_text(hjust = .5))
 
-    if(verbose) message("GenTimeTrend: Time trend plot created!")
-
-
-  } else {
-    message("GenTimeTrend: Year not found")
-  } # if col exists
+    if(verbose) {
+      message("GenTimeTrend: Time trend plot created!")
+    } # if col exists
 
   timemp
 }

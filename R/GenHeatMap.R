@@ -10,7 +10,8 @@
 #' @return Returns a heatmap object showing number of literature under different categories in user specified \code{selcols}
 #'
 #' @author Sanita Dhaubanjar 24 April 2018
-#'
+#' @export
+
 GenHeatMap = function(idata, selcols, verbose = FALSE){
   if(length(selcols)!=2) stop("Only two variables should be input.")
 

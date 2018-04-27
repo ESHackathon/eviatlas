@@ -10,7 +10,7 @@
 sys_map <- function(studies_data,
                     latitude,
                     longitude) {
-   tmp <- leaflet::leaflet(studies_data)
-   tmp <- leaflet::addTiles(tmp)
-   tmp <- leaflet::addMarkers(tmp, lat = ~latitude, lng = ~longitude)
+   leaflet::leaflet(studies_data) %>%
+   leaflet::addTiles(tmp) %>%
+   leaflet::addMarkers(tmp, lat = ~as.numeric(latitude), lng = ~as.numeric(longitude))
 }
