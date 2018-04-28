@@ -1,15 +1,15 @@
 ## global.R ##
 library(dplyr)
+library(devtools)
 library(leaflet)
 
 #load sample data set
 pilotdata <- read.csv("https://raw.githubusercontent.com/ESHackathon/eviatlas/master/data-raw/pilotdata.csv")
 
-heatmap_test <- read.csv("https://github.com/ESHackathon/eviatlas/blob/master/R/GenHeatMap.R")
-
 # functions load from github (hack)
-source("https://raw.githubusercontent.com/ESHackathon/eviatlas/master/R/GenHeatMap.R")
-source("https://raw.githubusercontent.com/ESHackathon/eviatlas/master/R/GenTimeTrend.R")
+# source("https://raw.githubusercontent.com/ESHackathon/eviatlas/master/R/GenHeatMap.R")
+# source("https://raw.githubusercontent.com/ESHackathon/eviatlas/master/R/GenTimeTrend.R")
+# source("https://raw.githubusercontent.com/ESHackathon/eviatlas/master/R/sys_map.R")
 
 
 ## Eventually load packages from here!
@@ -33,5 +33,3 @@ source("https://raw.githubusercontent.com/ESHackathon/eviatlas/master/R/GenTimeT
 # }
 #
 # check.packages('ESHackathon/eviatlas', install_dev_version = TRUE)
-#
-# library(eviatlas)

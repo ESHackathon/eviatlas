@@ -1,32 +1,31 @@
 ## server.R ##
 
-library(dplyr)
-library(ggplot2)
+library(tidyverse)
 library(DT)
 library(leaflet)
-library(shinydashboard)
 library(shiny)
+library(shinydashboard)
 
 shinyServer(
 
   function(input, output, session){
 
     #customize data table output
-  # data.explorer.table <- reactive({
-  #   pilotdata %>%
-  #     filter(Country %in% input$filter_table_countries)
-  # })
-  #
-  # output$filevalue <- renderPrint({
-  #   str(input$file)
-  # })
-  #
-  #   # show data using DataTable
-  # output$table <- renderDataTable({
-  #   DT::datatable(data.explorer.table(), rownames = c(data.explorer.table)) %>%
-  #     formatStyle(input$selected, background = "skyblue",
-  #                 fontWeight = 'bold')
-  # })
+  data.explorer.table <- reactive({
+    pilotdata %>%
+      filter(Country %in% input$filter_table_countries)
+  })
+
+  output$filevalue <- renderPrint({
+    str(input$file)
+  })
+
+    # show data using DataTable
+  output$table <- renderDataTable({
+    DT::datatable(data.explorer.table(), rownames = c(data.explorer.table)) %>%
+      formatStyle(input$selected, background = "skyblue",
+                  fontWeight = 'bold')
+  })
 
 
     datasetInput <- eventReactive(input$pilotdata, {
@@ -80,29 +79,16 @@ shinyServer(
     c3
   })
 
-
-
   output$heatmap <- renderPlot({
-      GenHeatMap(heatmap_test, c(input$heat_select_x, input$heat_select_y))
+      GenHeatMap(pilotdata, c(input$heat_select_x, input$heat_select_y))
     # heatmp
   })
-
-<<<<<<< Updated upstream
-=======
-  filteredData <- reactive({
-    full_zips
-  })
-
 
   output$heat_x_axis <- renderPrint({ input$heat_select_x })
   output$heat_y_axis <- renderPrint({ input$heat_select_y })
 
->>>>>>> Stashed changes
-
   output$map <- renderLeaflet({
-    leaflet() %>%
-      addTiles() %>%
-      setView(18.0955533, 59.3338257, zoom = 3)
+    sys_map(pilotdata, pilotdata$Plotted.lat., pilotdata$Plotted.long.)
   })
 
   observe({
