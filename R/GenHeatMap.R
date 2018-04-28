@@ -32,7 +32,6 @@ GenHeatMap = function(idata, selcols, verbose = FALSE){
   }
 
 
-
   # Plot Heatmap ------
   heatmp <- ggplot2::ggplot(seldata,
                             ggplot2::aes_string(x=seldata[,1], y=seldata[,2],
@@ -42,7 +41,11 @@ GenHeatMap = function(idata, selcols, verbose = FALSE){
     ggplot2::theme(axis.line = ggplot2::element_line(colour = "black"),
           panel.background = ggplot2::element_blank()) +
     ggplot2::scale_fill_gradient(low = "white", high = "light blue",
-                                 name = "No of studies")
+                                 name = "No of studies") +
+    ggplot2::xlab(paste0(selcols[1])) +
+    ggplot2::ylab(paste0(selcols[2])) +
+    ggplot2::ggtitle("Study Heatmap", subtitle = paste(selcols[2], "by", selcols[1]))
+
 
   if(length(unique(seldata[,1])) >=15)
     heatmp <- heatmp + ggplot2::theme(axis.text.x = ggplot2::element_text(angle=45, hjust=.95))

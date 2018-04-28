@@ -7,10 +7,8 @@
 #' @param longitude Specify which column contains the latitude in the `studies_data` dataframe.
 #' @export
 
-sys_map <- function(studies_data,
-                    latitude,
-                    longitude) {
+sys_map <- function(studies_data, latitude, longitude) {
    leaflet::leaflet(studies_data) %>%
-   leaflet::addTiles(tmp) %>%
-   leaflet::addMarkers(tmp, lat = ~as.numeric(latitude), lng = ~as.numeric(longitude))
+   leaflet::addTiles() %>%
+   leaflet::addMarkers(lat = ~as.numeric(latitude), lng = ~as.numeric(longitude))
 }
