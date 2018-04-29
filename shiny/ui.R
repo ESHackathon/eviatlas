@@ -14,8 +14,7 @@ library(leaflet)
         menuItem("View Data", tabName = "data", icon = icon("database")),
         menuItem("Bar Plots", tabName = "insightplots", icon = icon("home")),
         menuItem("Study Map", tabName = "home", icon = icon("map")),
-        menuItem("Heatmap", tabName = "heatmap", icon = icon("fire")),
-        menuItem("View Uploaded Data", tabName = "updata", icon = icon("database"))
+        menuItem("Heatmap", tabName = "heatmap", icon = icon("fire"))
         )
     )
 
@@ -24,49 +23,32 @@ library(leaflet)
       tags$title('EviAtlas')
     ),
     tags$body(
-      absolutePanel(id = "controls", class = "panel panel-default", fixed = TRUE,
-                    draggable = TRUE, top = 100, right = 25, bottom = "auto", left = "auto",
-                    width = 250, height = "auto", cursor = "auto",
-                    h3(strong('EviAtlas')),
-                    p('Welcome to EviAtlas! See where studies have taken place.')),
-
-      leafletOutput("map", width = "100%", height = "750")
+      leafletOutput("map")
       )
     )
-
-
-  # fluidRow(
-  #   column(width = 2,
-  #          tabBox(width = NULL,
-  #                 tabPanel(h5("Filter"),
-  #                          checkboxGroupInput('filter_table_countries', 'Countries to Display:',
-  #                                             levels(pilotdata$Country), selected = levels(pilotdata$Country)))),
-  #          tabBox(width=8)),
-  #   column(width = 10,
-  #          fluidRow(dataTableOutput("table"))))
 
   body <- dashboardBody(
       tabItems(
 
         tabItem(tabName = "about",
-                fluidRow(fileInput("sysmapdata_upload", label = h3("File input: Upload CSV File"), width = '50%',
+                fluidRow(column(8, fileInput("sysmapdata_upload", label = h3("File input: Upload CSV File"),
                          accept = c("text/csv", "text/comma-separated-values,text/plain", ".csv"),
-                         placeholder = "Systematic Map Data"),
-                         radioButtons("upload_encoding", label = h3("File Encoding"),
+                         placeholder = "Systematic Map Data")),
+                         column(2, radioButtons("upload_encoding", label = h4("File Encoding"),
                                       choices = list("utf-8", "latin1"),
-                                      selected = "utf-8")
+                                      selected = "utf-8"))
                          ),
                 hr(),
-                fluidRow(column(4, dataTableOutput("uploaded_preview"))),
+                fluidRow(column(4, h4('Preview of uploaded data:'), dataTableOutput("uploaded_preview"))),
                 fluidRow(height = '100%',
                          h1('Systematic Map Criteria'),
-                         h4('Systematic Maps are overviews of the quantity and quality of evidence in relation to a broad (open) question of policy or management relevance. The process and rigour of the mapping exercise is the same as for systematic review except that no evidence synthesis is attempted to seek an answer to the question. A critical appraisal of the quality of the evidence is strongly encouraged but may be limited to a subset or sample of papers when the quantity of articles is very large (and even be absent in exceptional circumstances). Authors should note that all systematic maps published in Environmental Evidence will have been conducted according to the CEE process. Please contact the Editors at an early stage of planning your review. More guidance can be found here.'),
+                         p('Systematic Maps are overviews of the quantity and quality of evidence in relation to a broad (open) question of policy or management relevance. The process and rigour of the mapping exercise is the same as for systematic review except that no evidence synthesis is attempted to seek an answer to the question. A critical appraisal of the quality of the evidence is strongly encouraged but may be limited to a subset or sample of papers when the quantity of articles is very large (and even be absent in exceptional circumstances). Authors should note that all systematic maps published in Environmental Evidence will have been conducted according to the CEE process. Please contact the Editors at an early stage of planning your review. More guidance can be found here.'),
                          br(),
-                         h4('For systematic maps to be relevant to policy and practice they need to be as up-to-date as possible. Consequently, at the time of acceptance for publication, the search must be less than two years old. We therefore recommend that systematic maps should be submitted no later than 18 months after the search was conducted.'),
+                         p('For systematic maps to be relevant to policy and practice they need to be as up-to-date as possible. Consequently, at the time of acceptance for publication, the search must be less than two years old. We therefore recommend that systematic maps should be submitted no later than 18 months after the search was conducted.'),
                          br(),
-                         h4('We will consider publication of updates of existing systematic maps, typically from three years since the original search, but earlier if the development of the evidence base justifies the update.'),
+                         p('We will consider publication of updates of existing systematic maps, typically from three years since the original search, but earlier if the development of the evidence base justifies the update.'),
                          br(),
-                         h4('Length up to 20000 words.'))),
+                         p('Length up to 20000 words.'))),
 
         tabItem(tabName = "home",
                 fluidRow(box(selectInput("map_popup_select", label = h3("Select Popup"),
@@ -79,15 +61,13 @@ library(leaflet)
                 fluidRow(
                     column(width = 2,
                            tabBox(width = NULL,
-                                  tabPanel(h5("Filter"),
-                                   checkboxGroupInput('filter_table_countries', 'Countries to Display:',
-                                                      levels(pilotdata$Country), selected = levels(pilotdata$Country)))),
+                                  tabPanel(h5("Filter")
+                                   # checkboxGroupInput('filter_table_countries', 'Countries to Display:',
+                                                      # levels(pilotdata$Country), selected = levels(pilotdata$Country))
+                                   )),
                           tabBox(width=8)),
                     column(width = 10,
-                      wellPanel(dataTableOutput("table"))))),
-        tabItem(tabName = "updata",
-                fluidRow(
-                        verbatimTextOutput("summary"))),
+                      wellPanel(dataTableOutput("uploaded_file"))))),
                 # titlePanel("Dataset"),
                 #
                 #   # Sidebar layout with input and output definitions ----
