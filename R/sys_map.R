@@ -15,5 +15,6 @@ sys_map <- function(studies_data, latitude, longitude, popup_user=NULL) {
     leaflet::addTiles() %>%
     leaflet::addMarkers(lat = ~as.numeric(latitude),
                         lng = ~as.numeric(longitude),
-                        popup = ~paste(popups))
+                        popup = ~paste(popups),
+                        clusterOptions = markerClusterOptions())
 }
