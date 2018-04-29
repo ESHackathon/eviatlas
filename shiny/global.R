@@ -4,12 +4,13 @@ library(devtools)
 library(leaflet)
 
 #load sample data set
-pilotdata <- read.csv("https://raw.githubusercontent.com/ESHackathon/eviatlas/master/data-raw/pilotdata.csv")
+pilotdata <- read.csv("https://raw.githubusercontent.com/ESHackathon/eviatlas/master/data-raw/pilotdata.csv", encoding = "latin1")
 
 # functions load from github (hack)
-# source("https://raw.githubusercontent.com/ESHackathon/eviatlas/master/R/GenHeatMap.R")
-# source("https://raw.githubusercontent.com/ESHackathon/eviatlas/master/R/GenTimeTrend.R")
-# source("https://raw.githubusercontent.com/ESHackathon/eviatlas/master/R/sys_map.R")
+source("https://raw.githubusercontent.com/ESHackathon/eviatlas/master/R/GenHeatMap.R")
+source("https://raw.githubusercontent.com/ESHackathon/eviatlas/master/R/GenTimeTrend.R")
+source("https://raw.githubusercontent.com/ESHackathon/eviatlas/master/R/GenLocationTrend.R")
+source("https://raw.githubusercontent.com/ESHackathon/eviatlas/master/R/sys_map.R")
 
 
 ## Eventually load packages from here!
