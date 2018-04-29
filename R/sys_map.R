@@ -17,4 +17,3 @@ sys_map <- function(studies_data, latitude, longitude, popup_user=NULL) {
                         lng = ~as.numeric(longitude),
                         popup = ~paste(popups))
 }
-
