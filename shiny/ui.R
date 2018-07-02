@@ -8,7 +8,7 @@ library(leaflet)
 
   sidebar <- dashboardSidebar(
 
-      sidebarUserPanel("EviAtlas Nav"),
+      # sidebarUserPanel("EviAtlas Nav"),
       sidebarMenu(
         menuItem("About EviAtlas", tabName = "about", icon = icon("question")),
         menuItem("View Data", tabName = "data", icon = icon("database")),
@@ -24,8 +24,8 @@ library(leaflet)
     ),
     tags$body(
       leafletOutput("map")
-      )
     )
+  )
 
   body <- dashboardBody(
       tabItems(
@@ -59,15 +59,27 @@ library(leaflet)
 
         tabItem(tabName = "data",
                 fluidRow(
-                    column(width = 2,
+                    column(width = 12,
                            tabBox(width = NULL,
-                                  tabPanel(h5("Filter")
+                                  tabPanel(
+                                    h5("Filter"),
+                                    selectInput(
+                                      "selected_variable",
+                                      label = "Filter by:",
+                                      choices = c("none", colnames(pilotdata)),
+                                      selected = "none"
+                                    ),
+                                    uiOutput("value_selector"),
+                                    uiOutput("go_button")
                                    # checkboxGroupInput('filter_table_countries', 'Countries to Display:',
                                                       # levels(pilotdata$Country), selected = levels(pilotdata$Country))
-                                   )),
-                          tabBox(width=8)),
-                    column(width = 10,
-                      wellPanel(dataTableOutput("uploaded_file"))))),
+                                   )) #,
+                          # tabBox(width=6)
+                        ),
+                    column(width = 12,
+                      wellPanel(
+                        dataTableOutput("filtered_table")
+                      )))),
                 # titlePanel("Dataset"),
                 #
                 #   # Sidebar layout with input and output definitions ----
