@@ -43,7 +43,8 @@ GenTimeTrend = function(idata, year_column = NULL, verbose = FALSE){
       ggplot2::theme_bw() +
       ggplot2::theme(axis.line = ggplot2::element_line(colour = "black"),
                      panel.background = ggplot2::element_blank(),
-                     plot.title = ggplot2::element_text(hjust = .5))
+                     plot.title = ggplot2::element_text(hjust = .5),
+                     text = ggplot2::element_text(size=14))
 
     if(verbose) {
       message("GenTimeTrend: Time trend plot created!")

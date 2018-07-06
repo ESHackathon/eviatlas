@@ -33,7 +33,10 @@ GenLocationTrend = function(idata,idxlonlat, selcolidx, verbose = FALSE){
     #geom_text(aes( label = colnames(seldata[2]))) + #fill = colnames(seldata[3]),
     labs(y="No of studies")+ ggtitle("Distribution of studies over regions")+
     theme_bw()+
-    theme(axis.line = element_line(colour = "black"),panel.background = element_blank(), plot.title = element_text(hjust = .5))
+    theme(axis.line = element_line(colour = "black"),
+          panel.background = element_blank(), 
+          plot.title = element_text(hjust = .5),
+          text = ggplot2::element_text(size=14))
 
   # Rotate xaxis label if too many
   if (nrow(seldata)>15){
