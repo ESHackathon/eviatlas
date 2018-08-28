@@ -4,16 +4,14 @@
 \alias{GenTimeTrend}
 \title{Create GenTimeTrend from dataset}
 \usage{
-GenTimeTrend(idata = pilotdata, year_column = NULL, verbose = FALSE)
+GenTimeTrend(idata, year_column = NULL, verbose = FALSE)
 }
 \arguments{
 \item{idata}{Input data frame}
 
 \item{year_column}{List of strings with column names}
 
-\item{df}{A dataframe}
-
-\item{year_column}{a vector of columns to use}
+\item{verbose}{Realtime commenting}
 }
 \value{
 Returns a timetrend object showing number of literature under different categories in user specified \code{year_column}

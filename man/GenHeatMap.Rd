@@ -7,9 +7,11 @@
 GenHeatMap(idata, selcols, verbose = FALSE)
 }
 \arguments{
-\item{idata}{Input data frame}
+\item{idata}{Input dataframe}
 
-\item{selcols}{Vector of strings with column names}
+\item{selcols}{Numeric vector of column indices}
+
+\item{verbose}{Comments}
 }
 \value{
 Returns a heatmap object showing number of literature under different categories in user specified \code{selcols}
@@ -17,11 +19,6 @@ Returns a heatmap object showing number of literature under different categories
 \description{
 Feed in a dataset and get a heatmap in return
 Created For	  : ES Hackathon 2018
-}
-\examples{
-## load the data sets
-GenHeatMap(mpg, colnames(mpg[c(1,4)]))
-
 }
 \author{
 Sanita Dhaubanjar 24 April 2018
