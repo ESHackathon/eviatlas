@@ -13,7 +13,7 @@
 #' @export
 
 GenHeatMap = function(idata, selcols, verbose = FALSE){
-  if(length(selcols)!=2) stop("Only two variables should be input.")
+  if(length(selcols)!=2) stop("Only two variables should be input. Your second argument should be a vector of two column names.")
 
   # Check which variable has the most unique entries. This is the x-axis.
   len_var1 <- nrow(unique(idata[selcols[1]]))
@@ -22,6 +22,8 @@ GenHeatMap = function(idata, selcols, verbose = FALSE){
 
   # Convert columns to factors to allow for categorical classification for both numeric and character data -------
   tmp <- as.data.frame(sapply(idata[selcols], function(x) as.factor(x)))
+
+
 
   # Count combination of vars --------
   seldata <- table(tmp)
@@ -57,3 +59,6 @@ GenHeatMap = function(idata, selcols, verbose = FALSE){
   heatmp
 }
 
+
+
+cut(pilotdata$Year, 5, labels=F)
