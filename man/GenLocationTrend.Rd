@@ -2,8 +2,7 @@
 % Please edit documentation in R/GenLocationTrend.R
 \name{GenLocationTrend}
 \alias{GenLocationTrend}
-\title{Simple R code to create bar plot with distribution of studies over the region from lat/long info
-Created For	  : ES Hackathon 2018}
+\title{Simple R code to create bar plot with distribution of studies over the region from lat/long info}
 \usage{
 GenLocationTrend(idata, idxlonlat, selcolidx, verbose = FALSE)
 }
@@ -20,12 +19,9 @@ GenLocationTrend(idata, idxlonlat, selcolidx, verbose = FALSE)
 Returns a bar plot object showing number of literature in different locations
 }
 \description{
-Simple R code to create bar plot with distribution of studies over the region from lat/long info
 Created For	  : ES Hackathon 2018
-}
-\examples{
-
 }
 \author{
 Sanita Dhaubanjar
 }
+\keyword{SystematicReview}
