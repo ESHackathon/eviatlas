@@ -10,24 +10,36 @@ shinyServer(
 
   function(input, output, session){
 
-    output$uploaded_file <- renderDataTable({
-      file_in <- input$sysmapdata_upload
+    # server logic to read user uploaded file ----
+    output$user_data <- renderDataTable({
+      # input$sysmapdata_upload will be NULL initially. After the user selects
+      # and uploads a file, head of that data file by default,
+      # or all rows if selected, will be shown.
 
-      if (is.null(file_in)) {
-        return(NULL)
+      if(input$sample_or_real == 'sample') {
+        eviatlas::pilotdata
+      } else {
+        req(input$sysmapdata_upload)
+
+        # when reading semicolon separated files,
+        # having a comma separator causes `read.csv` to error
+
+        tryCatch(
+          {
+            df <- read.csv(input$sysmapdata_upload$datapath,
+                           header = input$header,
+                           sep = input$sep,
+                           quote = input$quote,
+                           fileEncoding = input$upload_encoding)
+          },
+          error = function(e) {
+            # return a safeError if a parsing error occurs
+            stop(safeError(e))
+          }
+        )
       }
-      read.csv(file_in$datapath, fileEncoding = input$upload_encoding)
     })
 
-    output$uploaded_preview <- renderDataTable({
-      file_in <- input$sysmapdata_upload
-
-      if (is.null(file_in$datapath)) {
-        return(NULL)
-      }
-
-      head(read.csv(file_in$datapath, fileEncoding = input$upload_encoding))
-    })
 
 
     #customize data table output
@@ -107,23 +119,23 @@ shinyServer(
     })
 
     output$plot1 <- renderPlot({
-      GenTimeTrend(pilotdata)
+      eviatlas::GenTimeTrend(pilotdata)
     })
 
     output$plot2 <- renderPlot({
-      c2 <- GenLocationTrend(pilotdata, c(17,16),10)
+      c2 <- eviatlas::GenLocationTrend(pilotdata, c(17,16),10)
       c2
     })
 
     output$heatmap <- renderPlot({
-      GenHeatMap(pilotdata, c(input$heat_select_x, input$heat_select_y))
+      eviatlas::GenHeatMap(pilotdata, c(input$heat_select_x, input$heat_select_y))
     })
 
     output$heat_x_axis <- renderPrint({ input$heat_select_x })
     output$heat_y_axis <- renderPrint({ input$heat_select_y })
 
     output$map <- renderLeaflet({
-      sys_map(pilotdata, pilotdata$Plotted.lat., pilotdata$Plotted.long., popup_user = input$map_popup_select)
+      sys_map(pilotdata, pilotdata$latplot, pilotdata$lngplot, popup_user = input$map_popup_select)
     })
 
     observe({
