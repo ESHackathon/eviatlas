@@ -32,3 +32,9 @@ This is a basic example which shows you how to solve a common problem:
 ```{r example}
 ## basic example code
 ```
+
+## [Stages of development](https://docs.google.com/spreadsheets/d/1FnHS7NotV4ZrtnLNm4LkAfz6YdL9gnItgvqaTg85kdM/edit#gid=0)
+
+
+
+

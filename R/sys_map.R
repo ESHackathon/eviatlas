@@ -25,6 +25,4 @@ sys_map <- function(studies_data, latitude, longitude, popup_user=NULL, radius_u
                         # color = ~paste(colorby)
                         # clusterOptions = markerClusterOptions()
                         )
-
-
 }

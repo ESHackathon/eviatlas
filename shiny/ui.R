@@ -29,26 +29,78 @@ library(leaflet)
 
   body <- dashboardBody(
       tabItems(
-
         tabItem(tabName = "about",
-                fluidRow(column(8, fileInput("sysmapdata_upload", label = h3("File input: Upload CSV File"),
-                         accept = c("text/csv", "text/comma-separated-values,text/plain", ".csv"),
-                         placeholder = "Systematic Map Data")),
-                         column(2, radioButtons("upload_encoding", label = h4("File Encoding"),
-                                      choices = list("utf-8", "latin1"),
-                                      selected = "utf-8"))
-                         ),
+                mainPanel(
+                  h4('Preview of uploaded data:'),
+                  dataTableOutput("user_data")),
+
+                #Sidebar panel for inputs
+                sidebarPanel(
+                  radioButtons(
+                    "sample_or_real",
+                    label = h4("Which Data to Use?"),
+                    choices = list("Sample Data" = 'sample',
+                                   "Upload User Data" = 'user'),
+                    selected = "user"
+                  ),
+
+                  conditionalPanel(
+                    condition = "input.sample_or_real == 'user'",
+
+                    # Input: Select a file ----
+
+                    fileInput(
+                      "sysmapdata_upload",
+                      label = "Choose CSV File",
+                      multiple = FALSE,
+                      accept = c("text/csv",
+                                 "text/comma-separated-values,text/plain",
+                                 ".csv"),
+                      placeholder = "Systematic Map Data"
+                    ),
+
+                    radioButtons(
+                      "upload_encoding",
+                      label = h4("Select File Encoding"),
+                      choices = list("utf-8", "latin1"),
+                      selected = "utf-8"
+                    ),
+
+                    # Input: Checkbox if file has header ----
+                    checkboxInput("header", "Check if file has header", TRUE),
+
+                    # Input: Select separator ----
+                    radioButtons(
+                      "sep",
+                      "Separator",
+                      choices = c(
+                        Comma = ",",
+                        Semicolon = ";",
+                        Tab = "\t"
+                      ),
+                      selected = ","
+                    ),
+
+                    # Input: Select quotes ----
+                    radioButtons(
+                      "quote",
+                      "Quote",
+                      choices = c(
+                        None = "",
+                        "Double Quote" = '"',
+                        "Single Quote" = "'"
+                      ),
+                      selected = '"'
+                    )
+                  )
+                ),
                 hr(),
-                fluidRow(column(4, h4('Preview of uploaded data:'), dataTableOutput("uploaded_preview"))),
                 fluidRow(height = '100%',
-                         h1('Systematic Map Criteria'),
+                         h2('About Systematic Maps'),
                          p('Systematic Maps are overviews of the quantity and quality of evidence in relation to a broad (open) question of policy or management relevance. The process and rigour of the mapping exercise is the same as for systematic review except that no evidence synthesis is attempted to seek an answer to the question. A critical appraisal of the quality of the evidence is strongly encouraged but may be limited to a subset or sample of papers when the quantity of articles is very large (and even be absent in exceptional circumstances). Authors should note that all systematic maps published in Environmental Evidence will have been conducted according to the CEE process. Please contact the Editors at an early stage of planning your review. More guidance can be found here.'),
                          br(),
-                         p('For systematic maps to be relevant to policy and practice they need to be as up-to-date as possible. Consequently, at the time of acceptance for publication, the search must be less than two years old. We therefore recommend that systematic maps should be submitted no later than 18 months after the search was conducted.'),
-                         br(),
-                         p('We will consider publication of updates of existing systematic maps, typically from three years since the original search, but earlier if the development of the evidence base justifies the update.'),
-                         br(),
-                         p('Length up to 20000 words.'))),
+                         p('For systematic maps to be relevant to policy and practice they need to be as up-to-date as possible. Consequently, at the time of acceptance for publication, the search must be less than two years old. We therefore recommend that systematic maps should be submitted no later than 18 months after the search was conducted.')
+                         )),
 
         tabItem(tabName = "home",
                 fluidRow(box(selectInput("map_popup_select", label = h3("Select Popup"),
@@ -73,57 +125,12 @@ library(leaflet)
                                     uiOutput("go_button")
                                    # checkboxGroupInput('filter_table_countries', 'Countries to Display:',
                                                       # levels(pilotdata$Country), selected = levels(pilotdata$Country))
-                                   )) #,
-                          # tabBox(width=6)
+                                   ))
                         ),
                     column(width = 12,
                       wellPanel(
                         dataTableOutput("filtered_table")
                       )))),
-                # titlePanel("Dataset"),
-                #
-                #   # Sidebar layout with input and output definitions ----
-                #   sidebarLayout(
-                #
-                #     # Sidebar panel for inputs ----
-                #     sidebarPanel(
-                #
-                #       # Input: Select a dataset ----
-                #       selectInput("dataset", "Choose a dataset:",
-                #                   choices = colnames(pilotdata)),
-                #
-                #       # Input: Specify the number of observations to view ----
-                #       numericInput("obs", "Number of observations to view:", 10),
-                #
-                #       # Include clarifying text ----
-                #       helpText("Note: while the data view will show only the specified",
-                #                "number of observations, the summary will still be based",
-                #                "on the full dataset."),
-                #
-                #       # Input: actionButton() to defer the rendering of output ----
-                #       # until the user explicitly clicks the button (rather than
-                #       # doing it immediately when inputs change). This is useful if
-                #       # the computations required to render output are inordinately
-                #       # time-consuming.
-                #       actionButton("update", "Update View")
-                #
-                #     ),
-
-                #     # Main panel for displaying outputs ----
-                #     mainPanel(
-                #
-                #       # Output: Header + summary of distribution ----
-                #       h4("Summary"),
-                #       verbatimTextOutput("summary"),
-                #
-                #       # Output: Header + table of distribution ----
-                #       h4("Observations"),
-                #       tableOutput("view")
-                #     )
-                #
-                #   )
-                # ), #from my code
-
         tabItem(tabName = "insightplots",
                 fluidRow(height = "50%",
                          box(width = 12,
