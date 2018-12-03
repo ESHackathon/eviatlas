@@ -4,7 +4,8 @@
 \alias{sys_map}
 \title{Map the studies}
 \usage{
-sys_map(studies_data, latitude, longitude, popup_user = NULL)
+sys_map(studies_data, latitude, longitude, popup_user = NULL,
+  radius_user = NULL)
 }
 \arguments{
 \item{studies_data}{A dataframe of studies.}

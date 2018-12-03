@@ -58,7 +58,3 @@ GenHeatMap = function(idata, selcols, verbose = FALSE){
 
   heatmp
 }
-
-
-
-cut(pilotdata$Year, 5, labels=F)
