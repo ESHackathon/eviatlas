@@ -3,9 +3,6 @@ library(dplyr)
 library(devtools)
 library(leaflet)
 
-#load sample data set
-pilotdata <- eviatlas::pilotdata
-
 ## Eventually load packages from here!
 check.packages <- function(pkg, install_dev_version=FALSE){
   if (install_dev_version) {
@@ -27,3 +24,6 @@ check.packages <- function(pkg, install_dev_version=FALSE){
 }
 
 check.packages('ESHackathon/eviatlas', install_dev_version = TRUE)
+
+#load sample data set
+pilotdata <- eviatlas::pilotdata
