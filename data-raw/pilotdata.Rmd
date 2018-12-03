@@ -23,7 +23,7 @@ pilotdata <- pilotdata %>%
   rename(latplot = 'Plotted lat.',
          lngplot = 'Plotted long.')
 
-devtools::use_data(pilotdata, overwrite = T)
+usethis::use_data(pilotdata, overwrite = TRUE)
 
 ```
 
