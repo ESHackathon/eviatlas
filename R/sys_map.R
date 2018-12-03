@@ -14,16 +14,15 @@ sys_map <- function(studies_data, latitude, longitude, popup_user=NULL, radius_u
 
   if (!is.null(radius_user)) {
     radiusby <- sapply(pilotdata[radius_user], as.numeric)
-  } else {radiusby <- NULL}
+  } else {radiusby <- 1}
 
   leaflet::leaflet(studies_data) %>%
     leaflet::addTiles() %>%
     leaflet::addCircles(lat = ~as.numeric(latitude),
                         lng = ~as.numeric(longitude),
-                        popup = ~paste(popups),
+                        popup = ~paste(Title, "<b><a href='", Google.Scholar.search, "'>Link to paper</a></b>"),
                         radius = ~as.numeric(radiusby)
                         # color = ~paste(colorby)
                         # clusterOptions = markerClusterOptions()
                         )
 }
-
