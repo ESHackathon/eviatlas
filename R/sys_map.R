@@ -27,4 +27,3 @@ sys_map <- function(studies_data, latitude, longitude, popup_user=NULL, radius_u
                         )
 }
 
-sys_map(pilotdata, pilotdata$Plotted.lat., pilotdata$Plotted.long.)
