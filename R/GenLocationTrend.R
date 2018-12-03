@@ -1,7 +1,6 @@
-#------------------------------------
 #' Simple R code to create bar plot with distribution of studies over the region from lat/long info
-#' Created For	  : ES Hackathon 2018
 #'
+#' Created For	  : ES Hackathon 2018
 #' @param idata Input dataframe
 #' @param idxlonlat Input data frame with two columns for longitude and latitude in degrees
 #' @param selcolidx Index for column with location information
@@ -9,9 +8,10 @@
 #' @return Returns a bar plot object showing number of literature in different locations
 #'
 #' @author Sanita Dhaubanjar
-#' @examples
 #'
-#=========================
+#' @keywords SystematicReview
+#'
+#' @export
 
 GenLocationTrend = function(idata,idxlonlat, selcolidx, verbose = FALSE){
 
@@ -34,7 +34,7 @@ GenLocationTrend = function(idata,idxlonlat, selcolidx, verbose = FALSE){
     labs(y="No of studies")+ ggtitle("Distribution of studies over regions")+
     theme_bw()+
     theme(axis.line = element_line(colour = "black"),
-          panel.background = element_blank(), 
+          panel.background = element_blank(),
           plot.title = element_text(hjust = .5),
           text = ggplot2::element_text(size=14))
 
