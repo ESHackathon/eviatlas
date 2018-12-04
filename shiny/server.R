@@ -7,6 +7,9 @@ library(shiny)
 library(shinydashboard)
 
 shinyServer(
+  # Allow CSV files up to.... 100 MB?
+  # max_file_size_mb <- 100,
+  # options(shiny.maxRequestSize=max_file_size_mb*1024^2),
 
   function(input, output, session){
 
@@ -135,7 +138,8 @@ shinyServer(
     output$heat_y_axis <- renderPrint({ input$heat_select_y })
 
     output$map <- renderLeaflet({
-      sys_map(pilotdata, pilotdata$latplot, pilotdata$lngplot, popup_user = input$map_popup_select)
+      sys_map(pilotdata, input$map_lat_select, input$map_lng_select,
+              popup_user=input$map_popup_select, links_user=input$map_link_select)
     })
 
     observe({
