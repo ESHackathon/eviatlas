@@ -22,6 +22,7 @@ library(leaflet)
     tags$head(
       tags$title('EviAtlas')
     ),
+    tags$style(type = "text/css", "#map {height: calc(100vh - 180px) !important;}"),
     tags$body(
       leafletOutput("map")
     )
@@ -103,9 +104,26 @@ library(leaflet)
                          )),
 
         tabItem(tabName = "home",
-                fluidRow(box(selectInput("map_popup_select", label = h3("Select Popup"),
+                fluidRow(column(3,
+                                selectInput("map_popup_select", label = h4("Select Info Popup"),
                                          choices = colnames(pilotdata),
-                                         selected = colnames(pilotdata)[4]))),
+                                         selected = colnames(pilotdata)[4])),
+                         column(3,
+                                selectInput("map_link_select", label = h4("Select Link Column"),
+                                         choices = colnames(pilotdata),
+                                         selected = colnames(pilotdata)[10])),
+                                #,
+                                # selectInput("map_colorby_select", label = h4("Color By Column"),
+                                #             choices = colnames(pilotdata),
+                                #             selected = colnames(pilotdata)[10])
+                         column(3,
+                                selectInput("map_lat_select", label = h4("Select Latitude Column"),
+                                         choices = colnames(pilotdata),
+                                         selected = colnames(pilotdata)[4])),
+                         column(3,
+                                selectInput("map_lng_select", label = h4("Select Longitude Column"),
+                                         choices = colnames(pilotdata),
+                                         selected = colnames(pilotdata)[10]))),
                 fluidRow(box(width = 15, home))
                 ),
 
