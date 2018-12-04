@@ -32,7 +32,7 @@ Project Organization
     ├── R                  <- functions used to generate plots & leaflet map. Can be used in  
     │                          shiny app, or on their own. 
     |
-    ├── data               <- unclear, created during ES Hackathon 2018
+    ├── data               <- created during ES Hackathon 2018
     ├── data-raw           <- The CSV data file, and (I think) some other roxygen generated versions of the data
     │
     ├── exploration        <- A place for people to push sample or test code. Not used in production. 
