@@ -1,0 +1,131 @@
+---
+title: "wrangle sr 6 & 9"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+# packages
+library(googlesheets)
+library(tidyverse)
+
+```
+
+
+
+```{r get sr6 data}
+gs_ls()
+
+sr6_title <- gs_title("SR6")
+sys_rev_6 <- gs_read(ss=sr6_title, ws = "Sheet1") %>% 
+  rename(dominant_tree_species = `Dominant tree species`) %>% 
+  # ensure trees are separated by the same character ;
+  mutate(dominant_tree_species = str_replace_all(dominant_tree_species, ",", ";")) 
+
+sr6_tidy <- sys_rev_6 %>% 
+    mutate(species = str_split(dominant_tree_species, ";[[:space:]]*" )) %>% unnest()
+
+
+```
+
+
+```{r}
+
+
+# sr9_title <- gs_title("SR9")
+# sys_rev_9 <- gs_read(ss=sr9_title, ws = "Sheet1")
+
+```
+
+
+```{r}
+library(tidyverse)
+
+trees <- tibble(
+  id = letters[1:5],
+  species = c(
+    "birch; poplar",
+    "oak; birch; pine",
+    "",
+    "poplar",
+    "oak"
+  )
+)
+
+trees %>% mutate(species = str_split(species, ";[[:space:]]*" )) %>% unnest()
+```
+
+```{r}
+trees <- tibble(
+ id = letters[1:5],
+ species = c(
+   "birch; poplar",
+   "oak; birch; pine",
+   "",
+   "poplar",
+   "oak"
+ ),
+ habitats=c(
+   "wetlands", "forest", "forest; wetlands", "grasslands", "grasslands; forest"))
+```
+
+
+```{r}
+
+get_long <- function(df, var, new_var) {
+
+    df %>% 
+    mutate(!!new_var := str_split(!!sym(var), ";[[:space:]]*" )) %>% unnest()
+
+    }
+
+```
+
+```{r}
+
+get_long(trees, "species", "more_trees") %>% get_long("habitats", "more_habitats")
+```
+
+```{r}
+library(tidyverse)
+library(shiny)
+
+get_long <- function(df, var, new_var) {
+  df %>%
+    mutate(!!new_var := str_split(!!sym(var), ";[[:space:]]*")) %>% unnest()
+}
+
+trees_dd <- tibble(
+  id = letters[1:5],
+  species = c("birch; poplar",
+              "oak; birch; pine",
+              "",
+              "poplar",
+              "oak"),
+  habitats = c(
+    "wetlands",
+    "forest",
+    "forest; wetlands",
+    "grasslands",
+    "grasslands; forest"
+  )
+)
+
+ui <- fluidPage(
+  selectInput(variable, choices = variables, label = "select a nested variable")
+  
+)
+
+server <- function(input, output) {
+  variables <- reactive({colnames(trees_dd})
+ 
+}
+shinyApp(ui = ui, server = server)
+
+
+
+```
+
