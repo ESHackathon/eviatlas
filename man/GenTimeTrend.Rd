@@ -20,6 +20,6 @@ Returns a timetrend object showing number of literature under different categori
 Created For	  : ES Hackathon 2018
 }
 \author{
-Ezgi Tanriver-Ayder 24 April 2018
+Ezgi Tanriver-Ayder
 }
 \keyword{SystematicReview,}

@@ -6,7 +6,7 @@
 #' @param verbose Realtime commenting
 #' @return Returns a timetrend object showing number of literature under different categories in user specified \code{year_column}
 #'
-#' @author Ezgi Tanriver-Ayder 24 April 2018
+#' @author Ezgi Tanriver-Ayder
 #'
 #' @keywords SystematicReview,
 #' @export
