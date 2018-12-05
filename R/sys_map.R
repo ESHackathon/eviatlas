@@ -11,10 +11,15 @@ sys_map <- function(studies_data, latitude,
                     longitude, popup_user=NULL,
                     radius_user=NULL, links_user=NULL) {
   if (!is.null(popup_user)) {
-    popups <- sapply(studies_data[popup_user], as.character)
-  } else {popups <- ""}
+    #hacky for loop, somebody else please make pretty someday! <3 Andrew
+    popup_string <- ''
+    for (popup in popup_user) {
+      popup_string = paste0(popup_string, " , ", studies_data[, popup])
+    }
+    popup_string
+  } else {popup_string <- ""}
 
-  if (!is.null(links_user)) {
+  if (!is.null(links_user) && links_user != "None") {
     links_input <- sapply(studies_data[links_user], as.character)
     links = paste0("<b><a href='", links_input, "'>Link to paper</a></b>")
   } else {links <- ""}
@@ -30,9 +35,9 @@ sys_map <- function(studies_data, latitude,
     leaflet::addTiles() %>%
     leaflet::addCircleMarkers(lat = ~lat_plotted,
                               lng = ~lng_plotted,
-                              popup = ~paste(popups, links),
+                              popup = ~paste(popup_string, links),
                               radius = ~as.numeric(radiusby),
                               stroke = FALSE, fillOpacity = 0.5,
-                              clusterOptions = markerClusterOptions(disableClusteringAtZoom=16)
+                              clusterOptions = markerClusterOptions(disableClusteringAtZoom=18)
     )
 }
