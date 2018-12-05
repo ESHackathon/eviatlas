@@ -118,14 +118,17 @@ shinyServer(
       head(datasetInput(), n = isolate(input$obs))
     })
 
-    output$plot1 <- renderPlot({
-      eviatlas::GenTimeTrend(pilotdata)
-    })
-
-    output$plot2 <- renderPlot({
-      c2 <- eviatlas::GenLocationTrend(pilotdata, c(17,16),10)
-      c2
-    })
+  output$plot1 <- renderPlot({
+      ggplot(pilotdata,aes_string(x=input$select_x1))+
+        geom_bar(alpha=0.9, stat="count",fill="light blue") + #I have gonr for geom_bar rather than geom_histogram so that non-continous vriables can be plotted - is that sensible
+        labs(y="No of studies") + ggtitle("") +
+        theme_bw() +
+        theme(axis.line =element_line(colour = "black"),
+                       panel.background =element_blank(),
+                       plot.title = element_text(hjust = .5),
+                       text = element_text(size=14),
+                      axis.text.x = element_text(angle=45, hjust=1))
+      })
 
     output$heatmap <- renderPlot({
       eviatlas::GenHeatMap(pilotdata, c(input$heat_select_x, input$heat_select_y))

@@ -131,16 +131,20 @@ library(leaflet)
                       wellPanel(
                         dataTableOutput("filtered_table")
                       )))),
-        tabItem(tabName = "insightplots",
-                fluidRow(height = "50%",
-                         box(width = 12,
-                             plotOutput("plot1"))),
-                fluidRow(height = "50%",
-                         box(width = 12,
-                             plotOutput("plot2")))
-                ),
-
-        tabItem(tabName = "heatmap",
+       # tabItem(tabName = "insightplots",
+        #        fluidRow(height = "50%",
+         #                box(width = 12,
+          #                   plotOutput("plot1"))),
+           #     fluidRow(height = "50%",
+            #             box(width = 12,
+             #                plotOutput("plot2")))
+              #  ),
+       tabItem(tabName = "insightplots",
+               fluidRow(box(selectInput("select_x1", label = h3("Select variable"),
+                                        choices = colnames(pilotdata), # how do we change this to a generic dataset?
+                                        selected = colnames(pilotdata)[8]))),
+               wellPanel(plotOutput("plot1"))),
+  tabItem(tabName = "heatmap",
                 fluidRow(box(selectInput("heat_select_x", label = h3("Select variable"),
                                          choices = colnames(pilotdata),
                                          selected = colnames(pilotdata)[3]),
