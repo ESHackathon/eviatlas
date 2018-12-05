@@ -131,16 +131,13 @@ library(leaflet)
       tabItem(
         tabName = "data",
         fluidRow(
-          column(
-            width = 4,
-            uiOutput("filter_selector"),
-            uiOutput("go_button")
+            uiOutput("filter_selector")
           ),
+        fluidRow(
           column(
-            width = 8,
-            uiOutput("value_selector"),
-            tableOutput("test_values")
-          )
+            width = 1,
+            uiOutput("go_button")
+            )
         ),
         fluidRow(
           wellPanel(

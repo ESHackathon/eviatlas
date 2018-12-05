@@ -70,64 +70,35 @@ shinyServer(
       }
     })
 
-    # customize data table output
-    data.explorer.table <- reactive({
-      data_internal$raw %>%
-        filter(Country %in% input$filter_table_countries)
-    })
-
-    # show data using DataTable
-    output$table <- renderDataTable({
-      DT::datatable(data.explorer.table(), rownames = c(data.explorer.table)) %>%
-        formatStyle(input$selected, background = "skyblue",
-                    fontWeight = 'bold')
-    })
-
-
-
     # FILTER TAB
     output$filter_selector <- renderUI({
       if(!is.null(data_internal$cols)){
-        selectInput(
+        checkboxGroupInput(
           "selected_variable",
-          label = "Filter by:",
-          choices = c("none", data_internal$cols),
-          selected = "none"
+          label = "Select Columns to Display:",
+          choices = c(data_internal$cols),
+          selected = c(data_internal$cols),
+          inline=T
         )
       }
     })
 
     # select levels of a variable to display
-    output$value_selector <- renderUI({
-      if(any(names(input) == "selected_variable")){
-        if(input$selected_variable != "none"){
-          checkboxGroupInput(
-            "selected_level",
-            label = "Show level:",
-            # choices = c("something", "nothing"),
-            choices = sort(unique(data_internal$raw[[input$selected_variable]])),
-            inline = TRUE
-          )
-        }
-      }
-    })
-    # works for numeric variables, but not characters (!?)
+    # output$value_selector <- renderUI({
+    #   if(any(names(input) == "selected_variable")){
+    #     if(input$selected_variable != "none"){
+    #       checkboxGroupInput(
+    #         "selected_level",
+    #         label = "Show level:",
+    #         # choices = c("something", "nothing"),
+    #         choices = sort(unique(data_internal$raw[[input$selected_variable]])),
+    #         inline = TRUE
+    #       )
+    #     }
+    #   }
+    # })
+    # # works for numeric variables, but not characters (!?)
 
-    # because the above doesn't work, check data using text
-    output$test_values <- renderPrint({
-      if(any(names(input) == "selected_variable")){
-        if(input$selected_variable != "none"){
-          cat(paste(
-            c(
-              class(data_internal$raw[[input$selected_variable]]),
-              sort(unique(data_internal$raw[[input$selected_variable]])),
-              sep = " "
-            )
-          ))
-        }
-      }
-    })
-    # delete this when problem solved
 
     output$go_button <- renderUI({
       if(any(names(input) == "selected_variable")){
@@ -140,8 +111,9 @@ shinyServer(
     observeEvent(input$go_subset, {
       if(any(names(input) == "selected_variable")){
         if(input$selected_variable != "none"){
-          rows <- which(data_internal$raw[[input$selected_variable]] %in% input$selected_level)
-          data_internal$filtered <- data_internal$raw[rows, ]
+          # rows <- which(data_internal$raw[[input$selected_variable]] %in% input$selected_variable)
+          # data_internal$filtered <- data_internal$raw[rows, ]
+          data_internal$filtered <- data_internal$raw %>% select(input$selected_variable)
         }else{
           data_internal$filtered <- NULL
         }
@@ -150,9 +122,9 @@ shinyServer(
 
     output$filtered_table <- renderDataTable({
       if(is.null(data_internal$filtered)){
-        data_internal$raw
+        DT::datatable(data_internal$raw, filter = c('top'))
       }else{
-        data_internal$filtered
+        DT::datatable(data_internal$filtered, filter = c('top'))
       }
     })
 
