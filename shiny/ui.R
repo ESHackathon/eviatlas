@@ -29,146 +29,145 @@ library(leaflet)
   )
 
   body <- dashboardBody(
-      tabItems(
-        tabItem(tabName = "about",
-                mainPanel(
-                  h4('Preview of uploaded data:'),
-                  dataTableOutput("user_data")),
+    tag("style", HTML("
+      .right-side {
+        background-color: #dbf0ee;
+      }
+      .skin-blue .main-header .logo {
+        background-color: #4FB3A9;
+        color: #ffffff;
+      }
+      .skin-blue .main-header .logo:hover {
+        background-color: #2d6c66;
+      }
+      .skin-blue .main-header .navbar {
+        background-color: #4FB3A9;
+      }
+      .skin-blue .main-header .sidebar-toggle {
+        background-color: #2d6c66;
+      }
+    ")),
+    tabItems(
+      tabItem(tabName = "about",
+        mainPanel(
+          tableOutput("start_text"),
+          tableOutput("data_summary")
+        ),
 
-                #Sidebar panel for inputs
-                sidebarPanel(
-                  radioButtons(
-                    "sample_or_real",
-                    label = h4("Which Data to Use?"),
-                    choices = list("Sample Data" = 'sample',
-                                   "Upload User Data" = 'user'),
-                    selected = "user"
-                  ),
+        #Sidebar panel for inputs
+        sidebarPanel(
+          radioButtons(
+            "sample_or_real",
+            label = h4("Which Data to Use?"),
+            choices = list(
+              "Sample Data" = 'sample',
+              "Upload User Data" = 'user'
+            ),
+            selected = "user"
+          ),
 
-                  conditionalPanel(
-                    condition = "input.sample_or_real == 'user'",
+          conditionalPanel(
+            condition = "input.sample_or_real == 'user'",
 
-                    # Input: Select a file ----
+            # Input: Select a file ----
 
-                    fileInput(
-                      "sysmapdata_upload",
-                      label = "Choose CSV File",
-                      multiple = FALSE,
-                      accept = c("text/csv",
-                                 "text/comma-separated-values,text/plain",
-                                 ".csv"),
-                      placeholder = "Systematic Map Data"
-                    ),
+            fileInput(
+              "sysmapdata_upload",
+              label = "Choose CSV File",
+              multiple = FALSE,
+              accept = c(
+                "text/csv",
+                "text/comma-separated-values,text/plain",
+                ".csv"),
+              placeholder = "Systematic Map Data"
+            ),
 
-                    radioButtons(
-                      "upload_encoding",
-                      label = h4("Select File Encoding"),
-                      choices = list("utf-8", "latin1"),
-                      selected = "utf-8"
-                    ),
+            radioButtons(
+              "upload_encoding",
+              label = h4("Select File Encoding"),
+              choices = list("utf-8", "latin1"),
+              selected = "utf-8"
+            ),
 
-                    # Input: Checkbox if file has header ----
-                    checkboxInput("header", "Check if file has header", TRUE),
+            # Input: Checkbox if file has header ----
+            checkboxInput("header", "Check if file has header", TRUE),
 
-                    # Input: Select separator ----
-                    radioButtons(
-                      "sep",
-                      "Separator",
-                      choices = c(
-                        Comma = ",",
-                        Semicolon = ";",
-                        Tab = "\t"
-                      ),
-                      selected = ","
-                    ),
+            # Input: Select separator ----
+            radioButtons(
+              "sep",
+              "Separator",
+              choices = c(
+                Comma = ",",
+                Semicolon = ";",
+                Tab = "\t"
+              ),
+              selected = ","
+            ),
 
-                    # Input: Select quotes ----
-                    radioButtons(
-                      "quote",
-                      "Quote",
-                      choices = c(
-                        None = "",
-                        "Double Quote" = '"',
-                        "Single Quote" = "'"
-                      ),
-                      selected = '"'
-                    )
-                  )
-                ),
-                hr(),
-                fluidRow(height = '100%',
-                         h2('About Systematic Maps'),
-                         p('Systematic Maps are overviews of the quantity and quality of evidence in relation to a broad (open) question of policy or management relevance. The process and rigour of the mapping exercise is the same as for systematic review except that no evidence synthesis is attempted to seek an answer to the question. A critical appraisal of the quality of the evidence is strongly encouraged but may be limited to a subset or sample of papers when the quantity of articles is very large (and even be absent in exceptional circumstances). Authors should note that all systematic maps published in Environmental Evidence will have been conducted according to the CEE process. Please contact the Editors at an early stage of planning your review. More guidance can be found here.'),
-                         br(),
-                         p('For systematic maps to be relevant to policy and practice they need to be as up-to-date as possible. Consequently, at the time of acceptance for publication, the search must be less than two years old. We therefore recommend that systematic maps should be submitted no later than 18 months after the search was conducted.')
-                         )),
+            # Input: Select quotes ----
+            radioButtons(
+              "quote",
+              "Quote",
+              choices = c(
+                None = "",
+                "Double Quote" = '"',
+                "Single Quote" = "'"
+              ),
+              selected = '"'
+            )
+          )
+        )
+      ),
 
-        tabItem(tabName = "home",
-                fluidRow(column(3,
-                                selectInput("map_popup_select", label = h4("Select Info Popup"),
-                                         choices = colnames(pilotdata),
-                                         selected = colnames(pilotdata)[4])),
-                         column(3,
-                                selectInput("map_link_select", label = h4("Select Link Column"),
-                                         choices = colnames(pilotdata),
-                                         selected = colnames(pilotdata)[10])),
-                                #,
-                                # selectInput("map_colorby_select", label = h4("Color By Column"),
-                                #             choices = colnames(pilotdata),
-                                #             selected = colnames(pilotdata)[10])
-                         column(3,
-                                selectInput("map_lat_select", label = h4("Select Latitude Column"),
-                                         choices = colnames(pilotdata),
-                                         selected = colnames(pilotdata)[4])),
-                         column(3,
-                                selectInput("map_lng_select", label = h4("Select Longitude Column"),
-                                         choices = colnames(pilotdata),
-                                         selected = colnames(pilotdata)[10]))),
-                fluidRow(box(width = 15, home))
-                ),
+      tabItem(tabName = "home",
+        fluidRow(
+          uiOutput("map_columns")
+        ),
+        fluidRow(
+          box(width = 15, home)
+        )
+      ),
 
-        tabItem(tabName = "data",
-                fluidRow(
-                    column(width = 12,
-                           tabBox(width = NULL,
-                                  tabPanel(
-                                    h5("Filter"),
-                                    selectInput(
-                                      "selected_variable",
-                                      label = "Filter by:",
-                                      choices = c("none", colnames(pilotdata)),
-                                      selected = "none"
-                                    ),
-                                    uiOutput("value_selector"),
-                                    uiOutput("go_button")
-                                   # checkboxGroupInput('filter_table_countries', 'Countries to Display:',
-                                                      # levels(pilotdata$Country), selected = levels(pilotdata$Country))
-                                   ))
-                        ),
-                    column(width = 12,
-                      wellPanel(
-                        dataTableOutput("filtered_table")
-                      )))),
-        tabItem(tabName = "insightplots",
-                fluidRow(height = "50%",
-                         box(width = 12,
-                             plotOutput("plot1"))),
-                fluidRow(height = "50%",
-                         box(width = 12,
-                             plotOutput("plot2")))
-                ),
+      tabItem(
+        tabName = "data",
+        fluidRow(
+          column(
+            width = 4,
+            uiOutput("filter_selector"),
+            uiOutput("go_button")
+          ),
+          column(
+            width = 8,
+            uiOutput("value_selector"),
+            tableOutput("test_values")
+          )
+        ),
+        fluidRow(
+          wellPanel(
+            dataTableOutput("filtered_table")
+          )
+        )
+      ),
+      tabItem(tabName = "insightplots",
+              fluidRow(height = "50%",
+                       box(width = 12,
+                           plotOutput("plot1"))),
+              fluidRow(height = "50%",
+                       box(width = 12,
+                           plotOutput("plot2")))
+              ),
 
-        tabItem(tabName = "heatmap",
-                fluidRow(box(selectInput("heat_select_x", label = h3("Select variable"),
-                                         choices = colnames(pilotdata),
-                                         selected = colnames(pilotdata)[3]),
-                             fluidRow(column(3, verbatimTextOutput("heat_x_axis")))),
-                         fluidRow(box(selectInput("heat_select_y", label = h3("Select variable"),
-                                                  choices = colnames(pilotdata),
-                                                  selected = colnames(pilotdata)[8]),
-                                      fluidRow(column(3, verbatimTextOutput("heat_y_axis")))))),
-                wellPanel(plotOutput("heatmap")))
-        ))
+      tabItem(tabName = "heatmap",
+              fluidRow(box(selectInput("heat_select_x", label = h3("Select variable"),
+                                       choices = colnames(pilotdata),
+                                       selected = colnames(pilotdata)[3]),
+                           fluidRow(column(3, verbatimTextOutput("heat_x_axis")))),
+                       fluidRow(box(selectInput("heat_select_y", label = h3("Select variable"),
+                                                choices = colnames(pilotdata),
+                                                selected = colnames(pilotdata)[8]),
+                                    fluidRow(column(3, verbatimTextOutput("heat_y_axis")))))),
+              wellPanel(plotOutput("heatmap")))
+      ))
 
   shinyUI(
     dashboardPage(
