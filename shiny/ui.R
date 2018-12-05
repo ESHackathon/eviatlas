@@ -150,8 +150,8 @@ body <- dashboardBody(
     ),
     tabItem(tabName = "insightplots",
             fluidRow(box(selectInput("select_x1", label = h3("Select variable"),
-                                     choices = colnames(pilotdata),
-                                     selected = colnames(pilotdata)[8]))),
+                                     choices = colnames(pilotdata), # these bits do not work for external uploaded files
+                                     selected = colnames(pilotdata)[8]))), # these bits do not work for external uploaded files
             wellPanel(plotOutput("plot1"))),
 
     tabItem(tabName = "heatmap",
@@ -160,8 +160,8 @@ body <- dashboardBody(
                                      selected = colnames(pilotdata)[3]),
                          fluidRow(column(3, verbatimTextOutput("heat_x_axis")))),
                      fluidRow(box(selectInput("heat_select_y", label = h3("Select variable"),
-                                              choices = colnames(pilotdata),
-                                              selected = colnames(pilotdata)[8]),
+                                              choices = colnames(pilotdata), # these bits do not work for external uploaded files
+                                              selected = colnames(pilotdata)[8]), # these bits do not work for external uploaded files
                                   fluidRow(column(3, verbatimTextOutput("heat_y_axis")))))),
             wellPanel(plotOutput("heatmap")))
   ))

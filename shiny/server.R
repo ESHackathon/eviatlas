@@ -217,7 +217,7 @@ shinyServer(
 
     output$plot1 <- renderPlot({
       ggplot(data_internal$raw,aes_string(x=input$select_x1))+
-        geom_bar(alpha=0.9, stat="count",fill="light blue") + #I have gonr for geom_bar rather than geom_histogram so that non-continous vriables can be plotted - is that sensible
+        geom_bar(alpha=0.9, stat="count",fill="light blue") + #I have gone for geom_bar rather than geom_histogram so that non-continous variables can be plotted - is that sensible?
         labs(y="No of studies") + ggtitle("") +
         theme_bw() +
         theme(axis.line =element_line(colour = "black"),
