@@ -23,7 +23,4 @@ check.packages <- function(pkg, install_dev_version=FALSE){
   sapply(pkg_name, require, character.only=TRUE)
 }
 
-check.packages('ESHackathon/eviatlas', install_dev_version = TRUE)
-
-#load sample data set
-pilotdata <- eviatlas::pilotdata
+check.packages('ESHackathon/eviatlas', install_dev_version = TRUE) #devtools::install_github('ESHackathon/eviatlas')

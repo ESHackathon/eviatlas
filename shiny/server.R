@@ -60,10 +60,8 @@ shinyServer(
     output$data_summary <- renderPrint({
       if(!is.null(data_internal$raw)){
         cat(paste0(
-          "Dataset containing ",
-          nrow(data_internal$raw),
-          " rows and ",
-          ncol(data_internal$raw),
+          "Dataset containing ", nrow(data_internal$raw),
+          " rows and ", ncol(data_internal$raw),
           " columns. Column names as follows:<br>",
           paste(data_internal$cols, collapse = "<br>")
         ))
@@ -157,19 +155,21 @@ shinyServer(
             ),
             div(
               style = "display: inline-block; width = '20%'",
-              selectInput(
+              selectizeInput(
                 inputId = "map_popup_select",
                 label = h4("Select Popup Info"),
                 choices = data_internal$cols,
-                width = "250px"
+                width = "250px",
+                multiple = T
               )
             ),
             div(
               style = "display: inline-block; width = '20%'",
               selectInput(
                 inputId = "map_link_select",
-                label = h4("Select Link Column"),
-                choices = data_internal$cols,
+                label = h4("Select Link Column (in pop-up)"),
+                choices = c("None", data_internal$cols),
+                selected = "None",
                 width = "250px"
               )
             )
