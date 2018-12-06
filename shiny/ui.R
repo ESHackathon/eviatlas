@@ -146,25 +146,25 @@ library(leaflet)
         )
       ),
       tabItem(tabName = "insightplots",
-              fluidRow(height = "50%",
-                       box(width = 12,
-                           plotOutput("plot1"))),
-              fluidRow(height = "50%",
-                       box(width = 12,
-                           plotOutput("plot2")))
-              ),
-
+        fluidRow(
+          uiOutput("barplot_selector")
+        ),
+        wellPanel(
+          plotOutput("plot1")
+        )
+      ),
       tabItem(tabName = "heatmap",
-              fluidRow(box(selectInput("heat_select_x", label = h3("Select variable"),
-                                       choices = colnames(pilotdata),
-                                       selected = colnames(pilotdata)[3]),
-                           fluidRow(column(3, verbatimTextOutput("heat_x_axis")))),
-                       fluidRow(box(selectInput("heat_select_y", label = h3("Select variable"),
-                                                choices = colnames(pilotdata),
-                                                selected = colnames(pilotdata)[8]),
-                                    fluidRow(column(3, verbatimTextOutput("heat_y_axis")))))),
-              wellPanel(plotOutput("heatmap")))
-      ))
+        fluidRow(
+          uiOutput("heatmap_selector")
+        ),
+        fluidRow(
+          wellPanel(
+            plotOutput("heatmap")
+          )
+        )
+      )
+    )
+  )
 
   shinyUI(
     dashboardPage(

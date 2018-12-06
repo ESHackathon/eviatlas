@@ -16,7 +16,7 @@ shinyServer(
     data_internal <- reactiveValues(
       raw = NULL,
       cols = NULL,
-      # filter_present = FALSE,
+      short_cols = NULL,
       filtered = NULL
     )
 
@@ -76,7 +76,7 @@ shinyServer(
           label = "Select Columns to Display:",
           choices = c(data_internal$cols),
           selected = c(data_internal$cols),
-          inline=T
+          inline = TRUE
         )
       }
     })
@@ -187,13 +187,70 @@ shinyServer(
       head(datasetInput(), n = isolate(input$obs))
     })
 
-    output$plot1 <- renderPlot({
-      eviatlas::GenTimeTrend(pilotdata)
+    # BARPLOT
+    output$barplot_selector <- renderUI({
+      if(!is.null(data_internal$cols)){
+        selectInput(
+          inputId = "select_x1",
+          label = h3("Select variable"),
+          choices = data_internal$cols, # how do we change this to a generic dataset?
+          selected = data_internal$cols[1]
+        )
+      }
     })
 
-    output$plot2 <- renderPlot({
-      c2 <- eviatlas::GenLocationTrend(data_internal$raw, c(17,16),10)
-      c2
+    ## HEATMAP
+    output$heatmap_selector <- renderUI({
+      if(!is.null(data_internal$cols)){
+        div(
+          list(
+            div(
+              style = "display: inline-block; width = '10%'",
+              br()
+            ),
+            div(
+              style = "display: inline-block; width = '40%'",
+              selectInput(
+                inputId = "heat_select_x",
+                label = h3("Select X variable"),
+                choices = data_internal$cols,
+                selected = data_internal$cols[1]
+              )
+            ),
+            div(
+              style = "display: inline-block; width = '40%'",
+              selectInput(
+                inputId = "heat_select_y",
+                label = h3("Select Y variable"),
+                choices = data_internal$cols,
+                selected = data_internal$cols[2]
+              )
+            )
+          )
+        )
+      }
+    })
+
+
+
+    #I have gone for geom_bar rather than geom_histogram so that non-continous variables can be plotted - is that sensible
+    output$plot1 <- renderPlot({
+      ggplot(data_internal$raw, aes_string(x = input$select_x1))+
+        geom_bar(
+          alpha = 0.9,
+          stat = "count",
+          fill = "light blue"
+        ) +
+        labs(y = "No of studies") +
+        ggtitle("") +
+        theme_bw() +
+        theme(
+          axis.line = element_line(colour = "black"),
+          panel.background = element_blank(),
+          plot.title = element_text(hjust = .5),
+          text = element_text(size = 14),
+          axis.text.x = element_text(angle = 45, hjust = 1)
+        )
     })
 
     output$heatmap <- renderPlot({
@@ -205,7 +262,7 @@ shinyServer(
 
     output$map <- renderLeaflet({
       sys_map(data_internal$raw, input$map_lat_select, input$map_lng_select,
-              popup_user=input$map_popup_select, links_user=input$map_link_select)
+              popup_user = input$map_popup_select, links_user = input$map_link_select)
     })
 
     observe({
