@@ -6,10 +6,11 @@ library(leaflet)
 library(shiny)
 library(shinydashboard)
 
+# Allow CSV files up to 100 MB
+max_file_size_mb <- 100
+options(shiny.maxRequestSize=max_file_size_mb*1024^2)
+
 shinyServer(
-  # Allow CSV files up to.... 100 MB?
-  # max_file_size_mb <- 100,
-  # options(shiny.maxRequestSize=max_file_size_mb*1024^2),
 
   function(input, output, session){
 
