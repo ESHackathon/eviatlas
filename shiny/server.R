@@ -1,15 +1,10 @@
 ## server.R ##
 
-library(tidyverse)
-library(DT)
-library(leaflet)
-library(shiny)
-library(shinydashboard)
+# Allow CSV files up to 100 MB
+max_file_size_mb <- 100
+options(shiny.maxRequestSize=max_file_size_mb*1024^2)
 
 shinyServer(
-  # Allow CSV files up to.... 100 MB?
-  # max_file_size_mb <- 100,
-  # options(shiny.maxRequestSize=max_file_size_mb*1024^2),
 
   function(input, output, session){
 
@@ -41,7 +36,8 @@ shinyServer(
         header = input$header,
         sep = input$sep,
         quote = input$quote,
-        fileEncoding = input$upload_encoding)
+        fileEncoding = input$upload_encoding,
+        stringsAsFactors = F)
       data_internal$cols <- colnames(data_internal$raw)
     })
 
@@ -71,36 +67,20 @@ shinyServer(
     # FILTER TAB
     output$filter_selector <- renderUI({
       if(!is.null(data_internal$cols)){
-        checkboxGroupInput(
+        shinyWidgets::pickerInput(
           "selected_variable",
           label = "Select Columns to Display:",
-          choices = c(data_internal$cols),
-          selected = c(data_internal$cols),
-          inline = TRUE
+          choices = colnames(data_internal$raw),
+          selected = data_internal$cols,
+          width = 'fit', options = list(`actions-box` = TRUE, `selectedTextFormat`='static'),
+          multiple = T
         )
       }
     })
 
-    # select levels of a variable to display
-    # output$value_selector <- renderUI({
-    #   if(any(names(input) == "selected_variable")){
-    #     if(input$selected_variable != "none"){
-    #       checkboxGroupInput(
-    #         "selected_level",
-    #         label = "Show level:",
-    #         # choices = c("something", "nothing"),
-    #         choices = sort(unique(data_internal$raw[[input$selected_variable]])),
-    #         inline = TRUE
-    #       )
-    #     }
-    #   }
-    # })
-    # # works for numeric variables, but not characters (!?)
-
-
     output$go_button <- renderUI({
       if(any(names(input) == "selected_variable")){
-        if(input$selected_variable != "none"){
+        if(!is.null(input$selected_variable)){
           actionButton("go_subset", "Apply Subset")
         }
       }
@@ -108,21 +88,21 @@ shinyServer(
 
     observeEvent(input$go_subset, {
       if(any(names(input) == "selected_variable")){
-        if(input$selected_variable != "none"){
-          # rows <- which(data_internal$raw[[input$selected_variable]] %in% input$selected_variable)
-          # data_internal$filtered <- data_internal$raw[rows, ]
-          data_internal$filtered <- data_internal$raw %>% select(input$selected_variable)
+        if(input$selected_variable != ""){
+          data_internal$filtered <- data_internal$raw %>% select(!!!input$selected_variable)
         }else{
           data_internal$filtered <- NULL
         }
       }
     })
 
-    output$filtered_table <- renderDataTable({
+    output$filtered_table <- DT::renderDataTable({
       if(is.null(data_internal$filtered)){
-        DT::datatable(data_internal$raw, filter = c('top'))
+        DT::datatable(data_internal$raw, filter = c('top'),
+                      style='bootstrap', options = list(scrollX = TRUE, responsive=T))
       }else{
-        DT::datatable(data_internal$filtered, filter = c('top'))
+        DT::datatable(data_internal$filtered, filter = c('top'),
+                      style='bootstrap', options = list(scrollX = TRUE, responsive=T))
       }
     })
 
@@ -154,10 +134,11 @@ shinyServer(
               )
             ),
             div(
-              style = "display: inline-block; width = '20%'",
+              style = "display: inline-block; width = '30%'",
               selectizeInput(
                 inputId = "map_popup_select",
                 label = h4("Select Popup Info"),
+                selected = data_internal$cols[1],
                 choices = data_internal$cols,
                 width = "250px",
                 multiple = T
@@ -172,10 +153,19 @@ shinyServer(
                 selected = "None",
                 width = "250px"
               )
+            ),
+            div(
+              style = "display: inline-block; width = '20%'",
+              checkboxInput(
+                inputId = "map_cluster_select",
+                label = h4("Cluster Map Points?"),
+                value = TRUE,
+                width = "250px"
+              )
             )
           )
         )
-      }
+      } else {'To use the map, upload your data in the "About EviAtlas" tab!'}
     })
 
 
@@ -193,7 +183,7 @@ shinyServer(
         selectInput(
           inputId = "select_x1",
           label = h3("Select variable"),
-          choices = data_internal$cols, # how do we change this to a generic dataset?
+          choices = data_internal$cols,
           selected = data_internal$cols[1]
         )
       }
@@ -232,7 +222,6 @@ shinyServer(
     })
 
 
-
     #I have gone for geom_bar rather than geom_histogram so that non-continous variables can be plotted - is that sensible
     output$plot1 <- renderPlot({
       ggplot(data_internal$raw, aes_string(x = input$select_x1))+
@@ -261,17 +250,19 @@ shinyServer(
     output$heat_y_axis <- renderPrint({ input$heat_select_y })
 
     output$map <- renderLeaflet({
-      sys_map(data_internal$raw, input$map_lat_select, input$map_lng_select,
-              popup_user = input$map_popup_select, links_user = input$map_link_select)
+      # Try to generate map; if that fails, show blank map
+      tryCatch(sys_map(data_internal$raw, input$map_lat_select,
+                       input$map_lng_select,
+                       popup_user = input$map_popup_select,
+                       links_user = input$map_link_select,
+                       cluster_points = input$map_cluster_select),
+               error = function(x) {leaflet::leaflet() %>% leaflet::addTiles()}
+               )
+
     })
 
     observe({
       leafletProxy("map")
-    })
-
-    #customize data table output
-    cityinfo <- reactive({
-      pilotdata
     })
 
 
