@@ -1,7 +1,13 @@
 ## global.R ##
 library(dplyr)
 library(devtools)
+library(tidyverse)
 library(leaflet)
+library(htmltools)
+library(shiny)
+library(shinydashboard)
+library(shinyWidgets)
+library(DT)
 
 ## Eventually load packages from here!
 check.packages <- function(pkg, install_dev_version=FALSE){
