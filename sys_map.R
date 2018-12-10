@@ -1,16 +1,4 @@
-#' Map the studies included in a systematic review.
-#'
-#' Create a geographical map of the studies using `leaflet`. Designed for use as a systematic map.
-#'
-#' @param studies_data A dataframe of studies.
-#' @param latitude Specify which column contains the latitude in the `studies_data` dataframe.
-#' @param longitude Specify which column contains the latitude in the `studies_data` dataframe.
-#' @param popup_user Specify which column in the `studies_data` dataframe to use a popups when mousing over or clicking a point.
-#' @param radius_user (unstable) Specify a numeric column in the `studies_data` dataframe to size points by.
-#' @param links_user Specify a column in the `studies_data` dataframe that contains a URL for each study.
-#' @param cluster_pints Toggle clustering feature of `leaflet` maps
-#' @export
-
+# Map the studies included in a systematic review.
 sys_map <- function(studies_data, latitude,
                     longitude, popup_user=NULL,
                     radius_user=NULL, links_user=NULL,
