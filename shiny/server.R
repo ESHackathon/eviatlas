@@ -149,18 +149,18 @@ shinyServer(
               selectInput(
                 inputId = "map_link_select",
                 label = h4("Select Link Column (in pop-up)"),
-                choices = c("None", data_internal$cols),
+                choices = c("None", get_link_cols(data_internal$raw)),
                 selected = "None",
                 width = "250px"
               )
             ),
             div(
               style = "display: inline-block; width = '20%'",
-              checkboxInput(
+              materialSwitch(
                 inputId = "map_cluster_select",
                 label = h4("Cluster Map Points?"),
                 value = TRUE,
-                width = "250px"
+                status = "primary"
               )
             )
           )
