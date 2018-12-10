@@ -17,10 +17,12 @@ shinyServer(
 
 
     # DATA TAB
-    # if no data are available but input$sample_or_real == 'sample', show into text
+    # if no data are available but input$sample_or_real == 'sample', show intro text
     output$start_text <- renderPrint({
       if(is.null(data_internal$raw) & input$sample_or_real == 'user'){
-        cat("<h2>About Systematic Maps</h2><br>
+        cat("<h2>EviAtlas</h2>
+           EviAtlas is an open-source tool for creating systematic maps, a key element of systematic reviews. Upload a systematic review dataset (csv format) using the panel on the right, and then use the left sidebar to view a systematic map generated from your dataset, as well as some common plots used in systematic reviews.
+           <h3>About Systematic Maps</h3><br>
            Systematic Maps are overviews of the quantity and quality of evidence in relation to a broad (open) question of policy or management relevance. The process and rigour of the mapping exercise is the same as for systematic review except that no evidence synthesis is attempted to seek an answer to the question. A critical appraisal of the quality of the evidence is strongly encouraged but may be limited to a subset or sample of papers when the quantity of articles is very large (and even be absent in exceptional circumstances). Authors should note that all systematic maps published in Environmental Evidence will have been conducted according to the CEE process. Please contact the Editors at an early stage of planning your review. More guidance can be found <a href='http://www.environmentalevidence.org' target='_blank' rel='noopener'>here</a>.<br><br>
            For systematic maps to be relevant to policy and practice they need to be as up-to-date as possible. Consequently, at the time of acceptance for publication, the search must be less than two years old. We therefore recommend that systematic maps should be submitted no later than 18 months after the search was conducted."
         )
@@ -28,6 +30,12 @@ shinyServer(
         cat("<h2>Attributes of uploaded data:</h2>")
       }
     })
+
+    output$open_sci_text <- renderPrint({
+      cat('Willing to contribute to open science? We are testing methods to utilize metadata from existing systematic reviews to speed the process of developing systematic reviews in orther topics. Often, systematic reviews are done on similar topics, and the effort required to pull metadata from studies can be lessened by utilizing the work done by others. To contribute data to this process, please select a DOI column in your dataset, and the published title of your systematic review.')
+    })
+
+
 
     # if data are supplied, add them to data_internal
     observeEvent(input$sysmapdata_upload, {
@@ -119,7 +127,7 @@ shinyServer(
               style = "display: inline-block; width = '20%'",
               selectInput(
                 inputId = "map_lat_select",
-                label = h4("Select Latitude Column"),
+                label = "Select Latitude Column",
                 choices = data_internal$cols,
                 width = "250px"
               )
@@ -128,7 +136,7 @@ shinyServer(
               style = "display: inline-block; width = '20%'",
               selectInput(
                 inputId = "map_lng_select",
-                label = h4("Select Longitude Column"),
+                label = "Select Longitude Column",
                 choices = data_internal$cols,
                 width = "250px"
               )
@@ -137,7 +145,7 @@ shinyServer(
               style = "display: inline-block; width = '30%'",
               selectizeInput(
                 inputId = "map_popup_select",
-                label = h4("Select Popup Info"),
+                label = "Select Popup Info",
                 selected = data_internal$cols[1],
                 choices = data_internal$cols,
                 width = "250px",
@@ -148,7 +156,7 @@ shinyServer(
               style = "display: inline-block; width = '20%'",
               selectInput(
                 inputId = "map_link_select",
-                label = h4("Select Link Column (in pop-up)"),
+                label = "Select Link Column (in pop-up)",
                 choices = c("None", get_link_cols(data_internal$raw)),
                 selected = "None",
                 width = "250px"
@@ -158,14 +166,14 @@ shinyServer(
               style = "display: inline-block; width = '20%'",
               materialSwitch(
                 inputId = "map_cluster_select",
-                label = h4("Cluster Map Points?"),
+                label = "Cluster Map Points?",
                 value = TRUE,
                 status = "primary"
               )
             )
           )
         )
-      } else {'To use the map, upload your data in the "About EviAtlas" tab!'}
+      } else {wellPanel('To use the map, upload data in the "About EviAtlas" tab!')}
     })
 
 
@@ -182,7 +190,19 @@ shinyServer(
       if(!is.null(data_internal$cols)){
         selectInput(
           inputId = "select_x1",
-          label = h3("Select variable"),
+          label = "Select variable",
+          choices = data_internal$cols,
+          selected = data_internal$cols[1]
+        )
+      }
+    })
+
+    # Location Frequency Plot
+    output$location_plot_selector <- renderUI({
+      if(!is.null(data_internal$cols)){
+        selectInput(
+          inputId = "select_loc_col",
+          label = "Select Country/Location Variable",
           choices = data_internal$cols,
           selected = data_internal$cols[1]
         )
@@ -202,7 +222,7 @@ shinyServer(
               style = "display: inline-block; width = '40%'",
               selectInput(
                 inputId = "heat_select_x",
-                label = h3("Select X variable"),
+                label = "Select X variable",
                 choices = data_internal$cols,
                 selected = data_internal$cols[1]
               )
@@ -211,7 +231,7 @@ shinyServer(
               style = "display: inline-block; width = '40%'",
               selectInput(
                 inputId = "heat_select_y",
-                label = h3("Select Y variable"),
+                label = "Select Y variable",
                 choices = data_internal$cols,
                 selected = data_internal$cols[2]
               )
@@ -222,7 +242,7 @@ shinyServer(
     })
 
 
-    #I have gone for geom_bar rather than geom_histogram so that non-continous variables can be plotted - is that sensible
+    #geom_bar rather than geom_histogram so that non-continous variables can be plotted
     output$plot1 <- renderPlot({
       ggplot(data_internal$raw, aes_string(x = input$select_x1))+
         geom_bar(
@@ -240,6 +260,10 @@ shinyServer(
           text = element_text(size = 14),
           axis.text.x = element_text(angle = 45, hjust = 1)
         )
+    })
+
+    output$plot2 <- renderPlot({
+      GenLocationTrend(data_internal$raw, input$location_column)
     })
 
     output$heatmap <- renderPlot({

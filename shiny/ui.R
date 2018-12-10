@@ -16,7 +16,7 @@ home <- tags$html(
   tags$head(
     tags$title('EviAtlas')
   ),
-  tags$style(type = "text/css", "#map {height: calc(100vh - 280px) !important;}"),
+  tags$style(type = "text/css", "#map {height: calc(100vh - 180px) !important;}"),
   tags$body(
     leafletOutput("map")
   )
@@ -50,67 +50,71 @@ body <- dashboardBody(
 
       #Sidebar panel for inputs
       sidebarPanel(
-        radioButtons(
-          "sample_or_real",
-          label = h4("Which Data to Use?"),
-          choices = list(
-            "Sample Data" = 'sample',
-            "Upload User Data" = 'user'
-          ),
-          selected = "user"
-        ),
-
-        conditionalPanel(
-          condition = "input.sample_or_real == 'user'",
-
-          # Input: Select a file ----
-
-          fileInput(
-            "sysmapdata_upload",
-            label = "Choose CSV File",
-            multiple = FALSE,
-            accept = c(
-              "text/csv",
-              "text/comma-separated-values,text/plain",
-              ".csv"),
-            placeholder = "Systematic Map Data"
-          ),
-
-          radioButtons(
-            "upload_encoding",
-            label = h4("Select File Encoding"),
-            choices = list("utf-8", "latin1"),
-            selected = "utf-8"
-          ),
-
-          # Input: Checkbox if file has header ----
-          checkboxInput("header", "Check if file has header", TRUE),
-
-          # Input: Select separator ----
-          radioButtons(
-            "sep",
-            "Separator",
-            choices = c(
-              Comma = ",",
-              Semicolon = ";",
-              Tab = "\t"
+        tabsetPanel(
+          tabPanel(title = "Upload Data",
+            radioButtons(
+              "sample_or_real",
+              label = h4("Which Data to Use?"),
+              choices = list(
+                "Sample Data" = 'sample',
+                "Upload User Data" = 'user'
+              ),
+              selected = "user"
             ),
-            selected = ","
-          ),
 
-          # Input: Select quotes ----
-          radioButtons(
-            "quote",
-            "Quote",
-            choices = c(
-              None = "",
-              "Double Quote" = '"',
-              "Single Quote" = "'"
-            ),
-            selected = '"'
-          )
-        )
-      )
+            conditionalPanel(
+              condition = "input.sample_or_real == 'user'",
+
+              # Input: Select a file ----
+
+              fileInput(
+                "sysmapdata_upload",
+                label = "Choose CSV File",
+                multiple = FALSE,
+                accept = c(
+                  "text/csv",
+                  "text/comma-separated-values,text/plain",
+                  ".csv"),
+                placeholder = "Systematic Map Data"
+              ),
+
+              radioButtons(
+                "upload_encoding",
+                label = "Select File Encoding",
+                choices = list("utf-8", "latin1"),
+                selected = "utf-8"
+              ),
+
+              # Input: Checkbox if file has header ----
+              checkboxInput("header", "Check if file has header", TRUE),
+
+              # Input: Select separator ----
+              radioButtons(
+                "sep",
+                "Separator",
+                choices = c(
+                  Comma = ",",
+                  Semicolon = ";",
+                  Tab = "\t"
+                ),
+                selected = ","
+              ),
+
+              # Input: Select quotes ----
+              radioButtons(
+                "quote",
+                "Quote",
+                choices = c(
+                  None = "",
+                  "Double Quote" = '"',
+                  "Single Quote" = "'"
+                ),
+                selected = '"'
+              )
+          )),
+          tabPanel("Contribute to Open Science",
+                   textOutput("open_sci_text"))
+      ))
     ),
 
     tabItem(tabName = "home",
@@ -144,10 +148,14 @@ body <- dashboardBody(
       ),
     tabItem(tabName = "insightplots",
       fluidRow(
-        uiOutput("barplot_selector")
+        column(3, uiOutput("barplot_selector")),
+        column(3, uiOutput("location_plot_selector"))
       ),
       wellPanel(
         plotOutput("plot1")
+      ),
+      wellPanel(
+        plotOutput("plot2")
       )
     ),
     tabItem(tabName = "heatmap",

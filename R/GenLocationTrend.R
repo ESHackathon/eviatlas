@@ -1,11 +1,10 @@
-#' Simple R code to create bar plot with distribution of studies over the region from lat/long info
+#' Create bar plot with distribution of studies over the region from lat/long info
 #'
 #' Created For	  : ES Hackathon 2018
-#' @param idata Input dataframe
-#' @param idxlonlat Input data frame with two columns for longitude and latitude in degrees
-#' @param selcolidx Index for column with location information
+#' @param df Input dataframe
+#' @param location_column Column with location information (preferably country-level or higher)
 #' @param verbose Logical variable (default=FALSE) for displaying messages on console or not
-#' @return Returns a bar plot object showing number of literature in different locations
+#' @return Returns a bar plot object showing counts of literature in systematic review for each location
 #'
 #' @author Sanita Dhaubanjar
 #'
@@ -13,34 +12,29 @@
 #'
 #' @export
 
-GenLocationTrend = function(idata,idxlonlat, selcolidx, verbose = FALSE){
-
-  # # Inputs -------
-  # data("pilotdata")
-  # idata<-pilotdata
-  # idxlonlat<- c(17,16)
-  # selcolidx<-10     #"Country"
-
-  selcol<-colnames(idata[selcolidx])
+GenLocationTrend = function(df, location_column, verbose = FALSE){
 
   # Count per locations --------
-  seldata <- as.data.frame(table(idata[selcolidx]) )
-  colnames(seldata)<-c(selcol, "n")
+  location_counts <- as.data.frame(table(df[location_column])) # table() tabulates frequency
+  colnames(location_counts)<-c(location_column, "n")
 
   # Plot bar chart
-  locmp<- ggplot(seldata, aes_string(x=colnames(seldata[1]),y=colnames(seldata[2]))) +
+  locmp<- ggplot(location_counts, aes_string(x=colnames(location_counts[1]),
+                                             y=colnames(location_counts[2]),
+                                             label = colnames(location_counts[2]))) +
     geom_bar(alpha=0.9, stat="identity",fill="light green") +
-    #geom_text(aes( label = colnames(seldata[2]))) + #fill = colnames(seldata[3]),
-    labs(y="No of studies")+ ggtitle("Distribution of studies over regions")+
+    geom_text(aes(), size = 3, nudge_y = 10) +
+    labs(y="# of studies") + ggtitle("Frequency of studies across locations")+
     theme_bw()+
     theme(axis.line = element_line(colour = "black"),
           panel.background = element_blank(),
           plot.title = element_text(hjust = .5),
-          text = ggplot2::element_text(size=14))
+          text = ggplot2::element_text(size=14),
+          )
 
   # Rotate xaxis label if too many
-  if (nrow(seldata)>15){
-    locmp <- locmp + theme(axis.text.x=element_text(angle=45,hjust=0.95))
+  if (nrow(location_counts)>15){
+    locmp <- locmp + theme(axis.text.x=element_text(angle=45,hjust=0.95, size = 11))
   }
 
   if (verbose) {
@@ -48,5 +42,4 @@ GenLocationTrend = function(idata,idxlonlat, selcolidx, verbose = FALSE){
   }
 
   locmp
-  return(locmp)
 }

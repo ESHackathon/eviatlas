@@ -9,6 +9,9 @@
 #' @param radius_user (unstable) Specify a numeric column in the `studies_data` dataframe to size points by.
 #' @param links_user Specify a column in the `studies_data` dataframe that contains a URL for each study.
 #' @param cluster_pints Toggle clustering feature of `leaflet` maps
+#'
+#' @author Andrew Feierman
+#'
 #' @export
 
 sys_map <- function(studies_data, latitude,
