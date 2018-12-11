@@ -7,6 +7,7 @@ source("GenTimeTrend.R")
 source("get_obs.R")
 source("sys_map.R")
 source("get_link_cols.R")
+source("get_coord_cols.R")
 
 # Allow CSV files up to 100 MB
 max_file_size_mb <- 100
