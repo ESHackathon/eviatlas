@@ -8,7 +8,7 @@ shiny::runGitHub("ESHackathon/eviatlas")
 ```
 
 ## Dependencies
-dplyr, DT, ggplot2, leaflet, htmltools, shiny, shinydashboard, shinyWidgets
+dplyr, stringr, DT, ggplot2, leaflet, htmltools, shiny, shinydashboard, shinyWidgets
 
 
 ## [Stages of development](https://docs.google.com/spreadsheets/d/1FnHS7NotV4ZrtnLNm4LkAfz6YdL9gnItgvqaTg85kdM/edit#gid=0)
