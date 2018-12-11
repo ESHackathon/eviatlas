@@ -9,5 +9,3 @@ library(htmltools)
 library(shiny)
 library(shinydashboard)
 library(shinyWidgets)
-
-eviatlas_pilotdata <- read.csv("data/pilotdata.csv", fileEncoding = "latin1")

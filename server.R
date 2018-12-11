@@ -7,6 +7,8 @@ source("GenTimeTrend.R")
 source("get_obs.R")
 source("sys_map.R")
 source("get_link_cols.R")
+source("get_coord_cols.R")
+load("data/pilotdata.rda")
 
 # Allow CSV files up to 100 MB
 max_file_size_mb <- 100
@@ -86,7 +88,7 @@ shinyServer(
           width = '100%', options = list(`actions-box` = TRUE, `selectedTextFormat`='static'),
           multiple = T
         )
-      }
+      } 
     })
 
     output$go_button <- renderUI({
@@ -94,7 +96,7 @@ shinyServer(
         if(!is.null(input$selected_variable)){
           actionButton("go_subset", "Apply Subset")
         }
-      }
+      } else {wellPanel('To start, upload data in the "About EviAtlas" tab.')}
     })
 
     observeEvent(input$go_subset, {
@@ -167,18 +169,28 @@ shinyServer(
                 width = "250px"
               )
             ),
-            div(
-              style = "display: inline-block; width = '20%'",
-              materialSwitch(
-                inputId = "map_cluster_select",
-                label = "Cluster Map Points?",
-                value = TRUE,
-                status = "primary"
-              )
+            div(style = "display: inline-block; width = '20%'",
+                div(
+                shinyWidgets::materialSwitch(
+                  inputId = "map_cluster_select",
+                  label = "Cluster Map Points?",
+                  value = TRUE,
+                  status = "primary"
+                )
+              ),
+              div(
+                style = "display: inline-block; width = '20%'",
+                shinyWidgets::materialSwitch(
+                  inputId = "map_filtered_select",
+                  label = "Use filtered data?",
+                  value = FALSE,
+                  status = "primary"
+                )
+             )
             )
           )
         )
-      } else {wellPanel('To use the map, upload data in the "About EviAtlas" tab!')}
+      } else {wellPanel('To use the map, upload data in the "About EviAtlas" tab.')}
     })
 
     # BARPLOT
@@ -305,7 +317,8 @@ shinyServer(
 
     output$map <- renderLeaflet({
       # Try to generate map; if that fails, show blank map
-      tryCatch(sys_map(data_internal$raw, input$map_lat_select,
+      tryCatch(sys_map(ifelse(input$map_filtered_select, data_internal$filtered, data_internal$raw),
+                       input$map_lat_select,
                        input$map_lng_select,
                        popup_user = input$map_popup_select,
                        links_user = input$map_link_select,
