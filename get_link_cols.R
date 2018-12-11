@@ -3,7 +3,7 @@
 is_link_col <- function(col) {
   # Takes in a character vector, and returns a boolean value if that column is suspected to
   # contain URLs/URIs or other links.
-  any(str_detect(col, 'http'), na.rm = T) | any(str_detect(col, 'www'), na.rm = T)
+  any(stringr::str_detect(col, 'http'), na.rm = T) | any(stringr::str_detect(col, 'www'), na.rm = T)
 }
 
 get_link_cols <- function(df) {

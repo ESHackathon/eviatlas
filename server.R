@@ -54,8 +54,8 @@ shinyServer(
     # if user switches back to internal data, supply info on that instead
     observeEvent(input$sample_or_real, {
       if(input$sample_or_real == "sample"){
-        data_internal$raw <- eviatlas::pilotdata
-        data_internal$cols <- colnames(eviatlas::pilotdata)
+        data_internal$raw <- eviatlas_pilotdata
+        data_internal$cols <- colnames(eviatlas_pilotdata)
       }else{
         data_internal$raw <- NULL
         data_internal$cols <- NULL
@@ -66,9 +66,10 @@ shinyServer(
     output$data_summary <- renderPrint({
       if(!is.null(data_internal$raw)){
         cat(paste0(
-          "Dataset containing ", nrow(data_internal$raw),
+          "You've uploaded a dataset containing ", nrow(data_internal$raw),
           " rows and ", ncol(data_internal$raw),
-          " columns. Column names as follows:<br>",
+          " columns. If this is not what you expected, you might want to adjust the CSV properties settings on the right and try again.<br>",
+          "<br> Detected column names as follows:<br>",
           paste(data_internal$cols, collapse = "<br>")
         ))
       }
@@ -131,6 +132,7 @@ shinyServer(
                 inputId = "map_lat_select",
                 label = "Select Latitude Column",
                 choices = data_internal$cols,
+                selected = get_latitude_cols(data_internal$raw),
                 width = "250px"
               )
             ),
@@ -140,6 +142,7 @@ shinyServer(
                 inputId = "map_lng_select",
                 label = "Select Longitude Column",
                 choices = data_internal$cols,
+                selected = get_longitude_cols(data_internal$raw),
                 width = "250px"
               )
             ),
@@ -182,10 +185,10 @@ shinyServer(
     output$barplot_selector <- renderUI({
       if(!is.null(data_internal$cols)){
         selectInput(
-          inputId = "select_x1",
-          label = "Select variable",
-          choices = data_internal$cols,
-          selected = data_internal$cols[1]
+          inputId = "select_timetrend_col",
+          label = "Select Year variable",
+          choices = c("", data_internal$cols),
+          selected = ""
         )
       }
     })
@@ -196,8 +199,8 @@ shinyServer(
         selectInput(
           inputId = "select_loc_col",
           label = "Select Country/Region/Location Variable",
-          choices = data_internal$cols,
-          selected = NULL
+          choices = c("", data_internal$cols),
+          selected = ""
         )
       }
     })
@@ -234,62 +237,67 @@ shinyServer(
       }
     })
 
-
     #geom_bar rather than geom_histogram so that non-continous variables can be plotted
+    gen_time_trend_plot <- reactive({
+      ggplot(data_internal$raw, aes_string(x = input$select_timetrend_col)) +
+      geom_bar(
+        alpha = 0.9,
+        stat = "count",
+        fill = "light blue"
+      ) +
+      labs(y = "No of studies") +
+      ggtitle("") +
+      theme_bw() +
+      theme(
+        axis.line = element_line(colour = "black"),
+        panel.background = element_blank(),
+        plot.title = element_text(hjust = .5),
+        text = element_text(size = 14),
+        axis.text.x = element_text(angle = 45, hjust = 1)
+      )
+    })
+    
+    gen_location_trend_plot <- reactive({
+      GenLocationTrend(data_internal$raw, input$select_loc_col)
+    })
+    
     output$plot1 <- renderPlot({
-      ggplot(data_internal$raw, aes_string(x = input$select_x1))+
-        geom_bar(
-          alpha = 0.9,
-          stat = "count",
-          fill = "light blue"
-        ) +
-        labs(y = "No of studies") +
-        ggtitle("") +
-        theme_bw() +
-        theme(
-          axis.line = element_line(colour = "black"),
-          panel.background = element_blank(),
-          plot.title = element_text(hjust = .5),
-          text = element_text(size = 14),
-          axis.text.x = element_text(angle = 45, hjust = 1)
-        )
+      if (input$select_timetrend_col != "") {
+      gen_time_trend_plot()
+          }
     })
 
     output$plot2 <- renderPlot({
-      if (!is.null(input$location_plot_selector)){
-        GenLocationTrend(data_internal$raw, input$location_column)
+      if (input$select_loc_col != ""){
+        GenLocationTrend(data_internal$raw, input$select_loc_col)
       }
     })
     
-    output$save_plot_1_button <- renderUI({
-      if(!is.null(data_internal$raw)){
-        output$save_plot_1 <- downloadHandler(
+    output$save_plot_1 <- downloadHandler(
           filename = 'EviAtlas1.png',
           content = function(file) {
-            device <- function(..., width, height) grDevices::png(..., width = width, height = height, res = 300, units = "in")
-            ggsave(file, plot = input$plot1, device = device)
+            device <- function(..., width, height) {
+              grDevices::png(..., width = width, height = height,
+                             res = 300, units = "in")
+            }
+            ggsave(file, plot = gen_time_trend_plot(), device = device)
           }
         )
+    
+    output$save_plot_2 <- downloadHandler(
+      filename = 'EviAtlas2.png',
+      content = function(file) {
+        device <- function(..., width, height) {
+          grDevices::png(..., width = width, height = height,
+                         res = 300, units = "in")
+        }
+        ggsave(file, plot = gen_location_trend_plot(), device = device)
       }
-    })
+    )
     
-    observeEvent(input$save_plot_1_button, {
-      ggplot2::ggsave("evitatlas_plot_1.pdf", plot=input$plot1, device="pdf")
-    })
     
-    output$save_plot_2_button <- renderUI({
-      if(!is.null(data_internal$raw)){
-        actionButton("save_plot_2", "Save Plot 2 (bottom)")
-      }
-    })
-    
-    observeEvent(input$save_plot_1_button, {
-      ggplot2::ggsave("evitatlas_plot_2.pdf", plot=input$plot2, device="pdf")
-    })
-    
-
     output$heatmap <- renderPlot({
-      eviatlas::GenHeatMap(data_internal$raw, c(input$heat_select_x, input$heat_select_y))
+      GenHeatMap(data_internal$raw, c(input$heat_select_x, input$heat_select_y))
     })
 
     output$heat_x_axis <- renderPrint({ input$heat_select_x })

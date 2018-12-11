@@ -5,9 +5,9 @@ sidebar <- dashboardSidebar(
   # sidebarUserPanel("EviAtlas Nav"),
   sidebarMenu(
       menuItem("About EviAtlas", tabName = "about", icon = icon("question")),
+      menuItem("Systematic Map", tabName = "home", icon = icon("map")),
       menuItem("View Data", tabName = "data", icon = icon("database")),
       menuItem("Bar Plots", tabName = "insightplots", icon = icon("home")),
-      menuItem("Study Map", tabName = "home", icon = icon("map")),
       menuItem("Heatmap", tabName = "heatmap", icon = icon("fire"))
       )
 )
@@ -66,58 +66,60 @@ body <- dashboardBody(
               condition = "input.sample_or_real == 'user'",
 
               # Input: Select a file ----
-
-              fileInput(
-                "sysmapdata_upload",
-                label = "Choose CSV File",
-                multiple = FALSE,
-                accept = c(
-                  "text/csv",
-                  "text/comma-separated-values,text/plain",
-                  ".csv"),
-                placeholder = "Systematic Map Data"
-              ),
-
-              radioButtons(
-                "upload_encoding",
-                label = "Select File Encoding",
-                choices = list("Default"="", "UTF-8", "latin1"),
-                selected = ""
-              ),
-
-              # Input: Checkbox if file has header ----
-              checkboxInput("header", "Does file have header row?", TRUE),
-
-              # Input: Select separator ----
-              radioButtons(
-                "sep",
-                "Separator",
-                choices = c(
-                  Comma = ",",
-                  Semicolon = ";",
-                  Tab = "\t"
-                ),
-                selected = ","
-              ),
-
-              # Input: Select quotes ----
-              radioButtons(
-                "quote",
-                "Quote",
-                choices = c(
-                  None = "",
-                  "Double Quote" = '"',
-                  "Single Quote" = "'"
-                ),
-                selected = '"'
-              )
-          ))
+              fluidRow(
+                fileInput(
+                  "sysmapdata_upload",
+                  label = "Choose CSV File",
+                  multiple = FALSE,
+                  accept = c(
+                    "text/csv",
+                    "text/comma-separated-values,text/plain",
+                    ".csv"),
+                  placeholder = "Systematic Map Data"
+                )),
+              fluidRow(h5(strong("CSV Properties")),
+                column(6, 
+                       # Input: Checkbox if file has header ----
+                       checkboxInput("header", "Header row?", TRUE),
+                       radioButtons(
+                         "upload_encoding",
+                         label = "Select File Encoding",
+                         choices = list("Default"="", "UTF-8", "latin1"),
+                         selected = ""
+                       )),
+                column(6, 
+                       # Input: Select separator ----
+                       radioButtons(
+                         "sep",
+                         "Separator",
+                         choices = c(
+                           Comma = ",",
+                           Semicolon = ";",
+                           Tab = "\t"
+                         ),
+                         selected = ","
+                       ),
+                       # Input: Select quotes ----
+                       radioButtons(
+                         "quote",
+                         "Quote Delimiter",
+                         choices = c(
+                           None = "",
+                           "Double Quote" = '"',
+                           "Single Quote" = "'"
+                         ),
+                         selected = '"'
+                       )))
+            ))
       ))
     ),
 
     tabItem(tabName = "home",
       fluidRow(
-        uiOutput("map_columns")
+        tabsetPanel(
+          tabPanel("Configure Map",
+                   wellPanel(uiOutput("map_columns"))
+      ))
       ),
       fluidRow(
         box(width = 15, home)
@@ -146,19 +148,16 @@ body <- dashboardBody(
               tabPanel('Plot Inputs',
                        fluidRow(
                          column(3, uiOutput("barplot_selector")),
-                         column(3, uiOutput("location_plot_selector"))
-                       )),
-              tabPanel('Save Plots',
-                       fluidRow(
-                         column(2, downloadButton("save_plot_1_button")),
-                         column(2, downloadButton("save_plot_2_button"))
+                         column(4, uiOutput("location_plot_selector"))
                        ))
             ),
             wellPanel(
-              plotOutput("plot1")
+              plotOutput("plot1"),
+              downloadButton("save_plot_1")
             ),
             wellPanel(
-              plotOutput("plot2")
+              plotOutput("plot2"),
+              column(2, downloadButton("save_plot_2"))
             )
     ),
     tabItem(tabName = "heatmap",

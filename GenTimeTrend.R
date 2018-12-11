@@ -17,12 +17,14 @@ GenTimeTrend = function(idata, year_column = NULL, verbose = FALSE){
     if (verbose) {message('No year_column specified, assuming it is labeled "Year"')}
     year_column <- c("Year")
   }
-
+  
+  if(verbose){
   # Check if Year column exists ------
-  if(any(colnames(idata) %in% year_column)) {
-    message("GenTimeTrend: Year column found")
-  } else {
-    message("GenTimeTrend: Year column not found")
+    if(any(colnames(idata) %in% year_column)) {
+      message("GenTimeTrend: Year column found")
+    } else {
+      message("GenTimeTrend: Year column not found")
+    }
   }
 
   Years <- as.data.frame(sapply(idata[year_column], function(x) as.factor(x)))
@@ -53,4 +55,3 @@ GenTimeTrend = function(idata, year_column = NULL, verbose = FALSE){
 
   timemp
 }
-
