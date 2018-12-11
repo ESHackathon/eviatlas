@@ -6,6 +6,7 @@ source("GenLocationTrend.R")
 source("GenTimeTrend.R")
 source("get_obs.R")
 source("sys_map.R")
+source("get_link_cols.R")
 
 # Allow CSV files up to 100 MB
 max_file_size_mb <- 100
@@ -27,21 +28,15 @@ shinyServer(
     # if no data are available but input$sample_or_real == 'sample', show intro text
     output$start_text <- renderPrint({
       if(is.null(data_internal$raw) & input$sample_or_real == 'user'){
-        cat("<h2>EviAtlas</h2>
-           EviAtlas is an open-source tool for creating systematic maps, a key element of systematic reviews. Upload a systematic review dataset (csv format) using the panel on the right, and then use the left sidebar to view a systematic map generated from your dataset, as well as some common plots used in systematic reviews.
+        cat("EviAtlas is an open-source tool for creating systematic maps, a key element of systematic reviews. Upload a systematic review dataset (csv format) using the panel on the right, and then use the left sidebar to view a systematic map generated from your dataset, as well as some common plots used in systematic reviews.
            <h3>About Systematic Maps</h3><br>
            Systematic Maps are overviews of the quantity and quality of evidence in relation to a broad (open) question of policy or management relevance. The process and rigour of the mapping exercise is the same as for systematic review except that no evidence synthesis is attempted to seek an answer to the question. A critical appraisal of the quality of the evidence is strongly encouraged but may be limited to a subset or sample of papers when the quantity of articles is very large (and even be absent in exceptional circumstances). Authors should note that all systematic maps published in Environmental Evidence will have been conducted according to the CEE process. Please contact the Editors at an early stage of planning your review. More guidance can be found <a href='http://www.environmentalevidence.org' target='_blank' rel='noopener'>here</a>.<br><br>
            For systematic maps to be relevant to policy and practice they need to be as up-to-date as possible. Consequently, at the time of acceptance for publication, the search must be less than two years old. We therefore recommend that systematic maps should be submitted no later than 18 months after the search was conducted."
         )
       }else{
-        cat("<h2>Attributes of uploaded data:</h2>")
+        cat("<h3>Attributes of uploaded data:</h3>")
       }
     })
-
-    output$open_sci_text <- renderPrint({
-      cat('Willing to contribute to open science? We are testing methods to utilize metadata from existing systematic reviews to speed the process of developing systematic reviews in orther topics. Often, systematic reviews are done on similar topics, and the effort required to pull metadata from studies can be lessened by utilizing the work done by others. To contribute data to this process, please select a DOI column in your dataset, and the published title of your systematic review.')
-    })
-
 
 
     # if data are supplied, add them to data_internal
@@ -87,7 +82,7 @@ shinyServer(
           label = "Select Columns to Display:",
           choices = colnames(data_internal$raw),
           selected = data_internal$cols,
-          width = 'fit', options = list(`actions-box` = TRUE, `selectedTextFormat`='static'),
+          width = '100%', options = list(`actions-box` = TRUE, `selectedTextFormat`='static'),
           multiple = T
         )
       }
@@ -183,15 +178,6 @@ shinyServer(
       } else {wellPanel('To use the map, upload data in the "About EviAtlas" tab!')}
     })
 
-
-    # Show the first "n" observations ----
-    # The use of isolate() is necessary because we don't want the table
-    # to update whenever input$obs changes (only when the user clicks
-    # the action button)
-    output$view <- renderTable({
-      head(datasetInput(), n = isolate(input$obs))
-    })
-
     # BARPLOT
     output$barplot_selector <- renderUI({
       if(!is.null(data_internal$cols)){
@@ -209,9 +195,9 @@ shinyServer(
       if(!is.null(data_internal$cols)){
         selectInput(
           inputId = "select_loc_col",
-          label = "Select Country/Location Variable",
+          label = "Select Country/Region/Location Variable",
           choices = data_internal$cols,
-          selected = data_internal$cols[1]
+          selected = NULL
         )
       }
     })
@@ -270,8 +256,37 @@ shinyServer(
     })
 
     output$plot2 <- renderPlot({
-      GenLocationTrend(data_internal$raw, input$location_column)
+      if (!is.null(input$location_plot_selector)){
+        GenLocationTrend(data_internal$raw, input$location_column)
+      }
     })
+    
+    output$save_plot_1_button <- renderUI({
+      if(!is.null(data_internal$raw)){
+        output$save_plot_1 <- downloadHandler(
+          filename = 'EviAtlas1.png',
+          content = function(file) {
+            device <- function(..., width, height) grDevices::png(..., width = width, height = height, res = 300, units = "in")
+            ggsave(file, plot = input$plot1, device = device)
+          }
+        )
+      }
+    })
+    
+    observeEvent(input$save_plot_1_button, {
+      ggplot2::ggsave("evitatlas_plot_1.pdf", plot=input$plot1, device="pdf")
+    })
+    
+    output$save_plot_2_button <- renderUI({
+      if(!is.null(data_internal$raw)){
+        actionButton("save_plot_2", "Save Plot 2 (bottom)")
+      }
+    })
+    
+    observeEvent(input$save_plot_1_button, {
+      ggplot2::ggsave("evitatlas_plot_2.pdf", plot=input$plot2, device="pdf")
+    })
+    
 
     output$heatmap <- renderPlot({
       eviatlas::GenHeatMap(data_internal$raw, c(input$heat_select_x, input$heat_select_y))

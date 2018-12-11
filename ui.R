@@ -81,12 +81,12 @@ body <- dashboardBody(
               radioButtons(
                 "upload_encoding",
                 label = "Select File Encoding",
-                choices = list("utf-8", "latin1"),
-                selected = "utf-8"
+                choices = list("Default"="", "UTF-8", "latin1"),
+                selected = ""
               ),
 
               # Input: Checkbox if file has header ----
-              checkboxInput("header", "Check if file has header", TRUE),
+              checkboxInput("header", "Does file have header row?", TRUE),
 
               # Input: Select separator ----
               radioButtons(
@@ -111,9 +111,7 @@ body <- dashboardBody(
                 ),
                 selected = '"'
               )
-          )),
-          tabPanel("Contribute to Open Science",
-                   textOutput("open_sci_text"))
+          ))
       ))
     ),
 
@@ -129,15 +127,12 @@ body <- dashboardBody(
     tabItem(
       tabName = "data",
       fluidRow(
-        column(4,
-          uiOutput("filter_selector")
+        column(width = 3,
+          wellPanel(uiOutput("filter_selector"), 
+          uiOutput("go_button"))
         )
       ),
       fluidRow(
-        column(
-          width = 1,
-          uiOutput("go_button")
-        )
       ),
 
       fluidRow(
@@ -147,16 +142,24 @@ body <- dashboardBody(
         )
       ),
     tabItem(tabName = "insightplots",
-      fluidRow(
-        column(3, uiOutput("barplot_selector")),
-        column(3, uiOutput("location_plot_selector"))
-      ),
-      wellPanel(
-        plotOutput("plot1")
-      ),
-      wellPanel(
-        plotOutput("plot2")
-      )
+            tabsetPanel(
+              tabPanel('Plot Inputs',
+                       fluidRow(
+                         column(3, uiOutput("barplot_selector")),
+                         column(3, uiOutput("location_plot_selector"))
+                       )),
+              tabPanel('Save Plots',
+                       fluidRow(
+                         column(2, downloadButton("save_plot_1_button")),
+                         column(2, downloadButton("save_plot_2_button"))
+                       ))
+            ),
+            wellPanel(
+              plotOutput("plot1")
+            ),
+            wellPanel(
+              plotOutput("plot2")
+            )
     ),
     tabItem(tabName = "heatmap",
       fluidRow(
