@@ -1,8 +1,15 @@
 ## server.R ##
 
+# load functions
+source("GenHeatMap.R")
+source("GenLocationTrend.R")
+source("GenTimeTrend.R")
+source("get_obs.R")
+source("sys_map.R")
+
 # Allow CSV files up to 100 MB
 max_file_size_mb <- 100
-options(shiny.maxRequestSize=max_file_size_mb*1024^2)
+options(shiny.maxRequestSize = max_file_size_mb*1024^2)
 
 shinyServer(
 

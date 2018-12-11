@@ -1,5 +1,5 @@
 #' Wrangle data into observations
-#'
+#
 #' This function converts a nested variable, separated by a specified character,
 #' to a long-form dataset, where each row is an observation.
 #'
