@@ -17,12 +17,14 @@ GenTimeTrend = function(idata, year_column = NULL, verbose = FALSE){
     if (verbose) {message('No year_column specified, assuming it is labeled "Year"')}
     year_column <- c("Year")
   }
-
-  # Check if Year column exists ------ #should make this output part of verbose
-  if(any(colnames(idata) %in% year_column)) {
-    message("GenTimeTrend: Year column found")
-  } else {
-    message("GenTimeTrend: Year not found")
+  
+  if(verbose){
+  # Check if Year column exists ------
+    if(any(colnames(idata) %in% year_column)) {
+      message("GenTimeTrend: Year column found")
+    } else {
+      message("GenTimeTrend: Year column not found")
+    }
   }
 
   Years <- as.data.frame(sapply(idata[year_column], function(x) as.factor(x)))
@@ -44,7 +46,8 @@ GenTimeTrend = function(idata, year_column = NULL, verbose = FALSE){
       ggplot2::theme(axis.line = ggplot2::element_line(colour = "black"),
                      panel.background = ggplot2::element_blank(),
                      plot.title = ggplot2::element_text(hjust = .5),
-                     text = ggplot2::element_text(size=14))
+                     text = ggplot2::element_text(size=14),
+                     axis.text.x = ggplot2::element_text(angle = 90, vjust = -.01, size = 11))
 
     if(verbose) {
       message("GenTimeTrend: Time trend plot created!")
@@ -52,4 +55,3 @@ GenTimeTrend = function(idata, year_column = NULL, verbose = FALSE){
 
   timemp
 }
-

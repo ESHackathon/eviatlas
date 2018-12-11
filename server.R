@@ -6,6 +6,7 @@ source("GenLocationTrend.R")
 source("GenTimeTrend.R")
 source("get_obs.R")
 source("sys_map.R")
+source("get_link_cols.R")
 
 # Allow CSV files up to 100 MB
 max_file_size_mb <- 100
@@ -24,17 +25,19 @@ shinyServer(
 
 
     # DATA TAB
-    # if no data are available but input$sample_or_real == 'sample', show into text
+    # if no data are available but input$sample_or_real == 'sample', show intro text
     output$start_text <- renderPrint({
       if(is.null(data_internal$raw) & input$sample_or_real == 'user'){
-        cat("<h2>About Systematic Maps</h2><br>
+        cat("EviAtlas is an open-source tool for creating systematic maps, a key element of systematic reviews. Upload a systematic review dataset (csv format) using the panel on the right, and then use the left sidebar to view a systematic map generated from your dataset, as well as some common plots used in systematic reviews.
+           <h3>About Systematic Maps</h3><br>
            Systematic Maps are overviews of the quantity and quality of evidence in relation to a broad (open) question of policy or management relevance. The process and rigour of the mapping exercise is the same as for systematic review except that no evidence synthesis is attempted to seek an answer to the question. A critical appraisal of the quality of the evidence is strongly encouraged but may be limited to a subset or sample of papers when the quantity of articles is very large (and even be absent in exceptional circumstances). Authors should note that all systematic maps published in Environmental Evidence will have been conducted according to the CEE process. Please contact the Editors at an early stage of planning your review. More guidance can be found <a href='http://www.environmentalevidence.org' target='_blank' rel='noopener'>here</a>.<br><br>
            For systematic maps to be relevant to policy and practice they need to be as up-to-date as possible. Consequently, at the time of acceptance for publication, the search must be less than two years old. We therefore recommend that systematic maps should be submitted no later than 18 months after the search was conducted."
         )
       }else{
-        cat("<h2>Attributes of uploaded data:</h2>")
+        cat("<h3>Attributes of uploaded data:</h3>")
       }
     })
+
 
     # if data are supplied, add them to data_internal
     observeEvent(input$sysmapdata_upload, {
@@ -51,8 +54,8 @@ shinyServer(
     # if user switches back to internal data, supply info on that instead
     observeEvent(input$sample_or_real, {
       if(input$sample_or_real == "sample"){
-        data_internal$raw <- eviatlas::pilotdata
-        data_internal$cols <- colnames(eviatlas::pilotdata)
+        data_internal$raw <- eviatlas_pilotdata
+        data_internal$cols <- colnames(eviatlas_pilotdata)
       }else{
         data_internal$raw <- NULL
         data_internal$cols <- NULL
@@ -63,9 +66,10 @@ shinyServer(
     output$data_summary <- renderPrint({
       if(!is.null(data_internal$raw)){
         cat(paste0(
-          "Dataset containing ", nrow(data_internal$raw),
+          "You've uploaded a dataset containing ", nrow(data_internal$raw),
           " rows and ", ncol(data_internal$raw),
-          " columns. Column names as follows:<br>",
+          " columns. If this is not what you expected, you might want to adjust the CSV properties settings on the right and try again.<br>",
+          "<br> Detected column names as follows:<br>",
           paste(data_internal$cols, collapse = "<br>")
         ))
       }
@@ -79,7 +83,7 @@ shinyServer(
           label = "Select Columns to Display:",
           choices = colnames(data_internal$raw),
           selected = data_internal$cols,
-          width = 'fit', options = list(`actions-box` = TRUE, `selectedTextFormat`='static'),
+          width = '100%', options = list(`actions-box` = TRUE, `selectedTextFormat`='static'),
           multiple = T
         )
       }
@@ -126,8 +130,9 @@ shinyServer(
               style = "display: inline-block; width = '20%'",
               selectInput(
                 inputId = "map_lat_select",
-                label = h4("Select Latitude Column"),
+                label = "Select Latitude Column",
                 choices = data_internal$cols,
+                selected = get_latitude_cols(data_internal$raw),
                 width = "250px"
               )
             ),
@@ -135,8 +140,9 @@ shinyServer(
               style = "display: inline-block; width = '20%'",
               selectInput(
                 inputId = "map_lng_select",
-                label = h4("Select Longitude Column"),
+                label = "Select Longitude Column",
                 choices = data_internal$cols,
+                selected = get_longitude_cols(data_internal$raw),
                 width = "250px"
               )
             ),
@@ -144,7 +150,7 @@ shinyServer(
               style = "display: inline-block; width = '30%'",
               selectizeInput(
                 inputId = "map_popup_select",
-                label = h4("Select Popup Info"),
+                label = "Select Popup Info",
                 selected = data_internal$cols[1],
                 choices = data_internal$cols,
                 width = "250px",
@@ -155,43 +161,46 @@ shinyServer(
               style = "display: inline-block; width = '20%'",
               selectInput(
                 inputId = "map_link_select",
-                label = h4("Select Link Column (in pop-up)"),
-                choices = c("None", data_internal$cols),
+                label = "Select Link Column (in pop-up)",
+                choices = c("None", get_link_cols(data_internal$raw)),
                 selected = "None",
                 width = "250px"
               )
             ),
             div(
               style = "display: inline-block; width = '20%'",
-              checkboxInput(
+              materialSwitch(
                 inputId = "map_cluster_select",
-                label = h4("Cluster Map Points?"),
+                label = "Cluster Map Points?",
                 value = TRUE,
-                width = "250px"
+                status = "primary"
               )
             )
           )
         )
-      } else {'To use the map, upload your data in the "About EviAtlas" tab!'}
-    })
-
-
-    # Show the first "n" observations ----
-    # The use of isolate() is necessary because we don't want the table
-    # to update whenever input$obs changes (only when the user clicks
-    # the action button)
-    output$view <- renderTable({
-      head(datasetInput(), n = isolate(input$obs))
+      } else {wellPanel('To use the map, upload data in the "About EviAtlas" tab!')}
     })
 
     # BARPLOT
     output$barplot_selector <- renderUI({
       if(!is.null(data_internal$cols)){
         selectInput(
-          inputId = "select_x1",
-          label = h3("Select variable"),
-          choices = data_internal$cols,
-          selected = data_internal$cols[1]
+          inputId = "select_timetrend_col",
+          label = "Select Year variable",
+          choices = c("", data_internal$cols),
+          selected = ""
+        )
+      }
+    })
+
+    # Location Frequency Plot
+    output$location_plot_selector <- renderUI({
+      if(!is.null(data_internal$cols)){
+        selectInput(
+          inputId = "select_loc_col",
+          label = "Select Country/Region/Location Variable",
+          choices = c("", data_internal$cols),
+          selected = ""
         )
       }
     })
@@ -209,7 +218,7 @@ shinyServer(
               style = "display: inline-block; width = '40%'",
               selectInput(
                 inputId = "heat_select_x",
-                label = h3("Select X variable"),
+                label = "Select X variable",
                 choices = data_internal$cols,
                 selected = data_internal$cols[1]
               )
@@ -218,7 +227,7 @@ shinyServer(
               style = "display: inline-block; width = '40%'",
               selectInput(
                 inputId = "heat_select_y",
-                label = h3("Select Y variable"),
+                label = "Select Y variable",
                 choices = data_internal$cols,
                 selected = data_internal$cols[2]
               )
@@ -228,29 +237,67 @@ shinyServer(
       }
     })
 
-
-    #I have gone for geom_bar rather than geom_histogram so that non-continous variables can be plotted - is that sensible
+    #geom_bar rather than geom_histogram so that non-continous variables can be plotted
+    gen_time_trend_plot <- reactive({
+      ggplot(data_internal$raw, aes_string(x = input$select_timetrend_col)) +
+      geom_bar(
+        alpha = 0.9,
+        stat = "count",
+        fill = "light blue"
+      ) +
+      labs(y = "No of studies") +
+      ggtitle("") +
+      theme_bw() +
+      theme(
+        axis.line = element_line(colour = "black"),
+        panel.background = element_blank(),
+        plot.title = element_text(hjust = .5),
+        text = element_text(size = 14),
+        axis.text.x = element_text(angle = 45, hjust = 1)
+      )
+    })
+    
+    gen_location_trend_plot <- reactive({
+      GenLocationTrend(data_internal$raw, input$select_loc_col)
+    })
+    
     output$plot1 <- renderPlot({
-      ggplot(data_internal$raw, aes_string(x = input$select_x1))+
-        geom_bar(
-          alpha = 0.9,
-          stat = "count",
-          fill = "light blue"
-        ) +
-        labs(y = "No of studies") +
-        ggtitle("") +
-        theme_bw() +
-        theme(
-          axis.line = element_line(colour = "black"),
-          panel.background = element_blank(),
-          plot.title = element_text(hjust = .5),
-          text = element_text(size = 14),
-          axis.text.x = element_text(angle = 45, hjust = 1)
-        )
+      if (input$select_timetrend_col != "") {
+      gen_time_trend_plot()
+          }
     })
 
+    output$plot2 <- renderPlot({
+      if (input$select_loc_col != ""){
+        GenLocationTrend(data_internal$raw, input$select_loc_col)
+      }
+    })
+    
+    output$save_plot_1 <- downloadHandler(
+          filename = 'EviAtlas1.png',
+          content = function(file) {
+            device <- function(..., width, height) {
+              grDevices::png(..., width = width, height = height,
+                             res = 300, units = "in")
+            }
+            ggsave(file, plot = gen_time_trend_plot(), device = device)
+          }
+        )
+    
+    output$save_plot_2 <- downloadHandler(
+      filename = 'EviAtlas2.png',
+      content = function(file) {
+        device <- function(..., width, height) {
+          grDevices::png(..., width = width, height = height,
+                         res = 300, units = "in")
+        }
+        ggsave(file, plot = gen_location_trend_plot(), device = device)
+      }
+    )
+    
+    
     output$heatmap <- renderPlot({
-      eviatlas::GenHeatMap(data_internal$raw, c(input$heat_select_x, input$heat_select_y))
+      GenHeatMap(data_internal$raw, c(input$heat_select_x, input$heat_select_y))
     })
 
     output$heat_x_axis <- renderPrint({ input$heat_select_x })
