@@ -10,7 +10,6 @@ source("get_link_cols.R")
 source("get_coord_cols.R")
 load("data/pilotdata.rda")
 
-# Allow CSV files up to 100 MB
 max_file_size_mb <- 100
 options(shiny.maxRequestSize = max_file_size_mb*1024^2)
 
@@ -32,7 +31,7 @@ shinyServer(
       if(is.null(data_internal$raw) & input$sample_or_real == 'user'){
         cat("EviAtlas is an open-source tool for creating systematic maps, a key element of systematic reviews. Upload a systematic review dataset (csv format) using the panel on the right, and then use the left sidebar to view a systematic map generated from your dataset, as well as some common plots used in systematic reviews.
            <h3>About Systematic Maps</h3><br>
-           Systematic Maps are overviews of the quantity and quality of evidence in relation to a broad (open) question of policy or management relevance. The process and rigour of the mapping exercise is the same as for systematic review except that no evidence synthesis is attempted to seek an answer to the question. A critical appraisal of the quality of the evidence is strongly encouraged but may be limited to a subset or sample of papers when the quantity of articles is very large (and even be absent in exceptional circumstances). Authors should note that all systematic maps published in Environmental Evidence will have been conducted according to the CEE process. Please contact the Editors at an early stage of planning your review. More guidance can be found <a href='http://www.environmentalevidence.org' target='_blank' rel='noopener'>here</a>.<br><br>
+           Systematic Maps are overviews of the quantity and quality of evidence in relation to a broad (open) question of policy or management relevance. The process and rigour of the mapping exercise is the same as for systematic review except that no evidence synthesis is attempted to seek an answer to the question. A critical appraisal of the quality of the evidence is strongly encouraged but may be limited to a subset or sample of papers when the quantity of articles is very large (and even be absent in exceptional circumstances). More guidance can be found <a href='http://www.environmentalevidence.org' target='_blank' rel='noopener'>here</a>.<br><br>
            For systematic maps to be relevant to policy and practice they need to be as up-to-date as possible. Consequently, at the time of acceptance for publication, the search must be less than two years old. We therefore recommend that systematic maps should be submitted no later than 18 months after the search was conducted."
         )
       }else{
@@ -51,6 +50,7 @@ shinyServer(
         fileEncoding = input$upload_encoding,
         stringsAsFactors = F)
       data_internal$cols <- colnames(data_internal$raw)
+      data_internal$filtered <- data_internal$raw #instantiate filtered table with raw values
     })
 
     # if user switches back to internal data, supply info on that instead
@@ -58,8 +58,10 @@ shinyServer(
       if(input$sample_or_real == "sample"){
         data_internal$raw <- eviatlas_pilotdata
         data_internal$cols <- colnames(eviatlas_pilotdata)
+        data_internal$filtered <- data_internal$raw #instantiate filtered table with raw values
       }else{
         data_internal$raw <- NULL
+        data_internal$filtered <- NULL
         data_internal$cols <- NULL
       }
     })
@@ -82,9 +84,9 @@ shinyServer(
       if(!is.null(data_internal$cols)){
         shinyWidgets::pickerInput(
           "selected_variable",
-          label = "Select Columns to Display:",
+          label = "Select Columns:",
           choices = colnames(data_internal$raw),
-          selected = data_internal$cols,
+          selected = data_internal$cols[1:10],
           width = '100%', options = list(`actions-box` = TRUE, `selectedTextFormat`='static'),
           multiple = T
         )
@@ -104,21 +106,21 @@ shinyServer(
         if(input$selected_variable != ""){
           data_internal$filtered <- data_internal$raw %>% select(!!!input$selected_variable)
         }else{
-          data_internal$filtered <- NULL
+          data_internal$filtered
         }
       }
     })
-
-    output$filtered_table <- DT::renderDataTable({
-      if(is.null(data_internal$filtered)){
-        DT::datatable(data_internal$raw, filter = c('top'),
-                      style='bootstrap', options = list(scrollX = TRUE, responsive=T))
-      }else{
-        DT::datatable(data_internal$filtered, filter = c('top'),
-                      style='bootstrap', options = list(scrollX = TRUE, responsive=T))
-      }
+    
+    output$filtered_table <- DT::renderDataTable(DT::datatable(data_internal$filtered, filter = c('top'), style='bootstrap', 
+                                                               options = list(scrollX = TRUE, responsive=T)), 
+                                                 server = T)
+    
+    # download the filtered data
+    output$download_filtered = downloadHandler('eviatlas-datatable-filtered.csv', content = function(file) {
+      s = input$filtered_table_rows_all
+      write.csv(data_internal$filtered[s, , drop = FALSE], file)
     })
-
+    
     # map UI
     output$map_columns <- renderUI({
       if(!is.null(data_internal$cols)){
@@ -192,7 +194,26 @@ shinyServer(
         )
       } else {wellPanel('To use the map, upload data in the "About EviAtlas" tab.')}
     })
-
+    
+    
+    observeEvent(input$map_filtered_select, { 
+      # Change values for map inputs whenever button is toggled
+      updateSelectInput(session, "map_lat_select", 
+                        choices = if(input$map_filtered_select) {colnames(data_internal$filtered)} else {colnames(data_internal$raw)},
+                        selected = if(input$map_filtered_select) {get_latitude_cols(data_internal$filtered)} else {get_latitude_cols(data_internal$raw)})
+      
+      updateSelectInput(session, "map_lng_select", 
+                        choices = if(input$map_filtered_select) {colnames(data_internal$filtered)} else {colnames(data_internal$raw)},
+                        selected = if(input$map_filtered_select) {get_longitude_cols(data_internal$filtered)} else {get_longitude_cols(data_internal$raw)})
+      
+      updateSelectInput(session, "map_link_select", 
+                        choices = c("None", if(input$map_filtered_select) {get_link_cols(data_internal$filtered)} else {get_link_cols(data_internal$raw)}))
+      
+      updateSelectInput(session, "map_popup_select", 
+                        choices = if(input$map_filtered_select) {colnames(data_internal$filtered)} else {data_internal$cols},
+                        selected = if(input$map_filtered_select) {colnames(data_internal$filtered)[1]} else {data_internal$cols[1]})
+    })
+    
     # BARPLOT
     output$barplot_selector <- renderUI({
       if(!is.null(data_internal$cols)){
@@ -281,7 +302,7 @@ shinyServer(
 
     output$plot2 <- renderPlot({
       if (input$select_loc_col != ""){
-        GenLocationTrend(data_internal$raw, input$select_loc_col)
+        gen_location_trend_plot()
       }
     })
     
@@ -307,17 +328,33 @@ shinyServer(
       }
     )
     
+    gen_heatmap <- reactive({
+      GenHeatMap(data_internal$raw, c(input$heat_select_x, input$heat_select_y))
+    })
     
     output$heatmap <- renderPlot({
-      GenHeatMap(data_internal$raw, c(input$heat_select_x, input$heat_select_y))
+      if (input$heat_select_x != "" & input$heat_select_y != ""){
+        gen_heatmap()
+      }
     })
 
     output$heat_x_axis <- renderPrint({ input$heat_select_x })
     output$heat_y_axis <- renderPrint({ input$heat_select_y })
+    
+    output$save_heatmap <- downloadHandler(
+      filename = 'EviAtlasHeatmap.png',
+      content = function(file) {
+        device <- function(..., width, height) {
+          grDevices::png(..., width = width, height = height,
+                         res = 300, units = "in")
+        }
+        ggsave(file, plot = gen_heatmap(), device = device)
+      }
+    )
 
     output$map <- renderLeaflet({
       # Try to generate map; if that fails, show blank map
-      tryCatch(sys_map(ifelse(input$map_filtered_select, data_internal$filtered, data_internal$raw),
+      tryCatch(sys_map(if(input$map_filtered_select) {data_internal$filtered[input$filtered_table_rows_all, , drop = FALSE]} else {data_internal$raw},
                        input$map_lat_select,
                        input$map_lng_select,
                        popup_user = input$map_popup_select,
