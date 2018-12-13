@@ -2,7 +2,7 @@
 
 sys_map <- function(studies_data, latitude,
                     longitude, popup_user=NULL,
-                    radius_user=NULL, links_user=NULL,
+                    radius_user=NULL, links_user="",
                     cluster_points=T) {
   if (!is.null(popup_user)) {
     #hacky for loop, should be made vectorized & pretty someday
@@ -13,7 +13,7 @@ sys_map <- function(studies_data, latitude,
     }
   } else {popup_string <- ""}
 
-  if (!is.null(links_user) & links_user != "None") {
+  if (links_user != "") {
     links_input <- sapply(studies_data[links_user], as.character)
     links = paste0("<strong><a href='", links_input, "'>Link to paper</a></strong>")
   } else {links <- ""}

@@ -152,6 +152,7 @@ shinyServer(
             ),
             div(
               style = "display: inline-block; width = '30%'",
+              title = "Multiple columns are allowed as popups",
               selectizeInput(
                 inputId = "map_popup_select",
                 label = "Select Popup Info",
@@ -163,15 +164,17 @@ shinyServer(
             ),
             div(
               style = "display: inline-block; width = '20%'",
+              title = "If your dataset has a link to each study, you can include it in the popup when a point is clicked with the mouse",
               selectInput(
                 inputId = "map_link_select",
                 label = "Select Link Column (in pop-up)",
-                choices = c("None", get_link_cols(data_internal$raw)),
-                selected = "None",
+                choices = c("", get_link_cols(data_internal$raw)),
+                selected = "",
                 width = "250px"
               )
             ),
             div(style = "display: inline-block; width = '20%'",
+                title = "Toggle displaying points in relative geographic clusters",
                 div(
                 shinyWidgets::materialSwitch(
                   inputId = "map_cluster_select",
@@ -182,6 +185,7 @@ shinyServer(
               ),
               div(
                 style = "display: inline-block; width = '20%'",
+                title = "Use the Filter Data tab to subset data",
                 shinyWidgets::materialSwitch(
                   inputId = "map_filtered_select",
                   label = "Use filtered data?",
@@ -195,7 +199,6 @@ shinyServer(
       } else {wellPanel('To use the map, upload data in the "About EviAtlas" tab.')}
     })
     
-    
     observeEvent(input$map_filtered_select, { 
       # Change values for map inputs whenever button is toggled
       updateSelectInput(session, "map_lat_select", 
@@ -207,7 +210,7 @@ shinyServer(
                         selected = if(input$map_filtered_select) {get_longitude_cols(data_internal$filtered)} else {get_longitude_cols(data_internal$raw)})
       
       updateSelectInput(session, "map_link_select", 
-                        choices = c("None", if(input$map_filtered_select) {get_link_cols(data_internal$filtered)} else {get_link_cols(data_internal$raw)}))
+                        choices = c("", if(input$map_filtered_select) {get_link_cols(data_internal$filtered)} else {get_link_cols(data_internal$raw)}))
       
       updateSelectInput(session, "map_popup_select", 
                         choices = if(input$map_filtered_select) {colnames(data_internal$filtered)} else {data_internal$cols},
@@ -295,15 +298,13 @@ shinyServer(
     })
     
     output$plot1 <- renderPlot({
-      if (input$select_timetrend_col != "") {
+      req(input$select_timetrend_col)
       gen_time_trend_plot()
-          }
     })
 
     output$plot2 <- renderPlot({
-      if (input$select_loc_col != ""){
-        gen_location_trend_plot()
-      }
+      req(input$select_loc_col)
+      gen_location_trend_plot()
     })
     
     output$save_plot_1 <- downloadHandler(
@@ -333,9 +334,9 @@ shinyServer(
     })
     
     output$heatmap <- renderPlot({
-      if (input$heat_select_x != "" & input$heat_select_y != ""){
-        gen_heatmap()
-      }
+      req(input$heat_select_x)
+      req(input$heat_select_y)
+      gen_heatmap()
     })
 
     output$heat_x_axis <- renderPrint({ input$heat_select_x })
@@ -351,19 +352,41 @@ shinyServer(
         ggsave(file, plot = gen_heatmap(), device = device)
       }
     )
-
-    output$map <- renderLeaflet({
+    
+    generate_systematic_map <- reactive({
       # Try to generate map; if that fails, show blank map
-      tryCatch(sys_map(if(input$map_filtered_select) {data_internal$filtered[input$filtered_table_rows_all, , drop = FALSE]} else {data_internal$raw},
-                       input$map_lat_select,
-                       input$map_lng_select,
-                       popup_user = input$map_popup_select,
-                       links_user = input$map_link_select,
-                       cluster_points = input$map_cluster_select),
-               error = function(x) {leaflet::leaflet() %>% leaflet::addTiles()}
-               )
-
+      tryCatch(
+        sys_map(if(input$map_filtered_select) {data_internal$filtered[input$filtered_table_rows_all, , drop = FALSE]} else {data_internal$raw},
+                input$map_lat_select,
+                input$map_lng_select,
+                popup_user = input$map_popup_select,
+                links_user = input$map_link_select,
+                cluster_points = input$map_cluster_select), 
+        error = function(x) {leaflet::leaflet() %>% leaflet::addTiles()}
+      )
     })
+    
+    output$savemap_interactive <- downloadHandler(
+      filename = "EviAtlasMap.html",
+      content = function(file){
+        saveWidget(
+          widget = generate_systematic_map(), file = file
+        )
+      }
+    )
+    
+    # output$savemap_static <- downloadHandler(
+    #   filename = 'EviAtlasMap.png',
+    #   content = function(file) {
+    #     mapview::mapshot(generate_systematic_map(), file = file)
+    #   }
+    # )
+    # 
+    output$map <- renderLeaflet({
+      generate_systematic_map()
+    })
+    
+    
 
     observe({
       leafletProxy("map")
