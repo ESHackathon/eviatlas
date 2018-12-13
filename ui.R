@@ -42,7 +42,6 @@ body <- dashboardBody(
       background-color: #2d6c66;
     }
   ")), 
-  tags$script(src = leaflet_easyprint_jsfile),
   tabItems(
     tabItem(tabName = "about",
       mainPanel(
