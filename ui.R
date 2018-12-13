@@ -125,24 +125,24 @@ body <- dashboardBody(
         box(width = 15, home)
       )
     ),
-
+    
     tabItem(
       tabName = "data",
       fluidRow(
-        column(width = 3,
-          wellPanel(uiOutput("filter_selector"), 
-          uiOutput("go_button"))
-        )
-      ),
-      fluidRow(
-      ),
-
+          column(width = 3,
+                 wellPanel(
+                   uiOutput("filter_selector"),
+                   uiOutput("go_button")
+                 )), 
+          column(width=1,
+                 downloadButton('download_filtered', 'Download Filtered Data')
+      )),
       fluidRow(
         column(12,
                DT::dataTableOutput("filtered_table", height="80%")
-               )
         )
-      ),
+      )
+    ),
     tabItem(tabName = "insightplots",
             tabsetPanel(
               tabPanel('Plot Inputs',
@@ -157,7 +157,7 @@ body <- dashboardBody(
             ),
             wellPanel(
               plotOutput("plot2"),
-              column(2, downloadButton("save_plot_2"))
+              downloadButton("save_plot_2")
             )
     ),
     tabItem(tabName = "heatmap",
@@ -166,7 +166,8 @@ body <- dashboardBody(
       ),
       fluidRow(
         wellPanel(
-          plotOutput("heatmap")
+          plotOutput("heatmap"),
+          downloadButton("save_heatmap")
         )
       )
     )
