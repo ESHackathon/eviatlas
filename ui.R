@@ -6,17 +6,18 @@ sidebar <- dashboardSidebar(
   sidebarMenu(
       menuItem("About EviAtlas", tabName = "about", icon = icon("question")),
       menuItem("Systematic Map", tabName = "home", icon = icon("map")),
-      menuItem("View Data", tabName = "data", icon = icon("database")),
+      menuItem("Filter Data", tabName = "data", icon = icon("database")),
       menuItem("Bar Plots", tabName = "insightplots", icon = icon("home")),
       menuItem("Heatmap", tabName = "heatmap", icon = icon("fire"))
       )
 )
 
+
 home <- tags$html(
   tags$head(
     tags$title('EviAtlas')
-  ),
-  tags$style(type = "text/css", "#map {height: calc(100vh - 180px) !important;}"),
+    ),
+  tags$style(type = "text/css", "#map {height: calc(100vh - 220px) !important;}"),
   tags$body(
     leafletOutput("map")
   )
@@ -40,7 +41,7 @@ body <- dashboardBody(
     .skin-blue .main-header .sidebar-toggle {
       background-color: #2d6c66;
     }
-  ")),
+  ")), 
   tabItems(
     tabItem(tabName = "about",
       mainPanel(
@@ -119,10 +120,16 @@ body <- dashboardBody(
         tabsetPanel(
           tabPanel("Configure Map",
                    wellPanel(uiOutput("map_columns"))
-      ))
+          ),
+          tabPanel('Save Map',
+                   wellPanel(downloadButton(outputId = "savemap_interactive", label = "Save Map (Interactive)")
+                   # downloadButton(outputId = "savemap_static", label = "Save Map (Image)")
+                   )))
       ),
       fluidRow(
-        box(width = 15, home)
+        wellPanel(
+          box(width = 15, home)
+        )
       )
     ),
     
