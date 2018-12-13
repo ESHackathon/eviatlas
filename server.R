@@ -111,8 +111,10 @@ shinyServer(
       }
     })
     
-    output$filtered_table <- DT::renderDataTable(DT::datatable(data_internal$filtered, filter = c('top'), style='bootstrap', 
-                                                               options = list(scrollX = TRUE, responsive=T)), 
+    output$filtered_table <- DT::renderDataTable(DT::datatable(data_internal$filtered, filter = c('top'), 
+                                                               caption = "Use the boxes below column headers to filter data",
+                                                               class = c('display', 'compact'), style='bootstrap', 
+                                                               options = list(scrollX = TRUE, scrollY = TRUE, responsive=T)), 
                                                  server = T)
     
     # download the filtered data

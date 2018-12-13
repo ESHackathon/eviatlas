@@ -146,7 +146,7 @@ body <- dashboardBody(
       )),
       fluidRow(
         column(12,
-               DT::dataTableOutput("filtered_table", height="80%")
+               DT::dataTableOutput("filtered_table")
         )
       )
     ),
