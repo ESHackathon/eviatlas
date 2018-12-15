@@ -29,7 +29,7 @@ shinyServer(
     # if no data are available but input$sample_or_real == 'sample', show intro text
     output$start_text <- renderPrint({
       if(is.null(data_internal$raw) & input$sample_or_real == 'user'){
-        cat("EviAtlas is an open-source tool for creating systematic maps, a key element of systematic reviews. Upload a systematic review dataset (csv format) using the panel on the right, and then use the left sidebar to view a systematic map generated from your dataset, as well as some common plots used in systematic reviews.
+        cat("eviatlas is an open-source tool for creating systematic maps, a key element of systematic reviews. Upload a systematic review dataset (csv format) using the panel on the right, and then use the left sidebar to view a systematic map generated from your dataset, as well as some common plots used in systematic reviews.
            <h3>About Systematic Maps</h3><br>
            Systematic Maps are overviews of the quantity and quality of evidence in relation to a broad (open) question of policy or management relevance. The process and rigour of the mapping exercise is the same as for systematic review except that no evidence synthesis is attempted to seek an answer to the question. A critical appraisal of the quality of the evidence is strongly encouraged but may be limited to a subset or sample of papers when the quantity of articles is very large (and even be absent in exceptional circumstances). More guidance can be found <a href='http://www.environmentalevidence.org' target='_blank' rel='noopener'>here</a>.<br><br>
            For systematic maps to be relevant to policy and practice they need to be as up-to-date as possible. Consequently, at the time of acceptance for publication, the search must be less than two years old. We therefore recommend that systematic maps should be submitted no later than 18 months after the search was conducted."
@@ -98,7 +98,7 @@ shinyServer(
         if(!is.null(input$selected_variable)){
           actionButton("go_subset", "Apply Subset")
         }
-      } else {wellPanel('To start, upload data in the "About EviAtlas" tab.')}
+      } else {wellPanel('To start, upload data in the "About eviatlas" tab.')}
     })
 
     observeEvent(input$go_subset, {
@@ -111,8 +111,10 @@ shinyServer(
       }
     })
     
-    output$filtered_table <- DT::renderDataTable(DT::datatable(data_internal$filtered, filter = c('top'), style='bootstrap', 
-                                                               options = list(scrollX = TRUE, responsive=T)), 
+    output$filtered_table <- DT::renderDataTable(DT::datatable(data_internal$filtered, filter = c('top'), 
+                                                               caption = "Use the boxes below column headers to filter data",
+                                                               class = c('display', 'compact'), style='bootstrap', 
+                                                               options = list(scrollX = TRUE, scrollY = TRUE, responsive=T)), 
                                                  server = T)
     
     # download the filtered data
@@ -196,7 +198,7 @@ shinyServer(
             )
           )
         )
-      } else {wellPanel('To use the map, upload data in the "About EviAtlas" tab.')}
+      } else {wellPanel('To use the map, upload data in the "About eviatlas" tab.')}
     })
     
     observeEvent(input$map_filtered_select, { 
@@ -308,7 +310,7 @@ shinyServer(
     })
     
     output$save_plot_1 <- downloadHandler(
-          filename = 'EviAtlas1.png',
+          filename = 'eviatlas1.png',
           content = function(file) {
             device <- function(..., width, height) {
               grDevices::png(..., width = width, height = height,
@@ -319,7 +321,7 @@ shinyServer(
         )
     
     output$save_plot_2 <- downloadHandler(
-      filename = 'EviAtlas2.png',
+      filename = 'eviatlas2.png',
       content = function(file) {
         device <- function(..., width, height) {
           grDevices::png(..., width = width, height = height,
@@ -343,7 +345,7 @@ shinyServer(
     output$heat_y_axis <- renderPrint({ input$heat_select_y })
     
     output$save_heatmap <- downloadHandler(
-      filename = 'EviAtlasHeatmap.png',
+      filename = 'eviatlasHeatmap.png',
       content = function(file) {
         device <- function(..., width, height) {
           grDevices::png(..., width = width, height = height,
@@ -367,7 +369,7 @@ shinyServer(
     })
     
     output$savemap_interactive <- downloadHandler(
-      filename = "EviAtlasMap.html",
+      filename = "eviatlasMap.html",
       content = function(file){
         saveWidget(
           widget = generate_systematic_map(), file = file
@@ -375,13 +377,22 @@ shinyServer(
       }
     )
     
-    # output$savemap_static <- downloadHandler(
-    #   filename = 'EviAtlasMap.png',
-    #   content = function(file) {
-    #     mapview::mapshot(generate_systematic_map(), file = file)
-    #   }
-    # )
-    # 
+    output$savemap_pdf <- downloadHandler(
+      filename = 'eviatlasMap.pdf',
+      content = function(file) {
+        mapview::mapshot(generate_systematic_map(), 
+                         file = file)
+      }
+    )
+    
+    output$savemap_png <- downloadHandler(
+      filename = 'eviatlasMap.png',
+      content = function(file) {
+        mapview::mapshot(generate_systematic_map(), 
+                         file = file)
+      }
+    )
+
     output$map <- renderLeaflet({
       generate_systematic_map()
     })
