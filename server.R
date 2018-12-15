@@ -377,13 +377,22 @@ shinyServer(
       }
     )
     
-    # output$savemap_static <- downloadHandler(
-    #   filename = 'EviAtlasMap.png',
-    #   content = function(file) {
-    #     mapview::mapshot(generate_systematic_map(), file = file)
-    #   }
-    # )
-    # 
+    output$savemap_pdf <- downloadHandler(
+      filename = 'EviAtlasMap.pdf',
+      content = function(file) {
+        mapview::mapshot(generate_systematic_map(), 
+                         file = file)
+      }
+    )
+    
+    output$savemap_png <- downloadHandler(
+      filename = 'EviAtlasMap.png',
+      content = function(file) {
+        mapview::mapshot(generate_systematic_map(), 
+                         file = file)
+      }
+    )
+
     output$map <- renderLeaflet({
       generate_systematic_map()
     })

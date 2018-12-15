@@ -122,8 +122,10 @@ body <- dashboardBody(
                    wellPanel(uiOutput("map_columns"))
           ),
           tabPanel('Save Map',
-                   wellPanel(downloadButton(outputId = "savemap_interactive", label = "Save Map (Interactive)")
-                   # downloadButton(outputId = "savemap_static", label = "Save Map (Image)")
+                   wellPanel(
+                     downloadButton(outputId = "savemap_interactive", label = "Save Map (Interactive)"),
+                     downloadButton(outputId = "savemap_png", label = "Save Map (png)"),
+                     downloadButton(outputId = "savemap_pdf", label = "Save Map (PDF)")
                    )))
       ),
       fluidRow(
