@@ -2,9 +2,9 @@
 
 sidebar <- dashboardSidebar(
 
-  # sidebarUserPanel("EviAtlas Nav"),
+  # sidebarUserPanel("eviatlas Nav"),
   sidebarMenu(
-      menuItem("About EviAtlas", tabName = "about", icon = icon("question")),
+      menuItem("About eviatlas", tabName = "about", icon = icon("question")),
       menuItem("Systematic Map", tabName = "home", icon = icon("map")),
       menuItem("Filter Data", tabName = "data", icon = icon("database")),
       menuItem("Bar Plots", tabName = "insightplots", icon = icon("home")),
@@ -15,7 +15,7 @@ sidebar <- dashboardSidebar(
 
 home <- tags$html(
   tags$head(
-    tags$title('EviAtlas')
+    tags$title('eviatlas')
     ),
   tags$style(type = "text/css", "#map {height: calc(100vh - 220px) !important;}"),
   tags$body(
@@ -185,7 +185,7 @@ body <- dashboardBody(
 
 shinyUI(
   dashboardPage(
-    dashboardHeader(title = "EviAtlas"),
+    dashboardHeader(title = "eviatlas"),
     sidebar,
     body
   ))
