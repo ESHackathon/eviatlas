@@ -9,7 +9,7 @@
 #'
 #' @return Returns a heatmap object showing number of literature under different categories in user specified \code{selcols}
 #'
-#' @author Sanita Dhaubanjar 24 April 2018
+#' @author Ezgi Tanriver-Ayder and Sanita Dhaubanjar
 #' @export
 
 GenHeatMap = function(idata, selcols, verbose = FALSE){
@@ -24,37 +24,27 @@ GenHeatMap = function(idata, selcols, verbose = FALSE){
   tmp <- as.data.frame(sapply(idata[selcols], function(x) as.factor(x)))
 
 
-
-  # Count combination of vars --------
-  seldata <- table(tmp)
-  seldata <- reshape2::melt(seldata)
-
   if(verbose) {
     message("GenHeatMap: Counting of var combination completed.")
   }
 
 
   # Plot Heatmap ------
-  heatmp <- ggplot2::ggplot(seldata,
-                            ggplot2::aes_string(x=seldata[,1], y=seldata[,2],
-                                                fill=seldata[,3])) +
-    ggplot2::geom_raster(alpha=0.9) +
-    # ggplot2::geom_text(ggplot2::aes_string(label = colnames(seldata[3]))) +
-    ggplot2::theme(axis.line = ggplot2::element_line(colour = "black"),
-          panel.background = ggplot2::element_blank(),
-          text = ggplot2::element_text(size=14)) +
-    ggplot2::scale_fill_gradient(low = "white", high = "light blue",
-                                 name = "No of studies") +
-    ggplot2::xlab(paste0(selcols[1])) +
-    ggplot2::ylab(paste0(selcols[2])) +
-    ggplot2::ggtitle("Study Heatmap", subtitle = paste(selcols[2], "by", selcols[1]))
+  heatmp <- tmp %>%
+            dplyr::rename(listone=colnames(tmp[1]), listtwo=colnames(tmp[2]))%>%
+            dplyr::count(listone, listtwo) %>%
+            tidyr::complete(listone, listtwo, fill = list(n = 0)) %>%
+            ggplot2::ggplot(aes(x = listone, y = listtwo, fill= n, label= n)) +
+            ggplot2::geom_tile(alpha=0.3) +
+            ggplot2::geom_text() +
+            viridis::scale_fill_viridis() +
+            ggplot2::theme_minimal() +
+            ggplot2::theme(axis.text = ggplot2::element_text(angle = 45, vjust = 1))+
+            ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 45, hjust = 1)) +
+            ggplot2::xlab(paste0(selcols[1])) +
+            ggplot2::ylab(paste0(selcols[2])) +
+            ggplot2::ggtitle("Study Heatmap", subtitle = paste(selcols[2], "by", selcols[1]))
 
-
-  if(length(unique(seldata[,1])) >=15)
-    heatmp <- heatmp + ggplot2::theme(axis.text.x = ggplot2::element_text(angle=60, hjust=.95))
-
-
-  if(verbose) message("GenHeatMap: Heatmap created!")
 
   heatmp
 }
