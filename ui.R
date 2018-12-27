@@ -175,7 +175,7 @@ body <- dashboardBody(
       ),
       fluidRow(
         wellPanel(
-          plotOutput("heatmap"),
+          plotOutput("heatmap", width = "100%", height = "75vh"),
           downloadButton("save_heatmap")
         )
       )
