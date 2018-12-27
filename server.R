@@ -257,8 +257,8 @@ shinyServer(
               selectInput(
                 inputId = "heat_select_x",
                 label = "Select X variable",
-                choices = data_internal$cols,
-                selected = data_internal$cols[1]
+                choices = c("", data_internal$cols),
+                selected = ""
               )
             ),
             div(
@@ -266,8 +266,8 @@ shinyServer(
               selectInput(
                 inputId = "heat_select_y",
                 label = "Select Y variable",
-                choices = data_internal$cols,
-                selected = data_internal$cols[2]
+                choices = c("", data_internal$cols),
+                selected = ""
               )
             )
           )
@@ -348,7 +348,7 @@ shinyServer(
       filename = 'eviatlasHeatmap.png',
       content = function(file) {
         device <- function(..., width, height) {
-          grDevices::png(..., width = width, height = height,
+          grDevices::png(..., width = width, height = width,
                          res = 300, units = "in")
         }
         ggsave(file, plot = gen_heatmap(), device = device)
