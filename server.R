@@ -30,12 +30,17 @@ shinyServer(
       if(is.null(data_internal$raw) & input$sample_or_real == 'user'){
         cat("EviAtlas is an open-source tool for creating systematic maps, a key element of systematic reviews. Upload a systematic review dataset (csv format) using the panel on the right, and then use the left sidebar to view a systematic map generated from your dataset, as well as some common plots used in systematic reviews.
            <h3>About Systematic Maps</h3><br>
-           Systematic Maps are overviews of the quantity and quality of evidence in relation to a broad (open) question of policy or management relevance. The process and rigour of the mapping exercise is the same as for systematic review except that no evidence synthesis is attempted to seek an answer to the question. A critical appraisal of the quality of the evidence is strongly encouraged but may be limited to a subset or sample of papers when the quantity of articles is very large (and even be absent in exceptional circumstances). More guidance can be found <a href='http://www.environmentalevidence.org' target='_blank' rel='noopener'>here</a>.<br><br>
+           Systematic Maps are overviews of the quantity and quality of evidence in relation to a broad (open) question of policy or management relevance. The process and rigour of the mapping exercise is the same as for systematic review except that no evidence synthesis is attempted to seek an answer to the question. A critical appraisal of the quality of the evidence is strongly encouraged but may be limited to a subset or sample of papers when the quantity of articles is very large (and even be absent in exceptional circumstances). More guidance can be found <a href='http://www.environmentalevidence.org' target='_blank' rel='noopener noreferrer'>here</a>.<br><br>
            For systematic maps to be relevant to policy and practice they need to be as up-to-date as possible. Consequently, at the time of acceptance for publication, the search must be less than two years old. We therefore recommend that systematic maps should be submitted no later than 18 months after the search was conducted."
         )
       }else{
         cat("<h3>Attributes of uploaded data:</h3>")
       }
+    })
+    
+    output$help_text <- renderPrint({
+      cat("<br>Find a bug? Have a suggestion for future improvements? Feel free to contact Neal Haddaway, Research Fellow at SEI Stockholm: neal DOT haddaway AT sei DOT org."
+        )
     })
 
 
@@ -200,22 +205,59 @@ shinyServer(
       } else {wellPanel('To use the map, upload data in the "About EviAtlas" tab.')}
     })
     
-    observeEvent(input$map_filtered_select, { 
+    observeEvent(input$map_filtered_select, {
       # Change values for map inputs whenever button is toggled
-      updateSelectInput(session, "map_lat_select", 
-                        choices = if(input$map_filtered_select) {colnames(data_internal$filtered)} else {colnames(data_internal$raw)},
-                        selected = if(input$map_filtered_select) {get_latitude_cols(data_internal$filtered)} else {get_latitude_cols(data_internal$raw)})
+      updateSelectInput(
+        session,
+        "map_lat_select",
+        choices = if (input$map_filtered_select) {
+          colnames(data_internal$filtered)
+        } else {
+          colnames(data_internal$raw)
+        },
+        selected = if (input$map_filtered_select) {
+          get_latitude_cols(data_internal$filtered)
+        } else {
+          get_latitude_cols(data_internal$raw)
+        }
+      )
       
-      updateSelectInput(session, "map_lng_select", 
-                        choices = if(input$map_filtered_select) {colnames(data_internal$filtered)} else {colnames(data_internal$raw)},
-                        selected = if(input$map_filtered_select) {get_longitude_cols(data_internal$filtered)} else {get_longitude_cols(data_internal$raw)})
+      updateSelectInput(
+        session,
+        "map_lng_select",
+        choices = if (input$map_filtered_select) {
+          colnames(data_internal$filtered)
+        } else {
+          colnames(data_internal$raw)
+        },
+        selected = if (input$map_filtered_select) {
+          get_longitude_cols(data_internal$filtered)
+        } else {
+          get_longitude_cols(data_internal$raw)
+        }
+      )
       
-      updateSelectInput(session, "map_link_select", 
-                        choices = c("", if(input$map_filtered_select) {get_link_cols(data_internal$filtered)} else {get_link_cols(data_internal$raw)}))
+      updateSelectInput(session, "map_link_select",
+                        choices = c("", if (input$map_filtered_select) {
+                          get_link_cols(data_internal$filtered)
+                        } else {
+                          get_link_cols(data_internal$raw)
+                        }))
       
-      updateSelectInput(session, "map_popup_select", 
-                        choices = if(input$map_filtered_select) {colnames(data_internal$filtered)} else {data_internal$cols},
-                        selected = if(input$map_filtered_select) {colnames(data_internal$filtered)[1]} else {data_internal$cols[1]})
+      updateSelectInput(
+        session,
+        "map_popup_select",
+        choices = if (input$map_filtered_select) {
+          colnames(data_internal$filtered)
+        } else {
+          data_internal$cols
+        },
+        selected = if (input$map_filtered_select) {
+          colnames(data_internal$filtered)[1]
+        } else {
+          data_internal$cols[1]
+        }
+      )
     })
     
     # BARPLOT

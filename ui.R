@@ -5,9 +5,9 @@ sidebar <- dashboardSidebar(
   # sidebarUserPanel("EviAtlas Nav"),
   sidebarMenu(
       menuItem("About EviAtlas", tabName = "about", icon = icon("question")),
-      menuItem("Map Database", tabName = "home", icon = icon("map")),
-      menuItem("Filter Data", tabName = "data", icon = icon("database")),
-      menuItem("Bar Plots", tabName = "insightplots", icon = icon("home")),
+      menuItem("Evidence Atlas", tabName = "home", icon = icon("map")),
+      menuItem("Map Database", tabName = "data", icon = icon("database")),
+      menuItem("Descriptive Plots", tabName = "insightplots", icon = icon("home")),
       menuItem("Heatmap", tabName = "heatmap", icon = icon("fire"))
       )
 )
@@ -46,7 +46,8 @@ body <- dashboardBody(
     tabItem(tabName = "about",
       mainPanel(
         tableOutput("start_text"),
-        tableOutput("data_summary")
+        tableOutput("data_summary"),
+        tableOutput("help_text")
       ),
 
       #Sidebar panel for inputs
@@ -125,7 +126,14 @@ body <- dashboardBody(
                    wellPanel(
                      downloadButton(outputId = "savemap_interactive", label = "Save Map (Interactive)"),
                      downloadButton(outputId = "savemap_png", label = "Save Map (png)"),
-                     downloadButton(outputId = "savemap_pdf", label = "Save Map (PDF)")
+                     downloadButton(outputId = "savemap_pdf", label = "Save Map (PDF)"),
+                     bsTooltip("savemap_interactive", title = "Save an interactive HTML version of the map using the current display settings. This HTML map can then be easily hosted on your own website", 
+                               placement = "bottom", trigger = "hover"),
+                     bsTooltip("savemap_png", title = "Save a static version of the map using the current display settings.", 
+                               placement = "bottom", trigger = "hover"),
+                     bsTooltip("savemap_pdf", title = "Save a static version of the map using the current display settings.", 
+                               placement = "bottom", trigger = "hover")
+                     
                    )))
       ),
       fluidRow(
