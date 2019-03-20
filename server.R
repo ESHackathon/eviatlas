@@ -191,7 +191,7 @@ shinyServer(
               ),
               div(
                 style = "display: inline-block; width = '20%'",
-                title = "Use the Filter Data tab to subset data",
+                title = "Use the Map Database tab to subset data",
                 shinyWidgets::materialSwitch(
                   inputId = "map_filtered_select",
                   label = "Use filtered data?",
