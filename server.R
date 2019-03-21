@@ -119,7 +119,8 @@ shinyServer(
     observeEvent(input$go_subset, {
       if(any(names(input) == "selected_variable")){
         if(input$selected_variable != ""){
-          data_internal$filtered <- data_internal$raw %>% select(!!!input$selected_variable)
+          data_internal$filtered <- data_internal$raw %>% 
+            select(!!!input$selected_variable)
         }else{
           data_internal$filtered
         }
@@ -133,7 +134,15 @@ shinyServer(
                     style='bootstrap',
                     options = list(scrollX = TRUE, 
                                    scrollY = TRUE, 
-                                   responsive=T)),
+                                   responsive=T,
+                                   columnDefs = list(list(
+                                     targets = c(1:min(25, ncol(data_internal$filtered))), # will apply render function to lesser of first 25 columns or number of columns in displayed data
+                                     render = JS( # limits character strings longer than 50 characters to their first 30 chars, and has whole string appear as a tooltip
+                                       "function(data, type, row, meta) {",
+                                       "return type === 'display' && data.length > 50 ?",
+                                       "'<span title=\"' + data + '\">' + data.substr(0, 30) + '...</span>' : data;",
+                                       "}")
+                                     )))),
       server = T)
     
     # download the filtered data
