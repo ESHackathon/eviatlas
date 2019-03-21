@@ -1,14 +1,18 @@
 ## server.R ##
 
 # load functions
-source("GenHeatMap.R")
-source("GenLocationTrend.R")
-source("GenTimeTrend.R")
-source("sys_map.R")
-source("get_link_cols.R")
-source("get_coord_cols.R")
-load("data/pilotdata.rda")
+source("src/GenHeatMap.R")
+source("src/GenLocationTrend.R")
+source("src/GenTimeTrend.R")
+source("src/sys_map.R")
+source("src/get_link_cols.R")
+source("src/get_coord_cols.R")
 
+# load data
+load("data/pilotdata.rda")
+start_text <- read_file("EviAtlasWebsiteText.html")
+
+# maximum upload size 100 MB-- could be increased if proves problematic for users and we have server space
 max_file_size_mb <- 100
 options(shiny.maxRequestSize = max_file_size_mb*1024^2)
 
@@ -28,20 +32,16 @@ shinyServer(
     # if no data are available but input$sample_or_real == 'sample', show intro text
     output$start_text <- renderPrint({
       if(is.null(data_internal$raw) & input$sample_or_real == 'user'){
-        cat("EviAtlas is an open-source tool for creating systematic maps, a key element of systematic reviews. Upload a systematic review dataset (csv format) using the panel on the right, and then use the left sidebar to view a systematic map generated from your dataset, as well as some common plots used in systematic reviews.
-           <h3>About Systematic Maps</h3><br>
-           Systematic Maps are overviews of the quantity and quality of evidence in relation to a broad (open) question of policy or management relevance. The process and rigour of the mapping exercise is the same as for systematic review except that no evidence synthesis is attempted to seek an answer to the question. A critical appraisal of the quality of the evidence is strongly encouraged but may be limited to a subset or sample of papers when the quantity of articles is very large (and even be absent in exceptional circumstances). More guidance can be found <a href='http://www.environmentalevidence.org' target='_blank' rel='noopener noreferrer'>here</a>.<br><br>
-           For systematic maps to be relevant to policy and practice they need to be as up-to-date as possible. Consequently, at the time of acceptance for publication, the search must be less than two years old. We therefore recommend that systematic maps should be submitted no later than 18 months after the search was conducted."
-        )
-      }else{
+        cat(start_text)
+      } else {
         cat("<h3>Attributes of uploaded data:</h3>")
       }
     })
     
-    output$help_text <- renderPrint({
-      cat("<br>Find a bug? Have a suggestion for future improvements? Feel free to contact Neal Haddaway, Research Fellow at SEI Stockholm: neal DOT haddaway AT sei DOT org."
-        )
-    })
+    # output$help_text <- renderPrint({
+    #   cat("<br><br><br><br>Find a bug? Have a suggestion for future improvements? Feel free to contact Neal Haddaway (Research Fellow at the Stockholm Environment Institute): <a href='mailto:neal.haddaway@sei.org'>neal.haddaway@sei.org</a></span>"
+    #     )
+    # })
 
 
     # if data are supplied, add them to data_internal
@@ -115,17 +115,24 @@ shinyServer(
       }
     })
     
-    output$filtered_table <- DT::renderDataTable(DT::datatable(data_internal$filtered, filter = c('top'), 
-                                                               caption = "Use the boxes below column headers to filter data",
-                                                               class = c('display', 'compact'), style='bootstrap', 
-                                                               options = list(scrollX = TRUE, scrollY = TRUE, responsive=T)), 
-                                                 server = T)
+    output$filtered_table <- DT::renderDataTable(
+      DT::datatable(data_internal$filtered, filter = c('top'),
+                    caption = "Use the boxes below column headers to filter data",
+                    class = c('display', 'compact'), 
+                    style='bootstrap',
+                    options = list(scrollX = TRUE, 
+                                   scrollY = TRUE, 
+                                   responsive=T)),
+      server = T)
     
     # download the filtered data
-    output$download_filtered = downloadHandler('eviatlas-datatable-filtered.csv', content = function(file) {
-      s = input$filtered_table_rows_all
-      write.csv(data_internal$filtered[s, , drop = FALSE], file)
-    })
+    output$download_filtered = downloadHandler(
+      'eviatlas-datatable-filtered.csv',
+      content = function(file) {
+        s = input$filtered_table_rows_all
+        write.csv(data_internal$filtered[s, , drop = FALSE], file)
+        }
+      )
     
     # map UI
     output$map_columns <- renderUI({

@@ -44,11 +44,13 @@ body <- dashboardBody(
   ")), 
   tabItems(
     tabItem(tabName = "about",
-      mainPanel(
-        tableOutput("start_text"),
-        tableOutput("data_summary"),
-        tableOutput("help_text")
-      ),
+            fluidRow(
+              mainPanel(
+        
+        htmlOutput("start_text"),
+        tableOutput("data_summary"))
+        # tableOutput("help_text")
+      ,
 
       #Sidebar panel for inputs
       sidebarPanel(
@@ -77,7 +79,7 @@ body <- dashboardBody(
                     "text/csv",
                     "text/comma-separated-values,text/plain",
                     ".csv"),
-                  placeholder = "Systematic Map Data"
+                  placeholder = "Systematic Map Data (100 MB Limit)"
                 )),
               fluidRow(h5(strong("CSV Properties")),
                 column(6, 
@@ -113,7 +115,7 @@ body <- dashboardBody(
                          selected = '"'
                        )))
             ))
-      ))
+      )))
     ),
 
     tabItem(tabName = "home",
@@ -124,9 +126,12 @@ body <- dashboardBody(
           ),
           tabPanel('Save Map',
                    wellPanel(
-                     downloadButton(outputId = "savemap_interactive", label = "Save Map (Interactive)"),
-                     downloadButton(outputId = "savemap_png", label = "Save Map (png)"),
-                     downloadButton(outputId = "savemap_pdf", label = "Save Map (PDF)"),
+                     downloadButton(outputId = "savemap_interactive", 
+                                    label = "Save Map (Interactive)"),
+                     downloadButton(outputId = "savemap_png", 
+                                    label = "Save Map (png)"),
+                     downloadButton(outputId = "savemap_pdf", 
+                                    label = "Save Map (PDF)"),
                      bsTooltip("savemap_interactive", title = "Save an interactive HTML version of the map using the current display settings. This HTML map can then be easily hosted on your own website", 
                                placement = "bottom", trigger = "hover"),
                      bsTooltip("savemap_png", title = "Save a static version of the map using the current display settings.", 
