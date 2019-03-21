@@ -8,9 +8,11 @@ source("src/sys_map.R")
 source("src/get_link_cols.R")
 source("src/get_coord_cols.R")
 
-# load data
+# load data + text
 load("data/pilotdata.rda")
-start_text <- read_file("EviAtlasWebsiteText.html")
+start_text <- read_file("html/AboutEvi.html")
+about_sysmap_text <- read_file("html/AboutSysMap.html")
+how_works_text <- read_file("html/HowEviWorks.html")
 
 # maximum upload size 100 MB-- could be increased if proves problematic for users and we have server space
 max_file_size_mb <- 100
@@ -31,12 +33,21 @@ shinyServer(
     # DATA TAB
     # if no data are available but input$sample_or_real == 'sample', show intro text
     output$start_text <- renderPrint({
+      cat(start_text)
+    })    
+    output$about_sysmap_text <- renderPrint({
+      cat(about_sysmap_text)
+    })    
+    output$how_works_text <- renderPrint({
+      cat(how_works_text)
+    })
+    output$uploaded_attributes <- renderPrint({
       if(is.null(data_internal$raw) & input$sample_or_real == 'user'){
-        cat(start_text)
+        cat("Upload a dataset using the panel to the right -->")
       } else {
         cat("<h3>Attributes of uploaded data:</h3>")
       }
-    })
+    })    
     
     # output$help_text <- renderPrint({
     #   cat("<br><br><br><br>Find a bug? Have a suggestion for future improvements? Feel free to contact Neal Haddaway (Research Fellow at the Stockholm Environment Institute): <a href='mailto:neal.haddaway@sei.org'>neal.haddaway@sei.org</a></span>"

@@ -45,12 +45,14 @@ body <- dashboardBody(
   tabItems(
     tabItem(tabName = "about",
             fluidRow(
-              mainPanel(
-        
-        htmlOutput("start_text"),
-        tableOutput("data_summary"))
-        # tableOutput("help_text")
-      ,
+              mainPanel(wellPanel(
+                tabsetPanel(
+                  tabPanel(title = 'About EviAtlas', htmlOutput("start_text")),
+                  tabPanel(title = 'About Systematic Maps', htmlOutput("about_sysmap_text")),
+                  tabPanel(title = 'How to Use EviAtlas', htmlOutput("how_works_text")),
+                  tabPanel(title = 'Data Attributes', htmlOutput("uploaded_attributes"), tableOutput("data_summary"))
+                ))
+              ),
 
       #Sidebar panel for inputs
       sidebarPanel(
