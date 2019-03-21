@@ -15,7 +15,8 @@ sys_map <- function(studies_data, latitude,
 
   if (links_user != "") {
     links_input <- sapply(studies_data[links_user], as.character)
-    links = paste0("<strong><a href='", links_input, "'>Link to paper</a></strong>")
+    links = paste0("<strong><a target='_blank' rel='noopener noreferrer' href='", 
+                   links_input, "'>Link to paper</a></strong>")
   } else {links <- ""}
 
   if (!is.null(radius_user)) {
