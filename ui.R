@@ -1,23 +1,32 @@
 ## ui.R ##
 
+easyprint_js_file <- "https://rawgit.com/rowanwins/leaflet-easyPrint/gh-pages/dist/bundle.js" 
+
 sidebar <- dashboardSidebar(
 
   # sidebarUserPanel("EviAtlas Nav"),
   sidebarMenu(
-      menuItem("About EviAtlas", tabName = "about", icon = icon("question")),
-      menuItem("Evidence Atlas", tabName = "home", icon = icon("map")),
-      menuItem("Map Database", tabName = "data", icon = icon("database")),
-      menuItem("Descriptive Plots", tabName = "insightplots", icon = icon("home")),
-      menuItem("Heatmap", tabName = "heatmap", icon = icon("fire"))
+      menuItem("About EviAtlas", tabName = "about", 
+               icon = icon("question")),
+      menuItem("Evidence Atlas", tabName = "home", 
+               icon = icon("map")),
+      menuItem("Map Database", tabName = "data", 
+               icon = icon("database")),
+      menuItem("Descriptive Plots", tabName = "insightplots", 
+               icon = icon("home")),
+      menuItem("Heatmap", tabName = "heatmap", 
+               icon = icon("fire"))
       )
 )
 
 
 home <- tags$html(
   tags$head(
-    tags$title('EviAtlas')
+    tags$title('EviAtlas'),
+    tags$script(src=easyprint_js_file)
     ),
-  tags$style(type = "text/css", "#map {height: calc(100vh - 240px) !important;}"),
+  tags$style(type="text/css", 
+             "#map {height: calc(100vh - 240px) !important;}"),
   tags$body(
     leafletOutput("map")
   )
@@ -136,9 +145,9 @@ body <- dashboardBody(
                                     label = "Save Map (PDF)"),
                      bsTooltip("savemap_interactive", title = "Save an interactive HTML version of the map using the current display settings. This HTML map can then be easily hosted on your own website", 
                                placement = "bottom", trigger = "hover"),
-                     bsTooltip("savemap_png", title = "Save a static version of the map using the current display settings.", 
+                     bsTooltip("savemap_png", title = "Save a static version of the map using the current display settings. Currently only saves global (zoomed-out) view. To download a smaller view, use the save button in the upper left-hand corner of the map.", 
                                placement = "bottom", trigger = "hover"),
-                     bsTooltip("savemap_pdf", title = "Save a static version of the map using the current display settings.", 
+                     bsTooltip("savemap_pdf", title = "Save a static version of the map using the current display settings.  Currently only saves global (zoomed-out) view. To download a smaller view, use the save button in the upper left-hand corner of the map.", 
                                placement = "bottom", trigger = "hover")
                      
                    )))

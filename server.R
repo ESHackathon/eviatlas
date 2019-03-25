@@ -432,7 +432,10 @@ shinyServer(
                 popup_user = input$map_popup_select,
                 links_user = input$map_link_select,
                 cluster_points = input$map_cluster_select), 
-        error = function(x) {leaflet::leaflet() %>% leaflet::addTiles()}
+        error = function(x) {
+          leaflet::leaflet() %>%
+            leaflet::addTiles()
+        }
       )
     })
     
@@ -462,7 +465,17 @@ shinyServer(
     )
 
     output$map <- renderLeaflet({
-      generate_systematic_map()
+      generate_systematic_map() %>%
+        onRender(
+          "function(el, x) {
+            L.easyPrint({
+              sizeModes: ['Current', 'A4Landscape', 'A4Portrait'],
+              filename: 'EviAtlasMap',
+              exportOnly: true,
+              hideControlContainer: true
+            }).addTo(this);
+            }"
+        )
     })
     
     
