@@ -83,43 +83,47 @@ body <- dashboardBody(
                     ".csv"),
                   placeholder = "Systematic Map Data (100 MB Limit)"
                 )),
-              fluidRow(h5(strong("CSV Properties")),
-                column(6, 
-                       # Input: Checkbox if file has header ----
-                       checkboxInput("header", "Header row?", TRUE),
-                       radioButtons(
-                         "upload_encoding",
-                         label = "Select File Encoding",
-                         choices = list("Default"="", "UTF-8", "latin1"),
-                         selected = ""
-                       )),
-                column(6, 
-                       # Input: Select separator ----
-                       radioButtons(
-                         "sep",
-                         "Separator",
-                         choices = c(
-                           Comma = ",",
-                           Semicolon = ";",
-                           Tab = "\t"
-                         ),
-                         selected = ","
+              fluidRow(
+                h5(strong("CSV Properties")),
+                column(
+                  6,
+                  # Input: Checkbox if file has header ----
+                  checkboxInput("header", "Header row?", TRUE),
+                  radioButtons("upload_encoding",
+                               label = "Select File Encoding",
+                               choices = list("Default" = "", "UTF-8", "latin1"),
+                           selected = ""
+                         )
                        ),
-                       # Input: Select quotes ----
-                       radioButtons(
-                         "quote",
-                         "Quote Delimiter",
-                         choices = c(
-                           None = "",
-                           "Double Quote" = '"',
-                           "Single Quote" = "'"
-                         ),
-                         selected = '"'
-                       )))
+                       column(6,
+                          # Input: Select separator ----
+                          radioButtons("sep",
+                                       "Separator",
+                                       choices = c(
+                                         Comma = ",",
+                                         Semicolon = ";",
+                                         Tab = "\t"
+                                         ),
+                                       selected = ","
+                          ), 
+                         # Input: Select quotes ----
+                         radioButtons("quote",
+                                      "Quote Delimiter",
+                                      choices = c(None = "",
+                                                  "Double Quote" = '"',
+                                                  "Single Quote" = "'"),
+                                      selected = '"'
+                         ), 
+                         # Input: Select decimal separator ----
+                         radioButtons("dec",
+                                      "Decimal Indicator",
+                                      choices = c(".", ","),
+                                      selected = '.')
+                ))
             ))
-      )))
+        )))
     ),
-
+    
     tabItem(tabName = "home",
       fluidRow(
         tabsetPanel(

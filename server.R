@@ -61,6 +61,7 @@ shinyServer(
         file = input$sysmapdata_upload$datapath,
         header = input$header,
         sep = input$sep,
+        dec = input$dec, 
         quote = input$quote,
         fileEncoding = input$upload_encoding,
         stringsAsFactors = F)
