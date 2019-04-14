@@ -155,6 +155,7 @@ shinyServer(
       )
     
     # map UI
+    
     output$map_columns <- renderUI({
       if(!is.null(data_internal$cols)){
         div(
@@ -206,16 +207,6 @@ shinyServer(
                 width = "250px"
               )
             ),
-            div(style = "display: inline-block; width = '20%'",
-                title = "Toggle displaying points in relative geographic clusters",
-                div(
-                shinyWidgets::materialSwitch(
-                  inputId = "map_cluster_select",
-                  label = "Cluster Map Points?",
-                  value = TRUE,
-                  status = "primary"
-                )
-              ),
               div(
                 style = "display: inline-block; width = '20%'",
                 title = "Use the Map Database tab to subset data",
@@ -228,8 +219,34 @@ shinyServer(
              )
             )
           )
-        )
       } else {wellPanel('To use the map, upload data in the "About EviAtlas" tab.')}
+    })
+    
+    output$cluster_columns <- renderUI({
+      req(data_internal$raw)
+      list(
+        # title = "Change cluster size",
+        shinyWidgets::noUiSliderInput(
+          inputId = "cluster_size_select",
+          label = "Cluster Distance",
+          value = 2,
+          step = 1,
+          min = 2,
+          inline=T,
+          max = 15
+      ),
+      # div(style = "display: inline-block; width = '20%'",
+          # title = "Toggle displaying points in relative geographic clusters",
+          # div(
+            shinyWidgets::materialSwitch(
+              inputId = "map_cluster_select",
+              label = "Cluster Map Points?",
+              value = TRUE,
+              inline=T,
+              status = "primary"
+            )
+          # ))
+      )
     })
     
     observeEvent(input$map_filtered_select, {
@@ -431,6 +448,7 @@ shinyServer(
                 input$map_lng_select,
                 popup_user = input$map_popup_select,
                 links_user = input$map_link_select,
+                cluster_size_user = input$cluster_size_select,
                 cluster_points = input$map_cluster_select), 
         error = function(x) {
           leaflet::leaflet() %>%

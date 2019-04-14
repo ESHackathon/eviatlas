@@ -3,7 +3,6 @@
 #' Created For	  : ES Hackathon 2018
 #' @param df Input dataframe
 #' @param location_column Column with location information (preferably country-level or higher)
-#' @param verbose Logical variable (default=FALSE) for displaying messages on console or not
 #' @return Returns a bar plot object showing counts of literature in systematic review for each location
 #'
 #' @author Sanita Dhaubanjar
@@ -12,7 +11,7 @@
 #'
 #' @export
 
-GenLocationTrend = function(df, location_column, verbose = FALSE){
+GenLocationTrend = function(df, location_column, axis_txt_lim = 60){
 
   # Count per locations --------
   location_counts <- as.data.frame(table(df[location_column])) # table() tabulates frequency
@@ -24,21 +23,17 @@ GenLocationTrend = function(df, location_column, verbose = FALSE){
                                              label = colnames(location_counts[2]))) +
     geom_bar(alpha=0.9, stat="identity",fill="light green") +
     geom_text(aes(), size = 3, nudge_y = 10) +
-    labs(y="# of studies") + ggtitle("Frequency of studies across locations")+
+    labs(y="# Studies") + ggtitle(paste("Frequency of studies across", location_column))+
     theme_bw()+
     theme(axis.line = element_line(colour = "black"),
           panel.background = element_blank(),
           plot.title = element_text(hjust = .5),
-          text = ggplot2::element_text(size=14),
+          text = ggplot2::element_text(size=14)
           )
 
   # Rotate xaxis label if too many
   if (nrow(location_counts)>15){
     locmp <- locmp + theme(axis.text.x=element_text(angle=45,hjust=0.95, size = 11))
-  }
-
-  if (verbose) {
-    message("GenLocationTrend: Location trend plot created!")
   }
 
   locmp

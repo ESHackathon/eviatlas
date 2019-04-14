@@ -2,7 +2,9 @@
 
 sys_map <- function(studies_data, latitude,
                     longitude, popup_user=NULL,
-                    radius_user=NULL, links_user="",
+                    radius_user=NULL, 
+                    cluster_size_user=2,
+                    links_user="",
                     cluster_points=T) {
   if (!is.null(popup_user)) {
     #hacky for loop, should be made vectorized & pretty someday
@@ -36,7 +38,7 @@ sys_map <- function(studies_data, latitude,
                                 popup = ~paste(popup_string, links),
                                 radius = ~as.numeric(radiusby * 3),
                                 stroke = FALSE, fillOpacity = 0.5,
-                                clusterOptions = markerClusterOptions() )
+                                clusterOptions = markerClusterOptions(freezeAtZoom = cluster_size_user) )
   } else {
     map <- basemap %>%
       leaflet::addCircleMarkers(lat = ~lat_plotted, lng = ~lng_plotted,

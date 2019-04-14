@@ -133,7 +133,8 @@ body <- dashboardBody(
       fluidRow(
         tabsetPanel(
           tabPanel("Configure Map",
-                   wellPanel(uiOutput("map_columns"))
+                   fluidRow(wellPanel(uiOutput("map_columns"), 
+                                      uiOutput("cluster_columns")))
           ),
           tabPanel('Save Map',
                    wellPanel(
