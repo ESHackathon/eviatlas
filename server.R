@@ -5,6 +5,7 @@ source("src/GenHeatMap.R")
 source("src/GenLocationTrend.R")
 source("src/GenTimeTrend.R")
 source("src/sys_map.R")
+source("src/sys_map_shapefile.R")
 source("src/get_link_cols.R")
 source("src/get_coord_cols.R")
 
@@ -55,7 +56,7 @@ shinyServer(
     # })
 
 
-    # if data are supplied, add them to data_internal
+    # if CSV data are supplied, add them to data_internal
     observeEvent(input$sysmapdata_upload, {
       data_internal$raw <- read.csv(
         file = input$sysmapdata_upload$datapath,
@@ -64,6 +65,21 @@ shinyServer(
         quote = input$quote,
         fileEncoding = input$upload_encoding,
         stringsAsFactors = F)
+      data_internal$cols <- colnames(data_internal$raw)
+      data_internal$filtered <- data_internal$raw #instantiate filtered table with raw values
+    })
+    
+    # if shapefile data are supplied, add them to data_internal
+    observeEvent(input$shape, {
+      
+      req(input$shape)
+      shpdf <- input$shape
+      tempdirname <- dirname(shpdf$datapath[1])
+      for(i in 1:nrow(shpdf)){
+        file.rename(shpdf$datapath[i], paste0(tempdirname, "/", shpdf$name[i]))
+      }
+      data_internal$raw=sf::st_read(paste(tempdirname, shpdf$name[grep(pattern = "*.shp$", shpdf$name)], sep="/"))
+      
       data_internal$cols <- colnames(data_internal$raw)
       data_internal$filtered <- data_internal$raw #instantiate filtered table with raw values
     })
@@ -425,18 +441,37 @@ shinyServer(
     
     generate_systematic_map <- reactive({
       # Try to generate map; if that fails, show blank map
-      tryCatch(
-        sys_map(if(input$map_filtered_select) {data_internal$filtered[input$filtered_table_rows_all, , drop = FALSE]} else {data_internal$raw},
-                input$map_lat_select,
-                input$map_lng_select,
-                popup_user = input$map_popup_select,
-                links_user = input$map_link_select,
-                cluster_points = input$map_cluster_select), 
-        error = function(x) {
-          leaflet::leaflet() %>%
-            leaflet::addTiles()
-        }
-      )
+      if (input$sample_or_real == "shapefile") {
+        tryCatch(
+          sys_map_shapefile(if(input$map_filtered_select) {
+            data_internal$filtered[input$filtered_table_rows_all, , drop = FALSE]
+          } else {
+            data_internal$raw
+          }),
+          error = function(x) {
+            leaflet::leaflet() %>%
+              leaflet::addTiles()
+            }
+        )
+
+      } else {
+        tryCatch(
+          sys_map(if(input$map_filtered_select) {
+            data_internal$filtered[input$filtered_table_rows_all, , drop = FALSE]
+          } else {
+            data_internal$raw
+          },
+          input$map_lat_select,
+          input$map_lng_select,
+          popup_user = input$map_popup_select,
+          links_user = input$map_link_select,
+          cluster_points = input$map_cluster_select),
+          error = function(x) {
+            leaflet::leaflet() %>%
+              leaflet::addTiles()
+          }
+        )
+      } 
     })
     
     output$savemap_interactive <- downloadHandler(
