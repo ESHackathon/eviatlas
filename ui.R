@@ -126,7 +126,13 @@ body <- dashboardBody(
                                          "Single Quote" = "'"
                                        ),
                                        selected = '"'
-                                     )))
+                                     ),
+                        # Input: Select decimal separator ----
+                         radioButtons("dec",
+                                      "Decimal Indicator",
+                                      choices = c(".", ","),
+                                      selected = '.')
+                                    ))
                    )),
           conditionalPanel(
             condition = "input.sample_or_real == 'shapefile'",
@@ -142,7 +148,7 @@ body <- dashboardBody(
           )
         ))
     ),
-
+    
     tabItem(tabName = "home",
       fluidRow(
         tabsetPanel(
