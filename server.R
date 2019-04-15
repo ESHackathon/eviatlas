@@ -157,97 +157,97 @@ shinyServer(
     # map UI
     
     output$map_columns <- renderUI({
-      if(!is.null(data_internal$cols)){
-        div(
-          list(
-            div(
-              style = "display: inline-block; width = '10%'",
-              br()
-            ),
-            div(
-              style = "display: inline-block; width = '20%'",
-              selectInput(
-                inputId = "map_lat_select",
-                label = "Select Latitude Column",
-                choices = data_internal$cols,
-                selected = get_latitude_cols(data_internal$raw),
-                width = "250px"
-              )
-            ),
-            div(
-              style = "display: inline-block; width = '20%'",
-              selectInput(
-                inputId = "map_lng_select",
-                label = "Select Longitude Column",
-                choices = data_internal$cols,
-                selected = get_longitude_cols(data_internal$raw),
-                width = "250px"
-              )
-            ),
-            div(
-              style = "display: inline-block; width = '30%'",
-              title = "Multiple columns are allowed as popups",
-              selectizeInput(
-                inputId = "map_popup_select",
-                label = "Select Popup Info",
-                selected = data_internal$cols[1],
-                choices = data_internal$cols,
-                width = "250px",
-                multiple = T
-              )
-            ),
-            div(
-              style = "display: inline-block; width = '20%'",
-              title = "If your dataset has a link to each study, you can include it in the popup when a point is clicked with the mouse",
-              selectInput(
-                inputId = "map_link_select",
-                label = "Select Link Column (in pop-up)",
-                choices = c("", get_link_cols(data_internal$raw)),
-                selected = "",
-                width = "250px"
-              )
-            ),
-              div(
-                style = "display: inline-block; width = '20%'",
-                title = "Use the Map Database tab to subset data",
-                shinyWidgets::materialSwitch(
-                  inputId = "map_filtered_select",
-                  label = "Use filtered data?",
-                  value = FALSE,
-                  status = "primary"
-                )
-             )
+      if(!is.null(data_internal$cols)) {
+        div(list(
+          div(
+            selectInput(
+              inputId = "map_lat_select",
+              label = "Select Latitude Column",
+              choices = data_internal$cols,
+              selected = get_latitude_cols(data_internal$raw)
             )
-          )
+          ),
+          div(
+            selectInput(
+              inputId = "map_lng_select",
+              label = "Select Longitude Column",
+              choices = data_internal$cols,
+              selected = get_longitude_cols(data_internal$raw)
+            )
+          ))
+        )
       } else {wellPanel('To use the map, upload data in the "About EviAtlas" tab.')}
     })
     
-    output$cluster_columns <- renderUI({
+    output$atlas_filter <- renderUI({
       req(data_internal$raw)
-      list(
-        # title = "Change cluster size",
-        shinyWidgets::noUiSliderInput(
-          inputId = "cluster_size_select",
-          label = "Cluster Distance",
-          value = 2,
-          step = 1,
-          min = 2,
-          inline=T,
-          max = 15
-      ),
-      # div(style = "display: inline-block; width = '20%'",
-          # title = "Toggle displaying points in relative geographic clusters",
-          # div(
-            shinyWidgets::materialSwitch(
-              inputId = "map_cluster_select",
-              label = "Cluster Map Points?",
-              value = TRUE,
-              inline=T,
-              status = "primary"
-            )
-          # ))
+      div(
+        title = "Use the Map Database tab to subset data",
+        shinyWidgets::materialSwitch(
+          inputId = "map_filtered_select",
+          label = "Use filtered data?",
+          value = FALSE,
+          inline = T,
+          status = "primary"
+        )
       )
     })
+
+    output$atlas_link_popup <- renderUI({
+      req(data_internal$raw)
+      div(
+        title = "If your dataset has a link to each study, you can include it in the popup when a point is clicked with the mouse",
+        selectInput(
+          inputId = "map_link_select",
+          label = "Select Link Column (in pop-up)",
+          choices = c("", get_link_cols(data_internal$raw)),
+          selected = ""
+        )
+      )
+
+    })
+
+    output$atlas_popups <- renderUI({
+      req(data_internal$raw)
+      div(
+        title = "Multiple columns are allowed as popups",
+        selectizeInput(
+          inputId = "map_popup_select",
+          label = "Select Popup Info",
+          selected = data_internal$cols[1],
+          choices = data_internal$cols,
+          multiple = T
+        )
+      )
+    })
+
+    output$cluster_columns <- renderUI({
+      req(data_internal$raw)
+      div(
+        title = "Toggle displaying points in relative geographic clusters",
+        shinyWidgets::materialSwitch(
+          inputId = "map_cluster_select",
+          label = "Cluster Map Points?",
+          value = FALSE,
+          status = "primary"
+        )
+      )
+    })
+    
+    output$cluster_size <- renderUI({
+      req(data_internal$raw)
+      div(
+        title = "Change cluster size",
+          shinyWidgets::noUiSliderInput(
+            inputId = "cluster_size_select",
+            label = "Cluster Distance",
+            value = 2,
+            step = 1,
+            min = 2,
+            max = 12)
+      )
+    })
+      
     
     observeEvent(input$map_filtered_select, {
       # Change values for map inputs whenever button is toggled

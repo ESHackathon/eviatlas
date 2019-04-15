@@ -59,7 +59,8 @@ body <- dashboardBody(
                   tabPanel(title = 'About EviAtlas', htmlOutput("start_text")),
                   tabPanel(title = 'About Systematic Maps', htmlOutput("about_sysmap_text")),
                   tabPanel(title = 'How to Use EviAtlas', htmlOutput("how_works_text")),
-                  tabPanel(title = 'Data Attributes', htmlOutput("uploaded_attributes"), tableOutput("data_summary"))
+                  tabPanel(title = 'Data Attributes', htmlOutput("uploaded_attributes"), 
+                           tableOutput("data_summary"))
                 ))
               ),
 
@@ -133,8 +134,23 @@ body <- dashboardBody(
       fluidRow(
         tabsetPanel(
           tabPanel("Configure Map",
-                   fluidRow(wellPanel(uiOutput("map_columns"), 
-                                      uiOutput("cluster_columns")))
+                   wellPanel(fluidRow(
+                       column(2, 
+                              uiOutput("map_columns")
+                              ),
+                       column(4, 
+                              uiOutput("atlas_popups"),
+                              uiOutput("atlas_link_popup")
+                              ),
+                       column(2, 
+                              uiOutput("atlas_filter")
+                              ),
+                       column(2, 
+                              uiOutput("cluster_columns"),
+                              conditionalPanel(condition = "document.getElementById('map_cluster_select').checked == true",
+                                               uiOutput("cluster_size"))
+                              )
+                  ))
           ),
           tabPanel('Save Map',
                    wellPanel(
