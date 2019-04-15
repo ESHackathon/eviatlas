@@ -5,7 +5,8 @@ sys_map <- function(studies_data, latitude,
                     radius_user=NULL, 
                     cluster_size_user=2,
                     links_user="",
-                    cluster_points=T) {
+                    cluster_points=T,
+                    map_title="") {
   if (!is.null(popup_user)) {
     #hacky for loop, should be made vectorized & pretty someday
     popup_string <- ''
@@ -24,14 +25,19 @@ sys_map <- function(studies_data, latitude,
   if (!is.null(radius_user)) {
     radiusby <- sapply(studies_data[radius_user], as.numeric)
   } else {radiusby <- 3}
+  
+  # title <- tags$div(
+    # tag.map.title, HTML(as.character(map_title))
+  # )
 
   lat_plotted <- as.numeric(unlist(studies_data %>% dplyr::select(latitude)))
   lng_plotted <- as.numeric(unlist(studies_data %>% dplyr::select(longitude)))
 
   basemap <- leaflet::leaflet(studies_data,
                               options = leafletOptions(minZoom = 2)) %>%
-    leaflet::addTiles()
-
+               leaflet::addTiles() %>%
+               leaflet::addControl(map_title, position = "topright", className="map-title")
+  
   if (cluster_points == T) {
     map <- basemap %>%
       leaflet::addCircleMarkers(lat = ~lat_plotted, lng = ~lng_plotted,

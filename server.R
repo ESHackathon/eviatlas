@@ -237,14 +237,14 @@ shinyServer(
     output$cluster_size <- renderUI({
       req(data_internal$raw)
       div(
-        title = "Change cluster size",
+        title = "Adjust cluster size",
           shinyWidgets::noUiSliderInput(
             inputId = "cluster_size_select",
             label = "Cluster Distance",
             value = 2,
             step = 1,
             min = 2,
-            max = 12)
+            max = 8)
       )
     })
       
@@ -449,7 +449,8 @@ shinyServer(
                 popup_user = input$map_popup_select,
                 links_user = input$map_link_select,
                 cluster_size_user = input$cluster_size_select,
-                cluster_points = input$map_cluster_select), 
+                cluster_points = input$map_cluster_select,
+                map_title=input$map_title_select), 
         error = function(x) {
           leaflet::leaflet() %>%
             leaflet::addTiles()
