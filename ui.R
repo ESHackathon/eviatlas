@@ -143,7 +143,8 @@ body <- dashboardBody(
                               uiOutput("atlas_link_popup")
                               ),
                        column(2, 
-                              uiOutput("atlas_filter")
+                              uiOutput("atlas_filter"),
+                              uiOutput("atlas_color_by")
                               ),
                        column(2, 
                               uiOutput("cluster_columns"),

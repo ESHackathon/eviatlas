@@ -6,6 +6,7 @@ sys_map <- function(studies_data, latitude,
                     cluster_size_user=2,
                     links_user="",
                     cluster_points=T,
+                    color_user="",
                     map_title="") {
   if (!is.null(popup_user)) {
     #hacky for loop, should be made vectorized & pretty someday
@@ -24,8 +25,13 @@ sys_map <- function(studies_data, latitude,
 
   if (!is.null(radius_user)) {
     radiusby <- sapply(studies_data[radius_user], as.numeric)
-  } else {radiusby <- 3}
+  } else {radiusby <- 3}  
   
+  if (color_user != "") {
+    factpal <- colorFactor(RColorBrewer::brewer.pal(9, 'Set1'), studies_data$color_user)
+    colorby <- ~factpal(studies_data[[color_user]])
+  } else {colorby <- "blue"}
+
   title <- h2(as.character(map_title))
   
   
@@ -43,13 +49,15 @@ sys_map <- function(studies_data, latitude,
       leaflet::addCircleMarkers(lat = ~lat_plotted, lng = ~lng_plotted,
                                 popup = ~paste(popup_string, links),
                                 radius = ~as.numeric(radiusby * 3),
-                                stroke = FALSE, fillOpacity = 0.5,
+                                color = colorby,
+                                stroke = FALSE, fillOpacity = 0.7,
                                 clusterOptions = markerClusterOptions(freezeAtZoom = cluster_size_user) )
   } else {
     map <- basemap %>%
       leaflet::addCircleMarkers(lat = ~lat_plotted, lng = ~lng_plotted,
                                 popup = ~paste(popup_string, links),
                                 radius = ~as.numeric(radiusby),
+                                color = colorby,
                                 label = ~popup_string %>% lapply(shiny::HTML)
       )
   }

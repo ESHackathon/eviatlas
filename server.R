@@ -247,6 +247,19 @@ shinyServer(
             max = 8)
       )
     })
+    
+    output$atlas_color_by <- renderUI({
+      req(data_internal$raw)
+      div(
+        title="Select variable to color points by",
+        selectInput(
+          inputId = "atlas_color_by_select",
+          label = "Color points by:",
+          choices = c("", data_internal$cols),
+          selected = ""
+        )
+      )
+    })
       
     
     observeEvent(input$map_filtered_select, {
@@ -450,6 +463,7 @@ shinyServer(
                 links_user = input$map_link_select,
                 cluster_size_user = input$cluster_size_select,
                 cluster_points = input$map_cluster_select,
+                color_user = input$atlas_color_by_select,
                 map_title=input$map_title_select), 
         error = function(x) {
           leaflet::leaflet() %>%
