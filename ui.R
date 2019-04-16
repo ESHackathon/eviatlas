@@ -51,17 +51,6 @@ body <- dashboardBody(
       background-color: #2d6c66;
     }
   ")),
-  # .leaflet-control.map-title {
-  #   transform: translate(-50%,20%);
-  #   position: fixed !important;
-  #   left: 50%;
-  #   text-align: center;
-  #   padding-left: 10px;
-  #   padding-right: 10px;
-  #   background: rgba(255,255,255,0.75);
-  #   font-weight: bold;
-  #   font-size: 28px;
-  # }
   tabItems(
     tabItem(tabName = "about",
             fluidRow(

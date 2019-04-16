@@ -26,9 +26,9 @@ sys_map <- function(studies_data, latitude,
     radiusby <- sapply(studies_data[radius_user], as.numeric)
   } else {radiusby <- 3}
   
-  # title <- tags$div(
-    # tag.map.title, HTML(as.character(map_title))
-  # )
+  title <- h2(as.character(map_title))
+  
+  
 
   lat_plotted <- as.numeric(unlist(studies_data %>% dplyr::select(latitude)))
   lng_plotted <- as.numeric(unlist(studies_data %>% dplyr::select(longitude)))
@@ -36,7 +36,7 @@ sys_map <- function(studies_data, latitude,
   basemap <- leaflet::leaflet(studies_data,
                               options = leafletOptions(minZoom = 2)) %>%
                leaflet::addTiles() %>%
-               leaflet::addControl(map_title, position = "topright", className="map-title")
+               leaflet::addControl(title, position = "topright", className="map-title")
   
   if (cluster_points == T) {
     map <- basemap %>%
