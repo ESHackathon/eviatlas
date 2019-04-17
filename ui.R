@@ -50,7 +50,7 @@ body <- dashboardBody(
     .skin-blue .main-header .sidebar-toggle {
       background-color: #2d6c66;
     }
-  ")), 
+  ")),
   tabItems(
     tabItem(tabName = "about",
             fluidRow(
@@ -59,7 +59,8 @@ body <- dashboardBody(
                   tabPanel(title = 'About EviAtlas', htmlOutput("start_text")),
                   tabPanel(title = 'About Systematic Maps', htmlOutput("about_sysmap_text")),
                   tabPanel(title = 'How to Use EviAtlas', htmlOutput("how_works_text")),
-                  tabPanel(title = 'Data Attributes', htmlOutput("uploaded_attributes"), tableOutput("data_summary"))
+                  tabPanel(title = 'Data Attributes', htmlOutput("uploaded_attributes"), 
+                           tableOutput("data_summary"))
                 ))
               ),
 
@@ -137,7 +138,26 @@ body <- dashboardBody(
       fluidRow(
         tabsetPanel(
           tabPanel("Configure Map",
-                   wellPanel(uiOutput("map_columns"))
+                   wellPanel(fluidRow(
+                       column(2, 
+                              uiOutput("map_columns")
+                              ),
+                       column(4, 
+                              uiOutput("atlas_popups"),
+                              uiOutput("atlas_link_popup")
+                              ),
+                       column(2, 
+                              uiOutput("atlas_filter"),
+                              uiOutput("atlas_color_by")
+                              ),
+                       column(2, 
+                              uiOutput("cluster_columns"),
+                              conditionalPanel(condition = "document.getElementById('map_cluster_select').checked == true",
+                                               uiOutput("cluster_size"))
+                              ),
+                       column(2,
+                              textInput("map_title_select", "Atlas Title"))
+                  ))
           ),
           tabPanel('Save Map',
                    wellPanel(

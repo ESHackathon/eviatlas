@@ -8,24 +8,11 @@
 #'
 #' @author Ezgi Tanriver-Ayder
 #'
-#' @keywords SystematicReview,
+#' @keywords SystematicReview
 #' @export
 
-GenTimeTrend = function(idata, year_column = NULL, verbose = FALSE){
+GenTimeTrend = function(idata, year_column = NULL, axis_txt_lim = 60){
 
-  if(missing(year_column)) {
-    if (verbose) {message('No year_column specified, assuming it is labeled "Year"')}
-    year_column <- c("Year")
-  }
-  
-  if(verbose){
-  # Check if Year column exists ------
-    if(any(colnames(idata) %in% year_column)) {
-      message("GenTimeTrend: Year column found")
-    } else {
-      message("GenTimeTrend: Year column not found")
-    }
-  }
 
   Years <- as.data.frame(sapply(idata[year_column], function(x) as.factor(x)))
 
@@ -35,23 +22,22 @@ GenTimeTrend = function(idata, year_column = NULL, verbose = FALSE){
 
     # Plot Heatmap ------
     # Plot bar chart
-    iyears<- min(seldata$Years, na.rm=T):max(seldata$Years, na.rm=T)
-    timemp<- ggplot2::ggplot(seldata,
-                             ggplot2::aes_string(x=colnames(seldata[1]),
-                                                 y=colnames(seldata[2]))) +
-      ggplot2::geom_bar(alpha=0.9, stat="identity",fill="light blue") +
-      ggplot2::scale_x_continuous(name="Year", breaks = iyears)+
-      ggplot2::labs(y="No of studies") + ggplot2::ggtitle("Distribution of studies over time") +
+    iyears <- min(seldata$Years, na.rm = T):max(seldata$Years, na.rm = T)
+    timemp <- ggplot2::ggplot(seldata,
+                              ggplot2::aes_string(x = colnames(seldata[1]),
+                                                  y = colnames(seldata[2]))) +
+      ggplot2::geom_bar(alpha = 0.9, stat = "identity", fill = "light blue") +
+      ggplot2::scale_x_continuous(name = "Year", breaks = iyears, labels = function(x) substr(x, 1, axis_txt_lim)) +
+      ggplot2::ggtitle(paste("Distribution of studies over", year_column)) +
+      ggplot2::ylab(label = "# Studies") + 
       ggplot2::theme_bw() +
-      ggplot2::theme(axis.line = ggplot2::element_line(colour = "black"),
-                     panel.background = ggplot2::element_blank(),
-                     plot.title = ggplot2::element_text(hjust = .5),
-                     text = ggplot2::element_text(size=14),
-                     axis.text.x = ggplot2::element_text(angle = 90, vjust = -.01, size = 11))
-
-    if(verbose) {
-      message("GenTimeTrend: Time trend plot created!")
-    }
-
+      ggplot2::theme(
+        axis.line = ggplot2::element_line(colour = "black"),
+        panel.background = ggplot2::element_blank(),
+        plot.title = ggplot2::element_text(hjust = .5),
+        text = ggplot2::element_text(size = 14),
+        axis.text.x = ggplot2::element_text(angle = 50, size = 11) 
+      )
+    
   timemp
 }
