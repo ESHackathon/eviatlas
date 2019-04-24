@@ -152,7 +152,7 @@ body <- dashboardBody(
                               ),
                        column(2, 
                               uiOutput("cluster_columns"),
-                              conditionalPanel(condition = "document.getElementById('map_cluster_select').checked == true",
+                              conditionalPanel(condition = "input.map_cluster_select",
                                                uiOutput("cluster_size"))
                               ),
                        column(2,

@@ -518,5 +518,6 @@ shinyServer(
       leafletProxy("map")
     })
 
-
+    outputOptions(output, "cluster_columns", suspendWhenHidden = FALSE)  
+    
   })
