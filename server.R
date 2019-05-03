@@ -242,9 +242,9 @@ shinyServer(
           shinyWidgets::noUiSliderInput(
             inputId = "cluster_size_select",
             label = "Cluster Distance",
-            value = 2,
+            value = 4,
             step = 1,
-            min = 2,
+            min = 4,
             max = 8)
       )
     })
@@ -323,7 +323,7 @@ shinyServer(
       if(!is.null(data_internal$cols)){
         selectInput(
           inputId = "select_timetrend_col",
-          label = "Select Year variable",
+          label = "Select variable 1",
           choices = c("", data_internal$cols),
           selected = ""
         )
@@ -335,7 +335,7 @@ shinyServer(
       if(!is.null(data_internal$cols)){
         selectInput(
           inputId = "select_loc_col",
-          label = "Select Country/Region/Location Variable",
+          label = "Select Variable 2",
           choices = c("", data_internal$cols),
           selected = ""
         )
@@ -376,22 +376,7 @@ shinyServer(
 
     #geom_bar rather than geom_histogram so that non-continous variables can be plotted
     gen_time_trend_plot <- reactive({
-      ggplot(data_internal$raw, aes_string(x = input$select_timetrend_col)) +
-      geom_bar(
-        alpha = 0.9,
-        stat = "count",
-        fill = "light blue"
-      ) +
-      labs(y = "No of studies") +
-      ggtitle("") +
-      theme_bw() +
-      theme(
-        axis.line = element_line(colour = "black"),
-        panel.background = element_blank(),
-        plot.title = element_text(hjust = .5),
-        text = element_text(size = 14),
-        axis.text.x = element_text(angle = 45, hjust = 1)
-      )
+      GenTimeTrend(data_internal$raw, input$select_timetrend_col)
     })
     
     gen_location_trend_plot <- reactive({
@@ -457,15 +442,19 @@ shinyServer(
     generate_systematic_map <- reactive({
       # Try to generate map; if that fails, show blank map
       tryCatch(
-        sys_map(if(input$map_filtered_select) {data_internal$filtered[input$filtered_table_rows_all, , drop = FALSE]} else {data_internal$raw},
-                input$map_lat_select,
-                input$map_lng_select,
-                popup_user = input$map_popup_select,
-                links_user = input$map_link_select,
-                cluster_size_user = input$cluster_size_select,
-                cluster_points = input$map_cluster_select,
-                color_user = input$atlas_color_by_select,
-                map_title=input$map_title_select), 
+        sys_map(if (input$map_filtered_select) {
+          data_internal$filtered[input$filtered_table_rows_all, , drop = FALSE]
+        } else {
+          data_internal$raw
+        }, 
+          input$map_lat_select,
+          input$map_lng_select,
+          popup_user = input$map_popup_select,
+          links_user = input$map_link_select,
+          cluster_size_user = input$cluster_size_select,
+          cluster_points = input$map_cluster_select,
+          color_user = input$atlas_color_by_select,
+          map_title = input$map_title_select), 
         error = function(x) {
           leaflet::leaflet() %>%
             leaflet::addTiles()

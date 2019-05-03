@@ -23,7 +23,8 @@ GenLocationTrend = function(df, location_column, axis_txt_lim = 60){
                                              label = colnames(location_counts[2]))) +
     geom_bar(alpha=0.9, stat="identity",fill="light green") +
     geom_text(aes(), size = 3, nudge_y = 10) +
-    labs(y="# Studies") + ggtitle(paste("Frequency of studies across", location_column))+
+    labs(y="# Studies") + 
+    ggtitle(paste(location_column, "frequency")) +
     theme_bw()+
     theme(axis.line = element_line(colour = "black"),
           panel.background = element_blank(),
