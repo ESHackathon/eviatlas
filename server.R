@@ -7,6 +7,7 @@ source("src/GenTimeTrend.R")
 source("src/sys_map.R")
 source("src/get_link_cols.R")
 source("src/get_coord_cols.R")
+source("src/get_histogram_viable_cols.R")
 
 # load data + text
 load("data/pilotdata.rda")
@@ -197,7 +198,7 @@ shinyServer(
     output$atlas_link_popup <- renderUI({
       req(data_internal$raw)
       div(
-        title = "If your dataset has a link to each study, you can include it in the popup when a point is clicked with the mouse",
+        title = "If your dataset has a link to each study, you can include it in the popup when a point is clicked with the mouse. If you have any hyperlinks you wish to display in the pop-up (e.g. email addresses or URLs), select them here.",
         selectInput(
           inputId = "map_link_select",
           label = "Select Link Column (in pop-up)",
@@ -324,7 +325,7 @@ shinyServer(
         selectInput(
           inputId = "select_timetrend_col",
           label = "Select variable 1",
-          choices = c("", data_internal$cols),
+          choices = c("", get_histogram_viable_columns(data_internal$raw)),
           selected = ""
         )
       }
@@ -336,7 +337,7 @@ shinyServer(
         selectInput(
           inputId = "select_loc_col",
           label = "Select Variable 2",
-          choices = c("", data_internal$cols),
+          choices = c("", get_histogram_viable_columns(data_internal$raw)),
           selected = ""
         )
       }
@@ -353,19 +354,21 @@ shinyServer(
             ),
             div(
               style = "display: inline-block; width = '40%'",
+              title = "Select which categorical variable you wish to cross tabulate along the x axis in a heat map. Values must be discrete categories (i.e. not free text and not decimal)", 
               selectInput(
                 inputId = "heat_select_x",
                 label = "Select X variable",
-                choices = c("", data_internal$cols),
+                choices = c("", get_histogram_viable_columns(data_internal$raw)),
                 selected = ""
               )
             ),
             div(
               style = "display: inline-block; width = '40%'",
+              title = "Select which categorical variable you wish to cross tabulate along the y axis in a heat map. Values must be discrete categories (i.e. not free text and not decimal)",
               selectInput(
                 inputId = "heat_select_y",
                 label = "Select Y variable",
-                choices = c("", data_internal$cols),
+                choices = c("", get_histogram_viable_columns(data_internal$raw)),
                 selected = ""
               )
             )

@@ -12,7 +12,7 @@
 
 GenTimeTrend = function(idata, hist_col, axis_txt_lim = 60){
 
-  ggplot2::ggplot(eviatlas_pilotdata, aes_string(x = hist_col)) +
+  ggplot2::ggplot(idata, aes_string(x = hist_col)) +
     ggplot2::geom_bar(
       alpha = 0.9,
       stat = "count",

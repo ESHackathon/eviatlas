@@ -1,7 +1,7 @@
-#functions to determine if columns should be considered for use in a histogram
+#functions to determine if columns should be considered for use in a histogram. very generous limit of 100.
 
-histogram_viable_columns <- function(df) {
+get_histogram_viable_columns <- function(df) {
   colnames(df %>%
-             select_if(function(x) n_distinct(x) < sqrt(nrow(df))))
+             select_if(function(x) n_distinct(x) < 100))
 }
 

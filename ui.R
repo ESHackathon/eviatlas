@@ -77,7 +77,11 @@ body <- dashboardBody(
               ),
               selected = "user"
             ),
-
+            bsTooltip("sample_or_real",
+              title = "Select whether you want to try EviAtlas using the sample data from a recent systematic map, or whether you wish to upload your own data in the correct format",
+              placement = "left", trigger = "hover"
+            ),
+            
             conditionalPanel(
               condition = "input.sample_or_real == 'user'",
 
@@ -93,12 +97,14 @@ body <- dashboardBody(
                     ".csv"),
                   placeholder = "Systematic Map Data (100 MB Limit)"
                 )),
+              
               fluidRow(
                 h5(strong("CSV Properties")),
                 column(
                   6,
                   # Input: Checkbox if file has header ----
                   checkboxInput("header", "Header row?", TRUE),
+          
                   radioButtons("upload_encoding",
                                label = "Select File Encoding",
                                choices = list("Default" = "", "UTF-8", "latin1"),
