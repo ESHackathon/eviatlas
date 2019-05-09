@@ -37,8 +37,12 @@ EviAtlas has reached a minimum viable product stage, but further developments ar
 
 developing an R-based tool called EviAtlas. Our objective was to develop an Open Access (i.e. free to use) and Open Source (i.e. software code is freely accessible and reproducible) tool that accepts user provided systematic map databases and produces attractive, interactive tables and figures that query and summarise different aspects of the evidence base. The specific outputs from this tool include: a human-readable datatable; a spatially explicit geographical information system (Evidence Atlas); Heat Maps that cross-tabulate two or more variables and display the number of studies belonging to multiple categories; and standard descriptive plots showing the nature of the evidence base, for example the number of studies published per year or number of studies per country. 
 
-. The interface is built using Shiny (https://shiny.rstudio.com, [16]), an R package that supports the development of web-based R applications that can be hosted online. The code for EviAtlas is stored on GitHub (https://github.com/ESHackathon/EviAtlas) and is available as Open Source code to stimulate future development and community participation.
+. The interface is built using Shiny (https://shiny.rstudio.com, [16]), an R package that supports the development of web-based R applications that can be hosted online. The code for EviAtlas is stored on GitHub (https://github.com/ESHackathon/EviAtlas) and is available as Open Source code to stimulate future development and community participation.  
 
+
+\  
+![](figures/Figure 2.png)
+\  
 
 The EviAtlas home page. Primary functionality is accessed via the sidebar on the left side of the screen.
 
@@ -60,6 +64,19 @@ Users can examine the data spatially on a cartographic map based on latitude and
 
 Systematic maps utilising different EviAtlas functionality with a common dataset. Studies can be clustered by location (a), custom fields can be used to generate pop-up messages for each study (b), and a subset of the data can be filtered (c).
 
+\  
+![](figures/Figure 3a.png)
+\  
+
+\  
+![](figures/Figure 3b.png)
+\  
+
+\  
+![](figures/Figure 3c.png)
+\  
+
+
 . While EviAtlas draws on a number of R packages, it relies particularly heavily on leaflet [17], an Open Source JavaScript tool for creating interactive, web-ready maps. It also relies on tidyverse packages that aim to facilitate data handling by reducing ‘mess’ in underlying data [18].
 
 ### Map Database
@@ -70,6 +87,10 @@ Configure Map, Save Map
 Data filtering in EviAtlas is done through a spreadsheet-like interface.
 select columns, apply, download filtered data
 
+\  
+![](figures/Figure 4.png)
+\  
+
 ## Descriptive Plots
 Common charts, such as histograms and heatmaps, used in systematic reviews and maps of empirical evidence can be generated through EviAtlas.
 
@@ -79,10 +100,18 @@ Producing histograms and other visualisations of trends across the database, as 
 
 select variables, download
 
+\  
+![](figures/Figure 5a.png)
+\  
+
 ## Heatmap
 Cross tabulates two variables to display the number of study lines across all levels of each variable.
 Producing heat maps that help to identify knowledge gaps and clusters across the database.
 select variables, download
+
+\  
+![](figures/Figure 5b.png)
+\  
 
 
 ## Further Developments
