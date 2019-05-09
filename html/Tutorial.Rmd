@@ -1,5 +1,5 @@
 ---
-title: "tutorial"
+title: "How EviAtlas Works"
 author: "Laura Del Duca"
 date: "May 9, 2019"
 output: html_document
@@ -9,22 +9,82 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-## R Markdown
+# Evidence Synthesis Hackathon
 
-This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+what evidence synthesis does
+Several comparable evidence mapping methods now exist (of which systematic mapping is one)
+systematic reviews
+Systematic mapping is an evidence synthesis method designed for assessing the nature of an evidence base [6], thereby answering questions such as: How many studies have been conducted on a particular topic? Which systems were studied and how? What methods were used? Like systematic review, systematic mapping consists of detailed, predetermined, sequential processes to identify, classify and describe a body of evidence using established and tested procedures. Systematic maps do not aim to fully synthesise study findings, however, i.e. questions relating to effectiveness or impacts. 
 
-When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+so it takes quite some time and funding
+Advances in ESTech will significantly facilitate improvements in the timeliness, efficiency, reproducibility, and accessibility of evidence synthesis methods. Such developments can also speed up the uptake of evidence synthesis methods and associated capacity development globally, especially by those working in resource constrained environments, such as low- and middle- income countries and small-budget organisations [28].
+so need to become more efficient -> hackathons
 
-```{r cars}
-summary(cars)
-```
+Recognising the need for advances in ESTech, the Evidence Synthesis Hackathon (ESH) supports collaborative partnerships and networking between software developers, programmers and evidence synthesists, to leverage state-of-the-art tools in evidence synthesis [29]. 
+Both the 2018 and 2019 hackathons were extremely well-received.
 
-## Including Plots
+# EviAtlas
 
-You can also embed plots, for example:
+The primary product of a systematic map is a research article describing the subject background, research methods used for the synthesis, and the results of the mapping process along with a discussion of the implications of the findings. Arguably the most useful output from a systematic map, however, is a detailed and descriptive database of the reviewed literature that can be interrogated by end users to identify, quantify and qualify subsets of evidence. Ideally, this database should be presented as an interactive research output, allowing users to filter and examine the data and thereby better understand and summarise the nature of an evidence base. These databases can also be visualised through interactive geographical representations of spatially explicit information known as Evidence Atlases [e.g. 12], and Heat Maps (cross-tabulations of the volume of evidence across two categorical variables) that demonstrate spatial or topical knowledge clusters and gaps [e.g. 13]. Finally, basic visualisations such as bar charts and histograms that describe the nature of the evidence in the database can be highly informative, for example by showing publication rates over time, or the frequency with which different methods are used across the evidence base. When presented in this way, systematic maps provide a basis for: the identification of knowledge gaps, where an insufficient volume or quality of evidence exists on a particular subtopic; the identification of knowledge clusters, where sufficient evidence exists to support a full synthesis (e.g. meta-analysis); and the assessment of a range of research methods to establish ‘best practice’ methodologies. 
 
-```{r pressure, echo=FALSE}
-plot(pressure)
-```
+However, the true potential of systematic maps to guide multiple evidence syntheses can only be realised if systematic map databases are interactive: allowing gaps, clusters and patterns in the database to be readily identified, extracted and reused. 
 
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+To our knowledge, no Open Access software exists that accept user-provided databases as inputs to produce both human-readable tables and figures. Furthermore, existing software that allows for the production of tables and figures separately does not support interactivity in all forms of visualisations. It is the interactivity (for example allowing filtering or zooming in/out) that is critical for visualising systematic mapping outputs, since it makes the outputs immediately more digestible to end users. 
+
+
+(Abstract) Systematic mapping assesses the nature of an evidence base, answering how much evidence exists on a particular topic. Perhaps the most useful outputs of a systematic map are an interactive database of studies and their meta-data, along with visualisations of this database. Despite the rapid increase in systematic mapping as an evidence synthesis method, there is currently a lack of Open Source software for producing interactive visualisations of systematic map databases. In April 2018, as attendees at and coordinators of the first ever Evidence Synthesis Hackathon in Stockholm, we decided to address this issue by developing an R-based tool called EviAtlas, an Open Access (i.e. free to use) and Open Source (i.e. software code is freely accessible and reproducible) tool for producing interactive, attractive tables and figures that summarise the evidence base. Here, we present our tool which includes the ability to generate vital visualisations for systematic maps and reviews as follows: a complete data table; a spatially explicit geographical information system (Evidence Atlas); Heat Maps that cross-tabulate two or more variables and display the number of studies belonging to multiple categories; and standard descriptive plots showing the nature of the evidence base, for example the number of studies published per year or number of studies per country. We believe that EviAtlas will provide a stimulus for the development of other exciting tools to facilitate evidence synthesis. 
+EviAtlas has reached a minimum viable product stage, but further developments are needed to create a visually appealing, stable, and powerful tool. 
+
+developing an R-based tool called EviAtlas. Our objective was to develop an Open Access (i.e. free to use) and Open Source (i.e. software code is freely accessible and reproducible) tool that accepts user provided systematic map databases and produces attractive, interactive tables and figures that query and summarise different aspects of the evidence base. The specific outputs from this tool include: a human-readable datatable; a spatially explicit geographical information system (Evidence Atlas); Heat Maps that cross-tabulate two or more variables and display the number of studies belonging to multiple categories; and standard descriptive plots showing the nature of the evidence base, for example the number of studies published per year or number of studies per country. 
+
+. The interface is built using Shiny (https://shiny.rstudio.com, [16]), an R package that supports the development of web-based R applications that can be hosted online. The code for EviAtlas is stored on GitHub (https://github.com/ESHackathon/EviAtlas) and is available as Open Source code to stimulate future development and community participation.
+
+
+The EviAtlas home page. Primary functionality is accessed via the sidebar on the left side of the screen.
+
+Landing page: Background information about EviAtlas and systematic maps is provided, along with a ‘how to’ guide. Users can learn about evidence synthesis and find references and links to useful guidance material.
+
+
+## Upload Data and data Attributes
+
+Upload a systematic review dataset (csv format) using the panel on the right, and then use the left sidebar to view a systematic map generated from your dataset, as well as some common plots used in systematic reviews.
+
+Please ensure that your database is formatted in the correct way - column labels should all appear in the first row. To create an Evidence Atlas you will need one column with latitude data and one with longitude data; you can select these spatial variables in the Evidence Atlas pane. Please provide the lat/long in decimal degrees. In the future we hope to provide tools to recognise multiple coordinate types. If you have categorical variables that you wish to cross-tabulate in a Heat Map or other visualisation, EviAtlas currently requires that you store these categories in a single column. In the future we hope to integrate tidy principles that will allow you to aggregate and disaggregate complex data automatically.
+
+Please use the example dataset to see what EviAtlas can do!
+
+can see dimensions of uploaded dataset, variables
+
+## Evidence Atlas
+Users can examine the data spatially on a cartographic map based on latitude and longitude data provided, clustering points to various degrees, colouring points by data attributes, and customising what information is displayed in pop-ups, including hyperlinks if present. 
+
+Systematic maps utilising different EviAtlas functionality with a common dataset. Studies can be clustered by location (a), custom fields can be used to generate pop-up messages for each study (b), and a subset of the data can be filtered (c).
+
+. While EviAtlas draws on a number of R packages, it relies particularly heavily on leaflet [17], an Open Source JavaScript tool for creating interactive, web-ready maps. It also relies on tidyverse packages that aim to facilitate data handling by reducing ‘mess’ in underlying data [18].
+
+### Map Database
+Displays the map database as uploaded with customisable visualisation of columns. Users can filter numerical and categorical variables. Users can apply this filtering to the rest of EviAtlas to subset the other visualisations produced across the tool.
+Examining data and producing easily readable databases of evidence.
+Configure Map, Save Map
+
+Data filtering in EviAtlas is done through a spreadsheet-like interface.
+select columns, apply, download filtered data
+
+## Descriptive Plots
+Common charts, such as histograms and heatmaps, used in systematic reviews and maps of empirical evidence can be generated through EviAtlas.
+
+Produces histograms for specified variables, displaying the number of study lines per level of the variable. For example, by year, or by country
+
+Producing histograms and other visualisations of trends across the database, as well as providing customisable template code for users learning the R programming language
+
+select variables, download
+
+## Heatmap
+Cross tabulates two variables to display the number of study lines across all levels of each variable.
+Producing heat maps that help to identify knowledge gaps and clusters across the database.
+select variables, download
+
+
+## Further Developments
+Requests for future enhancements can be submitted through the project’s “Issues” page on GitHub (https://github.com/ESHackathon/EviAtlas/issues). Furthermore, the app is currently undergoing user testing to allow for future improvements in functionality. Future releases will include functionality that allows users to publish an interactive platform containing their systematic map database preloaded and customised with default visualisations as a communication tool outside of a systematic map report. 
+
