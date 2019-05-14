@@ -482,6 +482,7 @@ shinyServer(
                 cluster_size_user = input$cluster_size_select,
                 cluster_points = input$map_cluster_select,
                 color_user = input$atlas_color_by_select,
+                basemap_user = input$map_basemap_select,
                 map_title=input$map_title_select), 
         error = function(x) {
           leaflet::leaflet() %>%
