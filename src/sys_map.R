@@ -46,7 +46,7 @@ sys_map <- function(studies_data, latitude,
   if(basemap_user == "OpenStreetMap") {
           basemap <- leaflet::leaflet(studies_data,
                                       options = leafletOptions(minZoom = 2)) %>%
-                  leaflet::addProviderTiles(providers$OpenStreetMap) %>%
+                  leaflet::addTiles() %>%
                   leaflet::addControl(title, position = "topright", className="map-title")
           } else if (basemap_user == "OpenTopoMap") {
                   basemap <- leaflet::leaflet(studies_data,
