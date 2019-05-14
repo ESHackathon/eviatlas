@@ -1,5 +1,8 @@
 # Map the studies included in a systematic review.
 
+basemap_user = input$map_basemap_select,
+
+
 sys_map <- function(studies_data, latitude,
                     longitude, popup_user=NULL,
                     radius_user=NULL, 
@@ -7,6 +10,7 @@ sys_map <- function(studies_data, latitude,
                     links_user="",
                     cluster_points=T,
                     color_user="",
+                    basemap_user="",
                     map_title="") {
   if (!is.null(popup_user)) {
     #hacky for loop, should be made vectorized & pretty someday
@@ -31,6 +35,8 @@ sys_map <- function(studies_data, latitude,
     factpal <- colorFactor(RColorBrewer::brewer.pal(9, 'Set1'), studies_data$color_user)
     colorby <- ~factpal(studies_data[[color_user]])
   } else {colorby <- "blue"}
+        
+        
 
   title <- h2(as.character(map_title))
   
@@ -39,10 +45,23 @@ sys_map <- function(studies_data, latitude,
   lat_plotted <- as.numeric(unlist(studies_data %>% dplyr::select(latitude)))
   lng_plotted <- as.numeric(unlist(studies_data %>% dplyr::select(longitude)))
 
-  basemap <- leaflet::leaflet(studies_data,
-                              options = leafletOptions(minZoom = 2)) %>%
-               leaflet::addTiles() %>%
-               leaflet::addControl(title, position = "topright", className="map-title")
+  
+  if(basemap_user != "") {
+          basemap <- leaflet::leaflet(studies_data,
+                                      options = leafletOptions(minZoom = 2)) %>%
+                  leaflet::addProviderTiles(providers$OpenStreetMap,
+                                            providers$OpenTopoMap,
+                                            providers$Stamen.TonerLite,
+                                            providers$Esri.WorldStreetMap) %>%
+                  leaflet::addControl(title, position = "topright", className="map-title")
+          
+  } else {
+          basemap <- leaflet::leaflet(studies_data,
+                                      options = leafletOptions(minZoom = 2)) %>%
+                  leaflet::addTiles() %>%
+                  leaflet::addControl(title, position = "topright", className="map-title")
+          }
+  
   
   if (cluster_points == T) {
     map <- basemap %>%

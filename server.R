@@ -210,18 +210,18 @@ shinyServer(
     
     
   ############################################################################################################################################  
-    output$atlas_selectmap <- renderUI({                                         ## this creates a new UI element, atlas_selectmap
+    output$atlas_selectmap <- renderUI({                                       
             req(data_internal$raw)
             div(
                     title = "You can change the default basemap, for example to change the language",
                     selectInput(
-                            inputId = "map_basemap_select",                      ## make sure this is ok
-                            label = "Select Basemap",                            ## this is the name of the dropdown menu
-                            choices = c("", get_link_cols(data_internal$raw)),   ## adjust this
+                            inputId = "map_basemap_select",                      
+                            label = "Select Basemap",                            
+                            choices = c("", OpenStreetMap, OpenTopoMap, Stamen.TonerLite, Esri.WorldStreetMap),
                             selected = ""
                     )
             )
-            
+    
     })
     #########################################################################################################################################
 
