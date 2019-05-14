@@ -148,7 +148,8 @@ body <- dashboardBody(
                               ),
                        column(2, 
                               uiOutput("atlas_filter"),
-                              uiOutput("atlas_color_by")
+                              uiOutput("atlas_color_by"),
+                              uiOutput("atlas_selectmap")
                               ),
                        column(2, 
                               uiOutput("cluster_columns"),
