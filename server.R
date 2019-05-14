@@ -209,7 +209,6 @@ shinyServer(
     })
     
     
-  ############################################################################################################################################  
     output$atlas_selectmap <- renderUI({                                       
             req(data_internal$raw)
             div(
@@ -217,14 +216,14 @@ shinyServer(
                     selectInput(
                             inputId = "map_basemap_select",                      
                             label = "Select Basemap",                            
-                            choices = c("", OpenStreetMap, OpenTopoMap, Stamen.TonerLite, Esri.WorldStreetMap),
+                            choices = c("", "OpenStreetMap", "OpenTopoMap", "Stamen.TonerLite", "Esri.WorldStreetMap"),
                             selected = ""
                     )
             )
     
     })
-    #########################################################################################################################################
 
+    
     output$atlas_popups <- renderUI({
       req(data_internal$raw)
       div(
