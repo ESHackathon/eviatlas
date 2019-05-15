@@ -208,7 +208,23 @@ shinyServer(
       )
 
     })
+    
+    
+    output$atlas_selectmap <- renderUI({                                       
+            req(data_internal$raw)
+            div(
+                    title = "You can change the default basemap, for example to change the language",
+                    selectInput(
+                            inputId = "map_basemap_select",                      
+                            label = "Select Basemap",                            
+                            choices = c("", "OpenStreetMap", "OpenTopoMap", "Stamen.TonerLite", "Esri.WorldStreetMap"),
+                            selected = ""
+                    )
+            )
+    
+    })
 
+    
     output$atlas_popups <- renderUI({
       req(data_internal$raw)
       div(
@@ -445,19 +461,16 @@ shinyServer(
     generate_systematic_map <- reactive({
       # Try to generate map; if that fails, show blank map
       tryCatch(
-        sys_map(if (input$map_filtered_select) {
-          data_internal$filtered[input$filtered_table_rows_all, , drop = FALSE]
-        } else {
-          data_internal$raw
-        }, 
-          input$map_lat_select,
-          input$map_lng_select,
-          popup_user = input$map_popup_select,
-          links_user = input$map_link_select,
-          cluster_size_user = input$cluster_size_select,
-          cluster_points = input$map_cluster_select,
-          color_user = input$atlas_color_by_select,
-          map_title = input$map_title_select), 
+        sys_map(if(input$map_filtered_select) {data_internal$filtered[input$filtered_table_rows_all, , drop = FALSE]} else {data_internal$raw},
+                input$map_lat_select,
+                input$map_lng_select,
+                popup_user = input$map_popup_select,
+                links_user = input$map_link_select,
+                cluster_size_user = input$cluster_size_select,
+                cluster_points = input$map_cluster_select,
+                color_user = input$atlas_color_by_select,
+                basemap_user = input$map_basemap_select,
+                map_title=input$map_title_select), 
         error = function(x) {
           leaflet::leaflet() %>%
             leaflet::addTiles()
