@@ -7,6 +7,7 @@ source("src/GenTimeTrend.R")
 source("src/sys_map.R")
 source("src/get_link_cols.R")
 source("src/get_coord_cols.R")
+source("src/get_histogram_viable_cols.R")
 
 # load data + text
 load("data/pilotdata.rda")
@@ -197,7 +198,7 @@ shinyServer(
     output$atlas_link_popup <- renderUI({
       req(data_internal$raw)
       div(
-        title = "If your dataset has a link to each study, you can include it in the popup when a point is clicked with the mouse",
+        title = "If your dataset has a link to each study, you can include it in the popup when a point is clicked with the mouse. If you have any hyperlinks you wish to display in the pop-up (e.g. email addresses or URLs), select them here.",
         selectInput(
           inputId = "map_link_select",
           label = "Select Link Column (in pop-up)",
@@ -236,15 +237,15 @@ shinyServer(
     })
     
     output$cluster_size <- renderUI({
-      req(data_internal$raw)
+      # req(data_internal$raw)
       div(
         title = "Adjust cluster size",
           shinyWidgets::noUiSliderInput(
             inputId = "cluster_size_select",
             label = "Cluster Distance",
-            value = 2,
+            value = 4,
             step = 1,
-            min = 2,
+            min = 4,
             max = 8)
       )
     })
@@ -323,8 +324,8 @@ shinyServer(
       if(!is.null(data_internal$cols)){
         selectInput(
           inputId = "select_timetrend_col",
-          label = "Select Year variable",
-          choices = c("", data_internal$cols),
+          label = "Select variable 1",
+          choices = c("", get_histogram_viable_columns(data_internal$raw)),
           selected = ""
         )
       }
@@ -335,8 +336,8 @@ shinyServer(
       if(!is.null(data_internal$cols)){
         selectInput(
           inputId = "select_loc_col",
-          label = "Select Country/Region/Location Variable",
-          choices = c("", data_internal$cols),
+          label = "Select Variable 2",
+          choices = c("", get_histogram_viable_columns(data_internal$raw)),
           selected = ""
         )
       }
@@ -353,19 +354,21 @@ shinyServer(
             ),
             div(
               style = "display: inline-block; width = '40%'",
+              title = "Select which categorical variable you wish to cross tabulate along the x axis in a heat map. Values must be discrete categories (i.e. not free text and not decimal)", 
               selectInput(
                 inputId = "heat_select_x",
                 label = "Select X variable",
-                choices = c("", data_internal$cols),
+                choices = c("", get_histogram_viable_columns(data_internal$raw)),
                 selected = ""
               )
             ),
             div(
               style = "display: inline-block; width = '40%'",
+              title = "Select which categorical variable you wish to cross tabulate along the y axis in a heat map. Values must be discrete categories (i.e. not free text and not decimal)",
               selectInput(
                 inputId = "heat_select_y",
                 label = "Select Y variable",
-                choices = c("", data_internal$cols),
+                choices = c("", get_histogram_viable_columns(data_internal$raw)),
                 selected = ""
               )
             )
@@ -376,22 +379,7 @@ shinyServer(
 
     #geom_bar rather than geom_histogram so that non-continous variables can be plotted
     gen_time_trend_plot <- reactive({
-      ggplot(data_internal$raw, aes_string(x = input$select_timetrend_col)) +
-      geom_bar(
-        alpha = 0.9,
-        stat = "count",
-        fill = "light blue"
-      ) +
-      labs(y = "No of studies") +
-      ggtitle("") +
-      theme_bw() +
-      theme(
-        axis.line = element_line(colour = "black"),
-        panel.background = element_blank(),
-        plot.title = element_text(hjust = .5),
-        text = element_text(size = 14),
-        axis.text.x = element_text(angle = 45, hjust = 1)
-      )
+      GenTimeTrend(data_internal$raw, input$select_timetrend_col)
     })
     
     gen_location_trend_plot <- reactive({
@@ -457,15 +445,19 @@ shinyServer(
     generate_systematic_map <- reactive({
       # Try to generate map; if that fails, show blank map
       tryCatch(
-        sys_map(if(input$map_filtered_select) {data_internal$filtered[input$filtered_table_rows_all, , drop = FALSE]} else {data_internal$raw},
-                input$map_lat_select,
-                input$map_lng_select,
-                popup_user = input$map_popup_select,
-                links_user = input$map_link_select,
-                cluster_size_user = input$cluster_size_select,
-                cluster_points = input$map_cluster_select,
-                color_user = input$atlas_color_by_select,
-                map_title=input$map_title_select), 
+        sys_map(if (input$map_filtered_select) {
+          data_internal$filtered[input$filtered_table_rows_all, , drop = FALSE]
+        } else {
+          data_internal$raw
+        }, 
+          input$map_lat_select,
+          input$map_lng_select,
+          popup_user = input$map_popup_select,
+          links_user = input$map_link_select,
+          cluster_size_user = input$cluster_size_select,
+          cluster_points = input$map_cluster_select,
+          color_user = input$atlas_color_by_select,
+          map_title = input$map_title_select), 
         error = function(x) {
           leaflet::leaflet() %>%
             leaflet::addTiles()
