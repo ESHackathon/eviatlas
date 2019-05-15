@@ -3,7 +3,7 @@
 sys_map <- function(studies_data, latitude,
                     longitude, popup_user=NULL,
                     radius_user=NULL, 
-                    cluster_size_user=2,
+                    cluster_size_user=4,
                     links_user="",
                     cluster_points=T,
                     color_user="",
