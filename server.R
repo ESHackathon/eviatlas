@@ -237,7 +237,7 @@ shinyServer(
     })
     
     output$cluster_size <- renderUI({
-      req(data_internal$raw)
+      # req(data_internal$raw)
       div(
         title = "Adjust cluster size",
           shinyWidgets::noUiSliderInput(
