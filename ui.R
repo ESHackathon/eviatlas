@@ -2,6 +2,7 @@
 
 easyprint_js_file <- "https://rawgit.com/rowanwins/leaflet-easyPrint/gh-pages/dist/bundle.js" 
 
+
 sidebar <- dashboardSidebar(
 
   # sidebarUserPanel("EviAtlas Nav"),
@@ -15,7 +16,10 @@ sidebar <- dashboardSidebar(
       menuItem("Descriptive Plots", tabName = "insightplots", 
                icon = icon("home")),
       menuItem("Heatmap", tabName = "heatmap", 
-               icon = icon("fire"))
+               icon = icon("fire")),
+      menuItem("View Code",  
+               href = "https://github.com/ESHackathon/eviatlas",
+               icon = icon("github"))
       )
 )
 
@@ -58,7 +62,9 @@ body <- dashboardBody(
                 tabsetPanel(
                   tabPanel(title = 'About EviAtlas', htmlOutput("start_text")),
                   tabPanel(title = 'About Systematic Maps', htmlOutput("about_sysmap_text")),
-                  tabPanel(title = 'How to Use EviAtlas', htmlOutput("how_works_text")),
+                  tabPanel(title = 'How to Use EviAtlas', htmlOutput("how_works_text"))
+                )),
+                wellPanel(tabsetPanel(
                   tabPanel(title = 'Data Attributes', htmlOutput("uploaded_attributes"), 
                            tableOutput("data_summary"))
                 ))
