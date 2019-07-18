@@ -13,7 +13,6 @@
 #' @export
 
 GenHeatMap = function(idata, selcols, axis_txt_lim = 60){
-  if(length(selcols)!=2) stop("Only two variables should be input. Your second argument should be a vector of two column names.")
 
   # Convert columns to factors to allow for categorical classification for both numeric and character data -------
   tmp <- as.data.frame(sapply(idata[selcols], function(x) as.factor(x)))
@@ -44,3 +43,4 @@ GenHeatMap = function(idata, selcols, axis_txt_lim = 60){
 
   heatmp
 }
+

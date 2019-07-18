@@ -13,6 +13,4 @@ library(shiny)
 library(shinydashboard)
 library(shinyWidgets)
 library(shinyBS)
-
-#for shinyapps.io only
-# webshot::install_phantomjs()
+library(RColorBrewer)

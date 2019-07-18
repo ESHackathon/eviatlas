@@ -2,6 +2,7 @@
 
 easyprint_js_file <- "https://rawgit.com/rowanwins/leaflet-easyPrint/gh-pages/dist/bundle.js" 
 
+
 sidebar <- dashboardSidebar(
 
   # sidebarUserPanel("EviAtlas Nav"),
@@ -15,7 +16,10 @@ sidebar <- dashboardSidebar(
       menuItem("Descriptive Plots", tabName = "insightplots", 
                icon = icon("home")),
       menuItem("Heatmap", tabName = "heatmap", 
-               icon = icon("fire"))
+               icon = icon("fire")),
+      menuItem("View Code",  
+               href = "https://github.com/ESHackathon/eviatlas",
+               icon = icon("github"))
       )
 )
 
@@ -50,7 +54,7 @@ body <- dashboardBody(
     .skin-blue .main-header .sidebar-toggle {
       background-color: #2d6c66;
     }
-  ")), 
+  ")),
   tabItems(
     tabItem(tabName = "about",
             fluidRow(
@@ -58,56 +62,67 @@ body <- dashboardBody(
                 tabsetPanel(
                   tabPanel(title = 'About EviAtlas', htmlOutput("start_text")),
                   tabPanel(title = 'About Systematic Maps', htmlOutput("about_sysmap_text")),
-                  tabPanel(title = 'How to Use EviAtlas', htmlOutput("how_works_text")),
+                  tabPanel(title = 'How to Use EviAtlas', htmlOutput("how_works_text"))
+                )),
+                wellPanel(tabsetPanel(
                   tabPanel(title = 'Data Attributes', htmlOutput("uploaded_attributes"), 
                            tableOutput("data_summary"))
                 ))
               ),
-
       #Sidebar panel for inputs
       sidebarPanel(
         tabsetPanel(
-          tabPanel(title = "Upload Data",
-                   radioButtons(
-                     "sample_or_real",
-                     label = h4("Which Data to Use?"),
-                     choices = list(
-                       "Sample Data" = "sample",
-                       "Upload from .csv format (spreadsheet)" = "user",
-                       "Upload from .shp format (shapefile)" = "shapefile"
-                     ),
-                     selected = "user"
-                   ),
-                   
-                   conditionalPanel(
-                     condition = "input.sample_or_real == 'user'",
-                     
-                     # Input: Select a file ----
-                     fluidRow(
-                       fileInput(
-                         "sysmapdata_upload",
-                         label = "Choose CSV File",
-                         multiple = FALSE,
-                         accept = c(
-                           "text/csv",
-                           "text/comma-separated-values,text/plain",
-                           ".csv"),
-                         placeholder = "Systematic Map Data (100 MB Limit)"
-                       )),
-                     fluidRow(h5(strong("CSV Properties")),
-                              column(6, 
-                                     # Input: Checkbox if file has header ----
-                                     checkboxInput("header", "Header row?", TRUE),
-                                     radioButtons(
-                                       "upload_encoding",
-                                       label = "Select File Encoding",
-                                       choices = list("Default"="", "UTF-8", "latin1"),
-                                       selected = ""
-                                     )),
-                              column(6, 
-                                     # Input: Select separator ----
-                                     radioButtons(
-                                       "sep",
+          tabPanel(
+            title = "Upload Data",
+            radioButtons(
+              "sample_or_real",
+              label = h4("Which Data to Use?"),
+              choices = list(
+                "Sample Data" = "sample",
+                "Upload from .csv format (spreadsheet)" = "user",
+                "Upload from .shp format (shapefile)" = "shapefile"
+              ),
+              selected = "user"
+            ),
+            bsTooltip("sample_or_real",
+                      title = "Select whether you want to try EviAtlas using the sample data from a recent systematic map, or whether you wish to upload your own data in the correct format",
+                      placement = "left", 
+                      trigger = "hover"
+            ), 
+            conditionalPanel(
+              condition = "input.sample_or_real == 'user'",
+
+              # Input: Select a file ----
+              fluidRow(
+                fileInput(
+                  "sysmapdata_upload",
+                  label = "Choose CSV File",
+                  multiple = FALSE,
+                  accept = c(
+                    "text/csv",
+                    "text/comma-separated-values,text/plain",
+                    ".csv"),
+                  placeholder = "Systematic Map Data (100 MB Limit)"
+                )),
+              
+              fluidRow(
+                h5(strong("CSV Properties")),
+                column(
+                  6,
+                  # Input: Checkbox if file has header ----
+                  checkboxInput("header", "Header row?", TRUE),
+          
+                  radioButtons("upload_encoding",
+                               label = "Select File Encoding",
+                               choices = list("Default" = "", 
+                                              "UTF-8", 
+                                              "latin1"),
+                           selected = ""
+                         )
+                       ),
+                       column(6,
+                          # Input: Select separator ----
+                          radioButtons("sep",
                                        "Separator",
                                        choices = c(
                                          Comma = ",",
@@ -128,26 +143,47 @@ body <- dashboardBody(
                                        selected = '"'
                                      )))
                    )),
-          conditionalPanel(
-            condition = "input.sample_or_real == 'shapefile'",
-            fluidRow(column(12,
-                            fileInput('shape', 'Select all files associated with the shapefile (.shp, .dbf,.sbn,.sbx,.shx and .prj)',
-                                      multiple=TRUE, 
-                                      accept=c('.shp','.dbf','.sbn','.sbx','.shx',".prj"),
-                                      placeholder = "Select All Data Files At Once"
-                                      )
-                            )
-                     )
-            )
+          conditionalPanel(condition = "input.sample_or_real == 'shapefile'",
+                           fluidRow(column(
+                             12,
+                             fileInput(
+                               'shape',
+                               'Select all files associated with the shapefile (.shp, .dbf,.sbn,.sbx,.shx and .prj)',
+                               multiple = TRUE,
+                               accept = c('.shp', '.dbf', '.sbn', '.sbx', '.shx', ".prj"),
+                               placeholder = "Select All Data Files At Once"
+                             )
+                           ))
           )
-        ))
+        )
+      ))
     ),
-
+    
     tabItem(tabName = "home",
       fluidRow(
         tabsetPanel(
           tabPanel("Configure Map",
-                   wellPanel(uiOutput("map_columns"))
+                   wellPanel(fluidRow(
+                       column(2, 
+                              uiOutput("map_columns")
+                              ),
+                       column(4, 
+                              uiOutput("atlas_popups"),
+                              uiOutput("atlas_link_popup")
+                              ),
+                       column(2, 
+                              uiOutput("atlas_filter"),
+                              uiOutput("atlas_color_by"),
+                              uiOutput("atlas_selectmap")
+                              ),
+                       column(2, 
+                              uiOutput("cluster_columns"),
+                              conditionalPanel(condition = "input.map_cluster_select",
+                                               uiOutput("cluster_size"))
+                              ),
+                       column(2,
+                              textInput("map_title_select", "Atlas Title"))
+                  ))
           ),
           tabPanel('Save Map',
                    wellPanel(
@@ -157,11 +193,14 @@ body <- dashboardBody(
                                     label = "Save Map (png)"),
                      downloadButton(outputId = "savemap_pdf", 
                                     label = "Save Map (PDF)"),
-                     bsTooltip("savemap_interactive", title = "Save an interactive HTML version of the map using the current display settings. This HTML map can then be easily hosted on your own website", 
+                     bsTooltip("savemap_interactive", 
+                               title = "Save an interactive HTML version of the map using the current display settings. This HTML map can then be easily hosted on your own website", 
                                placement = "bottom", trigger = "hover"),
-                     bsTooltip("savemap_png", title = "Save a static version of the map using the current display settings. Currently only saves global (zoomed-out) view. To download a smaller view, use the save button in the upper left-hand corner of the map.", 
+                     bsTooltip("savemap_png", 
+                               title = "Save a static version of the map using the current display settings. Currently only saves global (zoomed-out) view. To download a smaller view, use the save button in the upper left-hand corner of the map.", 
                                placement = "bottom", trigger = "hover"),
-                     bsTooltip("savemap_pdf", title = "Save a static version of the map using the current display settings.  Currently only saves global (zoomed-out) view. To download a smaller view, use the save button in the upper left-hand corner of the map.", 
+                     bsTooltip("savemap_pdf", 
+                               title = "Save a static version of the map using the current display settings.  Currently only saves global (zoomed-out) view. To download a smaller view, use the save button in the upper left-hand corner of the map.", 
                                placement = "bottom", trigger = "hover")
                      
                    )))

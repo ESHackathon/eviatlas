@@ -8,6 +8,7 @@ source("src/sys_map.R")
 source("src/sys_map_shapefile.R")
 source("src/get_link_cols.R")
 source("src/get_coord_cols.R")
+source("src/get_histogram_viable_cols.R")
 
 # load data + text
 load("data/pilotdata.rda")
@@ -62,6 +63,7 @@ shinyServer(
         file = input$sysmapdata_upload$datapath,
         header = input$header,
         sep = input$sep,
+        dec = input$dec, 
         quote = input$quote,
         fileEncoding = input$upload_encoding,
         stringsAsFactors = F)
@@ -71,14 +73,15 @@ shinyServer(
     
     # if shapefile data are supplied, add them to data_internal
     observeEvent(input$shape, {
-      
       req(input$shape)
       shpdf <- input$shape
       tempdirname <- dirname(shpdf$datapath[1])
       for(i in 1:nrow(shpdf)){
         file.rename(shpdf$datapath[i], paste0(tempdirname, "/", shpdf$name[i]))
       }
-      data_internal$raw=sf::st_read(paste(tempdirname, shpdf$name[grep(pattern = "*.shp$", shpdf$name)], sep="/"))
+      data_internal$raw=sf::st_read(paste(tempdirname, 
+                                          shpdf$name[grep(pattern = "*.shp$", shpdf$name)], 
+                                          sep="/"))
       
       data_internal$cols <- colnames(data_internal$raw)
       data_internal$filtered <- data_internal$raw #instantiate filtered table with raw values
@@ -90,7 +93,7 @@ shinyServer(
         data_internal$raw <- eviatlas_pilotdata
         data_internal$cols <- colnames(eviatlas_pilotdata)
         data_internal$filtered <- data_internal$raw #instantiate filtered table with raw values
-      }else{
+      } else {
         data_internal$raw <- NULL
         data_internal$filtered <- NULL
         data_internal$cols <- NULL
@@ -103,7 +106,8 @@ shinyServer(
         cat(paste0(
           "You've uploaded a dataset containing ", nrow(data_internal$raw),
           " rows and ", ncol(data_internal$raw),
-          " columns. If this is not what you expected, you might want to adjust the CSV properties settings on the right and try again.<br>",
+          " columns. If this is not what you expected, you might want to",
+          " adjust the CSV properties settings on the right and try again.<br>",
           "<br> Detected column names as follows:<br>",
           paste(data_internal$cols, collapse = "<br>")
         ))
@@ -171,82 +175,128 @@ shinyServer(
       )
     
     # map UI
+    
     output$map_columns <- renderUI({
-      if(!is.null(data_internal$cols)){
-        div(
-          list(
-            div(
-              style = "display: inline-block; width = '10%'",
-              br()
-            ),
-            div(
-              style = "display: inline-block; width = '20%'",
-              selectInput(
-                inputId = "map_lat_select",
-                label = "Select Latitude Column",
-                choices = data_internal$cols,
-                selected = get_latitude_cols(data_internal$raw),
-                width = "250px"
-              )
-            ),
-            div(
-              style = "display: inline-block; width = '20%'",
-              selectInput(
-                inputId = "map_lng_select",
-                label = "Select Longitude Column",
-                choices = data_internal$cols,
-                selected = get_longitude_cols(data_internal$raw),
-                width = "250px"
-              )
-            ),
-            div(
-              style = "display: inline-block; width = '30%'",
-              title = "Multiple columns are allowed as popups",
-              selectizeInput(
-                inputId = "map_popup_select",
-                label = "Select Popup Info",
-                selected = data_internal$cols[1],
-                choices = data_internal$cols,
-                width = "250px",
-                multiple = T
-              )
-            ),
-            div(
-              style = "display: inline-block; width = '20%'",
-              title = "If your dataset has a link to each study, you can include it in the popup when a point is clicked with the mouse",
-              selectInput(
-                inputId = "map_link_select",
-                label = "Select Link Column (in pop-up)",
-                choices = c("", get_link_cols(data_internal$raw)),
-                selected = "",
-                width = "250px"
-              )
-            ),
-            div(style = "display: inline-block; width = '20%'",
-                title = "Toggle displaying points in relative geographic clusters",
-                div(
-                shinyWidgets::materialSwitch(
-                  inputId = "map_cluster_select",
-                  label = "Cluster Map Points?",
-                  value = TRUE,
-                  status = "primary"
-                )
-              ),
-              div(
-                style = "display: inline-block; width = '20%'",
-                title = "Use the Map Database tab to subset data",
-                shinyWidgets::materialSwitch(
-                  inputId = "map_filtered_select",
-                  label = "Use filtered data?",
-                  value = FALSE,
-                  status = "primary"
-                )
-             )
+      if(!is.null(data_internal$cols)) {
+        div(list(
+          div(
+            selectInput(
+              inputId = "map_lat_select",
+              label = "Select Latitude Column",
+              choices = data_internal$cols,
+              selected = get_latitude_cols(data_internal$raw)
             )
-          )
+          ),
+          div(
+            selectInput(
+              inputId = "map_lng_select",
+              label = "Select Longitude Column",
+              choices = data_internal$cols,
+              selected = get_longitude_cols(data_internal$raw)
+            )
+          ))
         )
       } else {wellPanel('To use the map, upload data in the "About EviAtlas" tab.')}
     })
+    
+    output$atlas_filter <- renderUI({
+      req(data_internal$raw)
+      div(
+        title = "Use the Map Database tab to subset data",
+        shinyWidgets::materialSwitch(
+          inputId = "map_filtered_select",
+          label = "Use filtered data?",
+          value = FALSE,
+          inline = T,
+          status = "primary"
+        )
+      )
+    })
+
+    output$atlas_link_popup <- renderUI({
+      req(data_internal$raw)
+      div(
+        title = "If your dataset has a link to each study, you can include it in the popup when a point is clicked with the mouse. If you have any hyperlinks you wish to display in the pop-up (e.g. email addresses or URLs), select them here.",
+        selectInput(
+          inputId = "map_link_select",
+          label = "Select Link Column (in pop-up)",
+          choices = c("", get_link_cols(data_internal$raw)),
+          selected = ""
+        )
+      )
+
+    })
+    
+    
+    output$atlas_selectmap <- renderUI({                                       
+            req(data_internal$raw)
+            div(
+                    title = "You can change the default basemap, for example to change the language",
+                    selectInput(
+                            inputId = "map_basemap_select",                      
+                            label = "Select Basemap",                            
+                            choices = c("", "OpenStreetMap", "OpenTopoMap", "Stamen.TonerLite", "Esri.WorldStreetMap"),
+                            selected = ""
+                    )
+            )
+    
+    })
+
+    
+    output$atlas_popups <- renderUI({
+      req(data_internal$raw)
+      div(
+        title = "Multiple columns are allowed as popups",
+        selectizeInput(
+          inputId = "map_popup_select",
+          label = "Select Popup Info",
+          selected = data_internal$cols[1],
+          choices = data_internal$cols,
+          multiple = T
+        )
+      )
+    })
+
+    output$cluster_columns <- renderUI({
+      req(data_internal$raw)
+      div(
+        title = "Toggle displaying points in relative geographic clusters",
+        shinyWidgets::materialSwitch(
+          inputId = "map_cluster_select",
+          label = "Cluster Map Points?",
+          value = FALSE,
+          status = "primary"
+        )
+      )
+    })
+    
+    output$cluster_size <- renderUI({
+      # req(data_internal$raw)
+      div(
+        title = "Adjust cluster size",
+          shinyWidgets::noUiSliderInput(
+            inputId = "cluster_size_select",
+            label = "Cluster Distance",
+            value = 4,
+            step = 1,
+            min = 4,
+            max = 8)
+      )
+    })
+    
+    output$atlas_color_by <- renderUI({
+      req(data_internal$raw)
+      div(
+        title="Select variable to color points by",
+        selectInput(
+          inputId = "atlas_color_by_select",
+          label = "Color points by:",
+          choices = c("", data_internal$cols),
+          selected = ""
+        )
+      )
+    })
+      
     
     observeEvent(input$map_filtered_select, {
       # Change values for map inputs whenever button is toggled
@@ -308,8 +358,8 @@ shinyServer(
       if(!is.null(data_internal$cols)){
         selectInput(
           inputId = "select_timetrend_col",
-          label = "Select Year variable",
-          choices = c("", data_internal$cols),
+          label = "Select variable 1",
+          choices = c("", get_histogram_viable_columns(data_internal$raw)),
           selected = ""
         )
       }
@@ -320,8 +370,8 @@ shinyServer(
       if(!is.null(data_internal$cols)){
         selectInput(
           inputId = "select_loc_col",
-          label = "Select Country/Region/Location Variable",
-          choices = c("", data_internal$cols),
+          label = "Select Variable 2",
+          choices = c("", get_histogram_viable_columns(data_internal$raw)),
           selected = ""
         )
       }
@@ -338,19 +388,21 @@ shinyServer(
             ),
             div(
               style = "display: inline-block; width = '40%'",
+              title = "Select which categorical variable you wish to cross tabulate along the x axis in a heat map. Values must be discrete categories (i.e. not free text and not decimal)", 
               selectInput(
                 inputId = "heat_select_x",
                 label = "Select X variable",
-                choices = c("", data_internal$cols),
+                choices = c("", get_histogram_viable_columns(data_internal$raw)),
                 selected = ""
               )
             ),
             div(
               style = "display: inline-block; width = '40%'",
+              title = "Select which categorical variable you wish to cross tabulate along the y axis in a heat map. Values must be discrete categories (i.e. not free text and not decimal)",
               selectInput(
                 inputId = "heat_select_y",
                 label = "Select Y variable",
-                choices = c("", data_internal$cols),
+                choices = c("", get_histogram_viable_columns(data_internal$raw)),
                 selected = ""
               )
             )
@@ -361,22 +413,7 @@ shinyServer(
 
     #geom_bar rather than geom_histogram so that non-continous variables can be plotted
     gen_time_trend_plot <- reactive({
-      ggplot(data_internal$raw, aes_string(x = input$select_timetrend_col)) +
-      geom_bar(
-        alpha = 0.9,
-        stat = "count",
-        fill = "light blue"
-      ) +
-      labs(y = "No of studies") +
-      ggtitle("") +
-      theme_bw() +
-      theme(
-        axis.line = element_line(colour = "black"),
-        panel.background = element_blank(),
-        plot.title = element_text(hjust = .5),
-        text = element_text(size = 14),
-        axis.text.x = element_text(angle = 45, hjust = 1)
-      )
+      GenTimeTrend(data_internal$raw, input$select_timetrend_col)
     })
     
     gen_location_trend_plot <- reactive({
@@ -451,27 +488,30 @@ shinyServer(
           error = function(x) {
             leaflet::leaflet() %>%
               leaflet::addTiles()
-            }
-        )
-
+            })
       } else {
         tryCatch(
-          sys_map(if(input$map_filtered_select) {
-            data_internal$filtered[input$filtered_table_rows_all, , drop = FALSE]
-          } else {
-            data_internal$raw
-          },
-          input$map_lat_select,
-          input$map_lng_select,
-          popup_user = input$map_popup_select,
-          links_user = input$map_link_select,
-          cluster_points = input$map_cluster_select),
+          sys_map(
+            if(input$map_filtered_select) {
+              data_internal$filtered[input$filtered_table_rows_all, , drop = FALSE]
+              } else {
+                data_internal$raw
+                },
+            input$map_lat_select,
+            input$map_lng_select,
+            popup_user = input$map_popup_select,
+            links_user = input$map_link_select,
+            cluster_size_user = input$cluster_size_select,
+            cluster_points = input$map_cluster_select,
+            color_user = input$atlas_color_by_select,
+            basemap_user = input$map_basemap_select,
+            map_title = input$map_title_select),
           error = function(x) {
             leaflet::leaflet() %>%
               leaflet::addTiles()
           }
         )
-      } 
+      }
     })
     
     output$savemap_interactive <- downloadHandler(
@@ -519,5 +559,6 @@ shinyServer(
       leafletProxy("map")
     })
 
-
+    outputOptions(output, "cluster_columns", suspendWhenHidden = FALSE)  
+    
   })

@@ -1,57 +1,49 @@
-#' Create GenTimeTrend from dataset
-#'
-#' Created For	  : ES Hackathon 2018
-#' @param idata Input data frame
-#' @param year_column List of strings with column names
-#' @param verbose Realtime commenting
-#' @return Returns a timetrend object showing number of literature under different categories in user specified \code{year_column}
-#'
-#' @author Ezgi Tanriver-Ayder
-#'
-#' @keywords SystematicReview,
-#' @export
+#' Create Histogram from dataset
 
-GenTimeTrend = function(idata, year_column = NULL, verbose = FALSE){
+GenTimeTrend = function(idata, hist_col, axis_txt_lim = 60){
+  UseMethod("GenTimeTrend", object = idata[hist_col][[1]])
+}
 
-  if(missing(year_column)) {
-    if (verbose) {message('No year_column specified, assuming it is labeled "Year"')}
-    year_column <- c("Year")
-  }
+GenTimeTrend.default <- function(idata, hist_col, axis_txt_lim = 60){
+
+  gttmp <- ggplot2::ggplot(idata, aes_string(x = hist_col)) +
+    ggplot2::geom_bar(
+      alpha = 0.9,
+      stat = "count",
+      fill = "dodger blue"
+    ) +
+    ggplot2::labs(y = "Studies") +
+    ggplot2::scale_x_discrete(name = paste(hist_col), labels = function(x) substr(x, 1, axis_txt_lim)) +
+    ggplot2::theme_bw() +
+    ggplot2::theme(
+      axis.line = ggplot2::element_line(colour = "black"),
+      panel.background = ggplot2::element_blank(),
+      plot.title = ggplot2::element_text(hjust = .5),
+      text = ggplot2::element_text(size = 13)
+    )
   
-  if(verbose){
-  # Check if Year column exists ------
-    if(any(colnames(idata) %in% year_column)) {
-      message("GenTimeTrend: Year column found")
-    } else {
-      message("GenTimeTrend: Year column not found")
-    }
+  # Rotate xaxis label if too many categories
+  if (dplyr::n_distinct(idata[hist_col]) > 15){
+    gttmp <- gttmp + ggplot2::theme(
+      axis.text.x = element_text(angle = 40, hjust = 0.95, size = 12))
   }
+  gttmp
+}
 
-  Years <- as.data.frame(sapply(idata[year_column], function(x) as.factor(x)))
-
-    # Count combination of vars --------
-    seldata <- table(Years)
-    seldata <- reshape2::melt(seldata)
-
-    # Plot Heatmap ------
-    # Plot bar chart
-    iyears<- min(seldata$Years, na.rm=T):max(seldata$Years, na.rm=T)
-    timemp<- ggplot2::ggplot(seldata,
-                             ggplot2::aes_string(x=colnames(seldata[1]),
-                                                 y=colnames(seldata[2]))) +
-      ggplot2::geom_bar(alpha=0.9, stat="identity",fill="light blue") +
-      ggplot2::scale_x_continuous(name="Year", breaks = iyears)+
-      ggplot2::labs(y="No of studies") + ggplot2::ggtitle("Distribution of studies over time") +
-      ggplot2::theme_bw() +
-      ggplot2::theme(axis.line = ggplot2::element_line(colour = "black"),
-                     panel.background = ggplot2::element_blank(),
-                     plot.title = ggplot2::element_text(hjust = .5),
-                     text = ggplot2::element_text(size=14),
-                     axis.text.x = ggplot2::element_text(angle = 90, vjust = -.01, size = 11))
-
-    if(verbose) {
-      message("GenTimeTrend: Time trend plot created!")
-    }
-
-  timemp
+GenTimeTrend.numeric <- function(idata, hist_col, axis_txt_lim = 60){
+  
+  ggplot2::ggplot(idata, aes_string(x = hist_col)) +
+    ggplot2::geom_bar(
+      alpha = 0.9,
+      stat = "count",
+      fill = "dodger blue"
+    ) +
+    ggplot2::labs(y = "Studies") +
+    ggplot2::theme_bw() +
+    ggplot2::theme(
+      axis.line = ggplot2::element_line(colour = "black"),
+      panel.background = ggplot2::element_blank(),
+      plot.title = ggplot2::element_text(hjust = .5),
+      text = ggplot2::element_text(size = 13)
+    )
 }
