@@ -226,7 +226,7 @@ shinyServer(
     })
 
     output$atlas_link_popup <- renderUI({
-      req(data_internal$raw)
+      # req(data_internal$raw)
       
       div(
         title = "If your dataset has a link to each study, you can include it in the popup when a point is clicked with the mouse. If you have any hyperlinks you wish to display in the pop-up (e.g. email addresses or URLs), select them here.",
@@ -509,10 +509,15 @@ shinyServer(
             }"
         )
     })
-    
+
     observe({
-      req(data_internal$raw)
-      
+      req(!is.null(input$map_link_select)) #could be anything in the evidence atlas pane
+
+      if (input$map_link_select != "") {
+        links_input <- sapply(data_active()[input$map_link_select], as.character)
+        links = paste0("<strong><a target='_blank' rel='noopener noreferrer' href='", 
+                       links_input, "'>Link to paper</a></strong>")
+      } else {links <- ""}
       
       popup_string <- ''
       for (popup in input$map_popup_select) {
@@ -520,13 +525,16 @@ shinyServer(
                               data_active()[, popup], "<br/>")
       }
 
+      radiusby <- input$atlas_radius_select
       
       lat_plotted <- as.numeric(unlist(data_active() %>% dplyr::select(input$map_lat_select)))
       lng_plotted <- as.numeric(unlist(data_active() %>% dplyr::select(input$map_lng_select)))
         
       leafletProxy("map", data = data_active()) %>%
+        leaflet::clearMarkers() %>%
         leaflet::addCircleMarkers(lat = ~lat_plotted, lng = ~lng_plotted,
-                                  popup = ~paste(popup_string)#, links)
+                                  popup = ~paste(popup_string, links), 
+                                  radius = as.numeric(radiusby)
         ) 
       })
       # popup_user = input$map_popup_select,
@@ -535,10 +543,7 @@ shinyServer(
       # cluster_points = input$map_cluster_select,
       # color_user = input$atlas_color_by_select
       # 
-      # # if (!is.null(radius_user)) {
-      # #   radiusby <- sapply(studies_data[radius_user], as.numeric)
-      # # } else {radiusby <- 3}
-      # radiusby <- 3
+
       # 
       # if (input$atlas_color_by_select != "") {
       #   color_user <- input$atlas_color_by_select

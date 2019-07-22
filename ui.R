@@ -182,7 +182,8 @@ body <- dashboardBody(
                                                    uiOutput("cluster_size"))
                            ),
                            column(2,
-                                  textInput("map_title_select", "Atlas Title"))
+                                  textInput("map_title_select", "Atlas Title"),
+                                  sliderInput("atlas_radius_select", "Point size", 1, 5, 3))
                          ))
                 ),
                 tabPanel('Save Map',
