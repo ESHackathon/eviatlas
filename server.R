@@ -90,8 +90,9 @@ shinyServer(
     })
     
     data_active <- reactive({
+      req(data_internal$raw)
+
       d_out <- if(input$map_filtered_select == TRUE) {data_internal$filtered} else {data_internal$raw}
-      print('data_filter working')
       d_out
     })
 
@@ -156,8 +157,8 @@ shinyServer(
     })
     
     output$filtered_table <- DT::renderDataTable(
-      DT::datatable(data_internal$filtered, filter = c('top'),
-                    caption = "Use the boxes below column headers to filter data",
+      DT::datatable(data_active(), #filter = c('top'),
+                    # caption = "Use the boxes below column headers to filter data",
                     class = c('display', 'compact'), 
                     style='bootstrap',
                     options = list(scrollX = TRUE, 
@@ -193,16 +194,16 @@ shinyServer(
             selectInput(
               inputId = "map_lat_select",
               label = "Select Latitude Column",
-              choices = data_internal$cols,
-              selected = get_latitude_cols(data_internal$raw)
+              choices = colnames(data_active()),
+              selected = get_latitude_cols(data_active())
             )
           ),
           div(
             selectInput(
               inputId = "map_lng_select",
               label = "Select Longitude Column",
-              choices = data_internal$cols,
-              selected = get_longitude_cols(data_internal$raw)
+              choices = colnames(data_active()),
+              selected = get_longitude_cols(data_active())
             )
           ))
         )
@@ -256,7 +257,7 @@ shinyServer(
 
     
     output$atlas_popups <- renderUI({
-      req(data_internal$raw)
+      # req(data_internal$raw)
       
       div(
         title = "Multiple columns are allowed as popups",
@@ -317,54 +318,25 @@ shinyServer(
       updateSelectInput(
         session,
         "map_lat_select",
-        choices = if (input$map_filtered_select) {
-          colnames(data_internal$filtered)
-        } else {
-          colnames(data_internal$raw)
-        },
-        selected = if (input$map_filtered_select) {
-          get_latitude_cols(data_internal$filtered)
-        } else {
-          get_latitude_cols(data_internal$raw)
-        }
+        choices = colnames(data_active()),
+        selected = get_latitude_cols(data_active())
       )
       
       updateSelectInput(
         session,
         "map_lng_select",
-        choices = if (input$map_filtered_select) {
-          colnames(data_internal$filtered)
-        } else {
-          colnames(data_internal$raw)
-        },
-        selected = if (input$map_filtered_select) {
-          get_longitude_cols(data_internal$filtered)
-        } else {
-          get_longitude_cols(data_internal$raw)
-        }
+        choices = colnames(data_active()),
+        selected = get_longitude_cols(data_active())
       )
       
       updateSelectInput(session, "map_link_select",
-                        choices = c("", if (input$map_filtered_select) {
-                          get_link_cols(data_internal$filtered)
-                        } else {
-                          get_link_cols(data_internal$raw)
-                        }))
+                        choices = c("", get_link_cols(data_active()) )
+                        )
       
-      updateSelectInput(
-        session,
-        "map_popup_select",
-        choices = if (input$map_filtered_select) {
-          colnames(data_internal$filtered)
-        } else {
-          data_internal$cols
-        },
-        selected = if (input$map_filtered_select) {
-          colnames(data_internal$filtered)[1]
-        } else {
-          data_internal$cols[1]
-        }
-      )
+      updateSelectInput(session, "map_popup_select",
+        choices = colnames(data_active()),
+        selected = colnames(data_active())[1]
+        )
     })
     
     # BARPLOT
@@ -373,7 +345,7 @@ shinyServer(
         selectInput(
           inputId = "select_timetrend_col",
           label = "Select variable 1",
-          choices = c("", get_histogram_viable_columns(data_internal$raw)),
+          choices = c("", get_histogram_viable_columns(data_active())),
           selected = ""
         )
       }
@@ -385,7 +357,7 @@ shinyServer(
         selectInput(
           inputId = "select_loc_col",
           label = "Select Variable 2",
-          choices = c("", get_histogram_viable_columns(data_internal$raw)),
+          choices = c("", get_histogram_viable_columns(data_active())),
           selected = ""
         )
       }
@@ -406,7 +378,7 @@ shinyServer(
               selectInput(
                 inputId = "heat_select_x",
                 label = "Select X variable",
-                choices = c("", get_histogram_viable_columns(data_internal$raw)),
+                choices = c("", get_histogram_viable_columns(data_active())),
                 selected = ""
               )
             ),
@@ -416,7 +388,7 @@ shinyServer(
               selectInput(
                 inputId = "heat_select_y",
                 label = "Select Y variable",
-                choices = c("", get_histogram_viable_columns(data_internal$raw)),
+                choices = c("", get_histogram_viable_columns(data_active())),
                 selected = ""
               )
             )
@@ -427,11 +399,11 @@ shinyServer(
 
     #geom_bar rather than geom_histogram so that non-continous variables can be plotted
     gen_time_trend_plot <- reactive({
-      GenTimeTrend(data_internal$raw, input$select_timetrend_col)
+      GenTimeTrend(data_active(), input$select_timetrend_col)
     })
     
     gen_location_trend_plot <- reactive({
-      GenLocationTrend(data_internal$raw, input$select_loc_col)
+      GenLocationTrend(data_active(), input$select_loc_col)
     })
     
     output$plot1 <- renderPlot({
@@ -467,7 +439,7 @@ shinyServer(
     )
     
     gen_heatmap <- reactive({
-      GenHeatMap(data_internal$raw, c(input$heat_select_x, input$heat_select_y))
+      GenHeatMap(data_active(), c(input$heat_select_x, input$heat_select_y))
     })
     
     output$heatmap <- renderPlot({
@@ -493,30 +465,9 @@ shinyServer(
     generate_systematic_map <- reactive({
       # Try to generate map; if that fails, show blank map
       if (input$sample_or_real == "shapefile") {
-        tryCatch(
-          sys_map_shapefile(
-            data_active()),
-          error = function(x) {
-            leaflet::leaflet() %>%
-              leaflet::addTiles()
-            })
+        sys_map_shapefile(data_active() )
       } else {
-        tryCatch(
-          sys_map(
-            data_active(),
-            input$map_lat_select,
-            input$map_lng_select,
-            popup_user = input$map_popup_select,
-            links_user = input$map_link_select,
-            cluster_size_user = input$cluster_size_select,
-            cluster_points = input$map_cluster_select,
-            color_user = input$atlas_color_by_select
-            ),
-        error = function(x) {
-          leaflet::leaflet() %>%
-            leaflet::addTiles()
-        }
-        )
+        sys_map(data_active() )
       }
     })
     
@@ -558,6 +509,65 @@ shinyServer(
             }"
         )
     })
+    
+    observe({
+      req(data_internal$raw)
+      
+      
+      popup_string <- ''
+      for (popup in input$map_popup_select) {
+        popup_string = paste0(popup_string, "<strong>", popup, '</strong>: ',
+                              data_active()[, popup], "<br/>")
+      }
+
+      
+      lat_plotted <- as.numeric(unlist(data_active() %>% dplyr::select(input$map_lat_select)))
+      lng_plotted <- as.numeric(unlist(data_active() %>% dplyr::select(input$map_lng_select)))
+        
+      leafletProxy("map", data = data_active()) %>%
+        leaflet::addCircleMarkers(lat = ~lat_plotted, lng = ~lng_plotted,
+                                  popup = ~paste(popup_string)#, links)
+        ) 
+      })
+      # popup_user = input$map_popup_select,
+      # links_user = input$map_link_select,
+      # cluster_size_user = input$cluster_size_select,
+      # cluster_points = input$map_cluster_select,
+      # color_user = input$atlas_color_by_select
+      # 
+      # # if (!is.null(radius_user)) {
+      # #   radiusby <- sapply(studies_data[radius_user], as.numeric)
+      # # } else {radiusby <- 3}
+      # radiusby <- 3
+      # 
+      # if (input$atlas_color_by_select != "") {
+      #   color_user <- input$atlas_color_by_select
+      #   factpal <- colorFactor(RColorBrewer::brewer.pal(9, 'Set1'), data_active()$color_user)
+      #   colorby <- ~factpal(data_active()$color_user)
+      # } else {colorby <- "blue"}
+      # 
+
+      # 
+      # if (input$map_cluster_select == T) {
+      #   leafletProxy("map") %>%
+      #     leaflet::addCircleMarkers(lat = ~lat_plotted, lng = ~lng_plotted,
+      #                               popup = ~paste(popup_string, links),
+      #                               radius = ~as.numeric(radiusby * 3),
+      #                               color = colorby,
+      #                               stroke = FALSE, fillOpacity = 0.7,
+      #                               clusterOptions = markerClusterOptions(freezeAtZoom = input$cluster_size_select) )
+      # } else {
+      #   leafletProxy("map") %>%
+      #     leaflet::addCircleMarkers(lat = ~lat_plotted, lng = ~lng_plotted,
+      #                               popup = ~paste(popup_string, links),
+      #                               radius = ~as.numeric(radiusby),
+      #                               color = colorby,
+      #                               label = ~popup_string %>% lapply(shiny::HTML)
+      #     )
+      # }
+      
+      
+    # })
     
     observeEvent(input$map_title_select, {
       
