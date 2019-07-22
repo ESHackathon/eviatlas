@@ -238,12 +238,12 @@ shinyServer(
             req(data_internal$raw)
       
             div(
-              title = "You can change the default basemap, for example to change the language",
+              title = "You can change the default basemap to highlight different geographical features or change the language of map labels",
               selectInput(
                 inputId = "map_basemap_select",
                 label = "Select Basemap",
-                choices = c("", "OpenStreetMap", "OpenTopoMap", "Stamen.TonerLite", "Esri.WorldStreetMap"),
-                selected = ""
+                choices = c("OpenStreetMap", "OpenTopoMap", "Stamen.TonerLite", "Esri.WorldStreetMap"),
+                selected = "OpenStreetMap"
                 )
               )
             })
@@ -511,8 +511,7 @@ shinyServer(
             links_user = input$map_link_select,
             cluster_size_user = input$cluster_size_select,
             cluster_points = input$map_cluster_select,
-            color_user = input$atlas_color_by_select,
-            basemap_user = input$map_basemap_select,
+            color_user = input$atlas_color_by_select
             ),
           error = function(x) {
             leaflet::leaflet() %>%
@@ -590,11 +589,19 @@ shinyServer(
     observeEvent(input$map_title_select, {
       
       leafletProxy("map") %>%
-        leaflet::removeControl("leaflet_title") %>%
+        leaflet::removeControl("atlas_title") %>%
         leaflet::addControl(input$map_title_select, 
                             position = "topright", 
                             className="map-title",
-                            layerId = "leaflet_title")
+                            layerId = "atlas_title")
+      
+    })    
+    
+    observeEvent(input$map_basemap_select, {
+      leafletProxy("map") %>%
+        leaflet::removeTiles("atlas_basemap") %>%
+        leaflet::addProviderTiles(input$map_basemap_select, 
+                                  layerId = "atlas_basemap")
       
     })
   

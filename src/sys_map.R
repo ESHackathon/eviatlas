@@ -6,8 +6,7 @@ sys_map <- function(studies_data, latitude,
                     cluster_size_user=4,
                     links_user="",
                     cluster_points=T,
-                    color_user="",
-                    basemap_user=""
+                    color_user=""
                     ) {
   if (!is.null(popup_user)) {
     #hacky for loop, should be made vectorized & pretty someday
@@ -36,28 +35,9 @@ sys_map <- function(studies_data, latitude,
   lat_plotted <- as.numeric(unlist(studies_data %>% dplyr::select(latitude)))
   lng_plotted <- as.numeric(unlist(studies_data %>% dplyr::select(longitude)))
 
-  
-  if(basemap_user == "OpenStreetMap") {
-          basemap <- leaflet::leaflet(studies_data,
-                                      options = leafletOptions(minZoom = 2)) %>%
-                  leaflet::addTiles()
-          } else if (basemap_user == "OpenTopoMap") {
-                  basemap <- leaflet::leaflet(studies_data,
-                                              options = leafletOptions(minZoom = 2)) %>%
-                          leaflet::addProviderTiles(providers$OpenTopoMap)
-          } else if (basemap_user == "Stamen.TonerLite") {
-                  basemap <- leaflet::leaflet(studies_data,
-                                              options = leafletOptions(minZoom = 2)) %>%
-                          leaflet::addProviderTiles(providers$Stamen.TonerLite)
-          } else if (basemap_user == "Esri.WorldStreetMap") {
-                  basemap <- leaflet::leaflet(studies_data,
-                                              options = leafletOptions(minZoom = 2)) %>%
-                          leaflet::addProviderTiles(providers$Esri.WorldStreetMap)
-          } else {
-                  basemap <- leaflet::leaflet(studies_data,
-                                              options = leafletOptions(minZoom = 2)) %>%
-                          leaflet::addTiles()
-          }
+  basemap <- leaflet::leaflet(studies_data,
+                              options = leafletOptions(minZoom = 2)) %>%
+    leaflet::addTiles(layerId = "atlas_basemap")
   
 
   if (cluster_points == T) {
