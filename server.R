@@ -91,6 +91,7 @@ shinyServer(
     
     data_active <- reactive({
       req(data_internal$raw)
+      req(!is.null(input$map_filtered_select))
 
       d_out <- if(input$map_filtered_select == TRUE) {data_internal$filtered} else {data_internal$raw}
       d_out
@@ -514,6 +515,7 @@ shinyServer(
     
     observe({
       req(!is.null(input$map_link_select)) #could be anything in the evidence atlas pane
+      req(input$sample_or_real != 'shapefile') #shapefiles are handled differently by leaflet, so they have their own section
 
       if (input$map_link_select != "") {
         links_input <- sapply(data_active()[input$map_link_select], as.character)
@@ -563,6 +565,17 @@ shinyServer(
       }
         
       })
+    
+    observe({
+      req(input$sample_or_real == 'shapefile') #this section only for shapefile plotting
+      req(data_internal$raw)
+      req(!is.null(input$map_title_select))
+      
+      leafletProxy("map", data = data_active()) %>%
+        leaflet::clearShapes() %>%
+        mapview::addFeatures(data = data_active(), 
+                             fillColor = input$map_title_select)
+    })
 
     
     observeEvent(input$map_title_select, {
