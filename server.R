@@ -90,8 +90,9 @@ shinyServer(
     })
     
     data_active <- reactive({
-      data_internal$raw
-      # if_else(input$map_filtered_select, data_internal$filtered, data_internal$raw)
+      d_out <- if(input$map_filtered_select == TRUE) {data_internal$filtered} else {data_internal$raw}
+      print('data_filter working')
+      d_out
     })
 
     # if user switches back to internal data, supply info on that instead
@@ -209,7 +210,7 @@ shinyServer(
     })
     
     output$atlas_filter <- renderUI({
-      req(data_internal$raw)
+      # req(data_internal$raw)
       
       div(
         title = "Use the Map Database tab to subset data",
@@ -493,11 +494,8 @@ shinyServer(
       # Try to generate map; if that fails, show blank map
       if (input$sample_or_real == "shapefile") {
         tryCatch(
-          sys_map_shapefile(if(input$map_filtered_select) {
-            data_internal$filtered[input$filtered_table_rows_all, , drop = FALSE]
-          } else {
-            data_internal$raw
-          }),
+          sys_map_shapefile(
+            data_active()),
           error = function(x) {
             leaflet::leaflet() %>%
               leaflet::addTiles()
@@ -505,11 +503,7 @@ shinyServer(
       } else {
         tryCatch(
           sys_map(
-            if(input$map_filtered_select) {
-              data_internal$filtered[input$filtered_table_rows_all, , drop = FALSE]
-              } else {
-                data_internal$raw
-                },
+            data_active(),
             input$map_lat_select,
             input$map_lng_select,
             popup_user = input$map_popup_select,
@@ -518,10 +512,10 @@ shinyServer(
             cluster_points = input$map_cluster_select,
             color_user = input$atlas_color_by_select
             ),
-          error = function(x) {
-            leaflet::leaflet() %>%
-              leaflet::addTiles()
-          }
+        error = function(x) {
+          leaflet::leaflet() %>%
+            leaflet::addTiles()
+        }
         )
       }
     })

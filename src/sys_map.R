@@ -52,7 +52,7 @@ sys_map <- function(studies_data, latitude,
     map <- basemap %>%
       leaflet::addCircleMarkers(lat = ~lat_plotted, lng = ~lng_plotted,
                                 popup = ~paste(popup_string, links),
-                                layerId = "atlas_marker",
+                                # layerId = "atlas_marker",
                                 radius = ~as.numeric(radiusby),
                                 color = colorby,
                                 label = ~popup_string %>% lapply(shiny::HTML)
