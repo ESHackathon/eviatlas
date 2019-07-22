@@ -179,6 +179,8 @@ shinyServer(
     # map UI
     
     output$map_columns <- renderUI({
+      req(input$sample_or_real != 'shapefile')
+      
       if(!is.null(data_internal$cols)) {
         div(list(
           div(
@@ -203,6 +205,7 @@ shinyServer(
     
     output$atlas_filter <- renderUI({
       req(data_internal$raw)
+      
       div(
         title = "Use the Map Database tab to subset data",
         shinyWidgets::materialSwitch(
@@ -217,6 +220,7 @@ shinyServer(
 
     output$atlas_link_popup <- renderUI({
       req(data_internal$raw)
+      
       div(
         title = "If your dataset has a link to each study, you can include it in the popup when a point is clicked with the mouse. If you have any hyperlinks you wish to display in the pop-up (e.g. email addresses or URLs), select them here.",
         selectInput(
@@ -232,21 +236,22 @@ shinyServer(
     
     output$atlas_selectmap <- renderUI({                                       
             req(data_internal$raw)
+      
             div(
-                    title = "You can change the default basemap, for example to change the language",
-                    selectInput(
-                            inputId = "map_basemap_select",                      
-                            label = "Select Basemap",                            
-                            choices = c("", "OpenStreetMap", "OpenTopoMap", "Stamen.TonerLite", "Esri.WorldStreetMap"),
-                            selected = ""
-                    )
-            )
-    
-    })
+              title = "You can change the default basemap, for example to change the language",
+              selectInput(
+                inputId = "map_basemap_select",
+                label = "Select Basemap",
+                choices = c("", "OpenStreetMap", "OpenTopoMap", "Stamen.TonerLite", "Esri.WorldStreetMap"),
+                selected = ""
+                )
+              )
+            })
 
     
     output$atlas_popups <- renderUI({
       req(data_internal$raw)
+      
       div(
         title = "Multiple columns are allowed as popups",
         selectizeInput(
@@ -261,6 +266,7 @@ shinyServer(
 
     output$cluster_columns <- renderUI({
       req(data_internal$raw)
+      
       div(
         title = "Toggle displaying points in relative geographic clusters",
         shinyWidgets::materialSwitch(
@@ -507,7 +513,7 @@ shinyServer(
             cluster_points = input$map_cluster_select,
             color_user = input$atlas_color_by_select,
             basemap_user = input$map_basemap_select,
-            map_title = input$map_title_select),
+            ),
           error = function(x) {
             leaflet::leaflet() %>%
               leaflet::addTiles()
@@ -555,11 +561,43 @@ shinyServer(
         )
     })
     
+    # This reactive expression represents the palette function,
+    # which changes as the user makes selections in UI.
+    # colorpal <- reactive({
+    #   if (input$color_by_select != "") {
+    #     factpal <- colorFactor(RColorBrewer::brewer.pal(9, 'Set1'), input$color_by_select)
+    #     colorby <- ~factpal(data_internal$raw[[input$color_by_select]])
+    #   } else {
+    #       colorby <- "blue"
+    #   }    
+    #   colorby
+    #   })
     
-
-    observe({
-      leafletProxy("map")
+    # Incremental changes to the map (in this case, replacing the
+    # circles when a new color is chosen) should be performed in
+    # an observer. Each independent set of things that can change
+    # should be managed in its own observer.
+    # observe({
+    #   pal <- colorpal()
+    #   
+    #   leafletProxy("map", data = filteredData()) %>%
+    #     clearShapes() %>%
+    #     addCircles(radius = 1, weight = 1, color = "black",
+    #                fillColor = pal, fillOpacity = 0.7
+    #     )
+    # })
+    
+    observeEvent(input$map_title_select, {
+      
+      leafletProxy("map") %>%
+        leaflet::removeControl("leaflet_title") %>%
+        leaflet::addControl(input$map_title_select, 
+                            position = "topright", 
+                            className="map-title",
+                            layerId = "leaflet_title")
+      
     })
+  
 
     outputOptions(output, "cluster_columns", suspendWhenHidden = FALSE)  
     

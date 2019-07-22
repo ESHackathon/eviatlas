@@ -7,8 +7,8 @@ sys_map <- function(studies_data, latitude,
                     links_user="",
                     cluster_points=T,
                     color_user="",
-                    basemap_user="",
-                    map_title="") {
+                    basemap_user=""
+                    ) {
   if (!is.null(popup_user)) {
     #hacky for loop, should be made vectorized & pretty someday
     popup_string <- ''
@@ -33,12 +33,6 @@ sys_map <- function(studies_data, latitude,
     colorby <- ~factpal(studies_data[[color_user]])
   } else {colorby <- "blue"}
         
-        
-
-  title <- h2(as.character(map_title))
-  
-  
-
   lat_plotted <- as.numeric(unlist(studies_data %>% dplyr::select(latitude)))
   lng_plotted <- as.numeric(unlist(studies_data %>% dplyr::select(longitude)))
 
@@ -46,28 +40,23 @@ sys_map <- function(studies_data, latitude,
   if(basemap_user == "OpenStreetMap") {
           basemap <- leaflet::leaflet(studies_data,
                                       options = leafletOptions(minZoom = 2)) %>%
-                  leaflet::addTiles() %>%
-                  leaflet::addControl(title, position = "topright", className="map-title")
+                  leaflet::addTiles()
           } else if (basemap_user == "OpenTopoMap") {
                   basemap <- leaflet::leaflet(studies_data,
                                               options = leafletOptions(minZoom = 2)) %>%
-                          leaflet::addProviderTiles(providers$OpenTopoMap) %>%
-                          leaflet::addControl(title, position = "topright", className="map-title")
+                          leaflet::addProviderTiles(providers$OpenTopoMap)
           } else if (basemap_user == "Stamen.TonerLite") {
                   basemap <- leaflet::leaflet(studies_data,
                                               options = leafletOptions(minZoom = 2)) %>%
-                          leaflet::addProviderTiles(providers$Stamen.TonerLite) %>%
-                          leaflet::addControl(title, position = "topright", className="map-title")
+                          leaflet::addProviderTiles(providers$Stamen.TonerLite)
           } else if (basemap_user == "Esri.WorldStreetMap") {
                   basemap <- leaflet::leaflet(studies_data,
                                               options = leafletOptions(minZoom = 2)) %>%
-                          leaflet::addProviderTiles(providers$Esri.WorldStreetMap) %>%
-                          leaflet::addControl(title, position = "topright", className="map-title")                  
+                          leaflet::addProviderTiles(providers$Esri.WorldStreetMap)
           } else {
                   basemap <- leaflet::leaflet(studies_data,
                                               options = leafletOptions(minZoom = 2)) %>%
-                          leaflet::addTiles() %>%
-                          leaflet::addControl(title, position = "topright", className="map-title")
+                          leaflet::addTiles()
           }
   
 
