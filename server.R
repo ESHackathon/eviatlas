@@ -227,7 +227,7 @@ shinyServer(
     })
 
     output$atlas_link_popup <- renderUI({
-      # req(data_internal$raw)
+      req(input$sample_or_real != "shapefile") #does not work for shapefiles currently
       
       div(
         title = "If your dataset has a link to each study, you can include it in the popup when a point is clicked with the mouse. If you have any hyperlinks you wish to display in the pop-up (e.g. email addresses or URLs), select them here.",
@@ -274,6 +274,7 @@ shinyServer(
 
     output$cluster_columns <- renderUI({
       req(data_internal$raw)
+      req(input$sample_or_real != "shapefile") #does not work for shapefiles currently
       
       div(
         title = "Toggle displaying points in relative geographic clusters",
@@ -287,21 +288,24 @@ shinyServer(
     })
     
     output$cluster_size <- renderUI({
-      # req(data_internal$raw)
+      req(input$sample_or_real != "shapefile") #does not work for shapefiles currently
+      
       div(
-        title = "Adjust cluster size",
+        title = "Adjust cluster sensitivity. Higher numbers correspond to smaller distances",
           shinyWidgets::noUiSliderInput(
             inputId = "cluster_size_select",
-            label = "Cluster Distance",
+            label = "Cluster Sensitivity",
             value = 4,
             step = 1,
             min = 4,
-            max = 8)
+            max = 16)
       )
     })
     
     output$atlas_color_by <- renderUI({
       req(data_internal$raw)
+      req(input$sample_or_real != "shapefile") #does not work for shapefiles currently
+      
       div(
         title="Select variable to color points by",
         selectInput(
@@ -464,9 +468,9 @@ shinyServer(
     )
     
     generate_systematic_map <- reactive({
-      # Try to generate map; if that fails, show blank map
+      # Generate basemap
       if (input$sample_or_real == "shapefile") {
-        sys_map_shapefile(data_active() )
+        sys_map_shapefile(data_active(), popups = popup_string())
       } else {
         sys_map(data_active() )
       }
@@ -476,7 +480,7 @@ shinyServer(
       filename = "eviatlasMap.html",
       content = function(file){
         saveWidget(
-          widget = generate_systematic_map(), file = file
+          widget = generate_systematic_map, file = file
         )
       }
     )
@@ -513,42 +517,49 @@ shinyServer(
     
     cluster_level <- reactive({input$cluster_size_select})
     
-    observe({
-      req(!is.null(input$map_link_select)) #could be anything in the evidence atlas pane
-      req(input$sample_or_real != 'shapefile') #shapefiles are handled differently by leaflet, so they have their own section
+    popup_string <- reactive({
+      popup_string <- ''
 
+      for (popup in input$map_popup_select) {
+        popup_string = paste0(popup_string, "<strong>", popup, '</strong>: ',
+                              data_active()[[popup]], "<br/>")
+      }
+      popup_string
+    })
+    
+    atlas_point_links <- reactive({
       if (input$map_link_select != "") {
         links_input <- sapply(data_active()[input$map_link_select], as.character)
         links = paste0("<strong><a target='_blank' rel='noopener noreferrer' href='", 
                        links_input, "'>Link to paper</a></strong>")
       } else {links <- ""}
-      
-      popup_string <- ''
-      for (popup in input$map_popup_select) {
-        popup_string = paste0(popup_string, "<strong>", popup, '</strong>: ',
-                              data_active()[, popup], "<br/>")
-      }
+      links
+    })
+    
+    observe({
+      req(!is.null(input$map_link_select)) #could be anything in the evidence atlas pane
+      req(!is.null(input$atlas_color_by_select)) #could be anything in the evidence atlas pane
+      req(input$sample_or_real != 'shapefile') #shapefiles are handled differently by leaflet, so they have their own section
 
       radiusby <- input$atlas_radius_select
-      
+
       lat_plotted <- as.numeric(unlist(data_active() %>% dplyr::select(input$map_lat_select)))
       lng_plotted <- as.numeric(unlist(data_active() %>% dplyr::select(input$map_lng_select)))
 
-      # if (input$atlas_color_by_select != "") {
-      #   color_user <- input$atlas_color_by_select
-      #   factpal <- colorFactor(RColorBrewer::brewer.pal(9, 'Set1'), data_active()$color_user)
-      #   colorby <- ~factpal(data_active()$color_user)
-      # } else {colorby <- "blue"}
-            
+      if (input$atlas_color_by_select != "") {
+        color_user <- input$atlas_color_by_select
+        factpal <- colorFactor(RColorBrewer::brewer.pal(9, 'Set1'), data_active()$color_user)
+        colorby <- ~factpal(data_active()[[color_user]])
+      } else {colorby <- "blue"}
+      
       if (input$map_cluster_select == T) {
-        print(paste('running at ', cluster_level()))
         leafletProxy("map", data = data_active()) %>%
           leaflet::clearMarkers() %>%
           leaflet::clearMarkerClusters() %>%
           leaflet::addCircleMarkers(lat = ~lat_plotted, lng = ~lng_plotted,
-                                    popup = ~paste(popup_string, links),
+                                    popup = ~paste(popup_string(), atlas_point_links()),
                                     radius = ~as.numeric(radiusby * 3),
-                                    # color = colorby,
+                                    color = colorby,
                                     stroke = FALSE, fillOpacity = 0.7,
                                     clusterOptions = markerClusterOptions(freezeAtZoom = cluster_level())
                                     )
@@ -557,26 +568,14 @@ shinyServer(
           leaflet::clearMarkers() %>%
           leaflet::clearMarkerClusters() %>%
           leaflet::addCircleMarkers(lat = ~lat_plotted, lng = ~lng_plotted,
-                                    popup = ~paste(popup_string, links),
+                                    popup = ~paste(popup_string(), atlas_point_links()),
                                     radius = ~as.numeric(radiusby),
-                                    # color = colorby,
-                                    label = ~popup_string %>% lapply(shiny::HTML)
+                                    color = colorby,
+                                    label = ~popup_string() %>% lapply(shiny::HTML)
           )
       }
         
       })
-    
-    observe({
-      req(input$sample_or_real == 'shapefile') #this section only for shapefile plotting
-      req(data_internal$raw)
-      req(!is.null(input$map_title_select))
-      
-      leafletProxy("map", data = data_active()) %>%
-        leaflet::clearShapes() %>%
-        mapview::addFeatures(data = data_active(), 
-                             fillColor = input$map_title_select)
-    })
-
     
     observeEvent(input$map_title_select, {
       

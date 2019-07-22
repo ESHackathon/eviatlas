@@ -183,7 +183,10 @@ body <- dashboardBody(
                            ),
                            column(2,
                                   textInput("map_title_select", "Atlas Title"),
-                                  sliderInput("atlas_radius_select", "Point size", 1, 5, 3))
+                                  conditionalPanel(condition = "input.sample_or_real != 'shapefile'", #doesn't work for shapefiles currently
+                                                   sliderInput("atlas_radius_select", "Point size", 
+                                                               min = 1, max = 8, value = 3,
+                                                               ticks = F)))
                          ))
                 ),
                 tabPanel('Save Map',
