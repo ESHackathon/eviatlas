@@ -88,6 +88,11 @@ shinyServer(
       data_internal$cols <- colnames(data_internal$raw)
       data_internal$filtered <- data_internal$raw #instantiate filtered table with raw values
     })
+    
+    data_active <- reactive({
+      data_internal$raw
+      # if_else(input$map_filtered_select, data_internal$filtered, data_internal$raw)
+    })
 
     # if user switches back to internal data, supply info on that instead
     observeEvent(input$sample_or_real, {
@@ -560,32 +565,6 @@ shinyServer(
         )
     })
     
-    # This reactive expression represents the palette function,
-    # which changes as the user makes selections in UI.
-    # colorpal <- reactive({
-    #   if (input$color_by_select != "") {
-    #     factpal <- colorFactor(RColorBrewer::brewer.pal(9, 'Set1'), input$color_by_select)
-    #     colorby <- ~factpal(data_internal$raw[[input$color_by_select]])
-    #   } else {
-    #       colorby <- "blue"
-    #   }    
-    #   colorby
-    #   })
-    
-    # Incremental changes to the map (in this case, replacing the
-    # circles when a new color is chosen) should be performed in
-    # an observer. Each independent set of things that can change
-    # should be managed in its own observer.
-    # observe({
-    #   pal <- colorpal()
-    #   
-    #   leafletProxy("map", data = filteredData()) %>%
-    #     clearShapes() %>%
-    #     addCircles(radius = 1, weight = 1, color = "black",
-    #                fillColor = pal, fillOpacity = 0.7
-    #     )
-    # })
-    
     observeEvent(input$map_title_select, {
       
       leafletProxy("map") %>%
@@ -605,6 +584,29 @@ shinyServer(
       
     })
   
+    # colorpal <- reactive({
+    #   color_column <- input$atlas_color_by_select
+    #   
+    #   if (color_column != "") {
+    #     factpal <- colorFactor(RColorBrewer::brewer.pal(9, 'Set1'), color_column)
+    #     colorby <- ~factpal(data_active()$color_column)
+    #     } else {
+    #       colorby <- "blue"
+    #     }
+    #   colorby
+    # })
+    # 
+    # observeEvent(input$atlas_color_by_select, {
+    #   
+    #   lat_plotted <- as.numeric(unlist(data_active() %>% dplyr::select(Latitude)))
+    #   lng_plotted <- as.numeric(unlist(data_active() %>% dplyr::select(Longitude)))
+    #   
+    #   leafletProxy("map") %>%
+    #     leaflet::removeMarker("atlas_marker") %>%
+    #     leaflet::addCircleMarkers(lat = 45, lng = 45,
+    #                               color = colorpal(),
+    #                               layerId = "atlas_marker")
+    # })
 
     outputOptions(output, "cluster_columns", suspendWhenHidden = FALSE)  
     
