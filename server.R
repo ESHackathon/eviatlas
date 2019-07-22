@@ -306,7 +306,7 @@ shinyServer(
         selectInput(
           inputId = "atlas_color_by_select",
           label = "Color points by:",
-          choices = c("", data_internal$cols),
+          choices = c("", colnames(data_active())),
           selected = ""
         )
       )
@@ -509,7 +509,9 @@ shinyServer(
             }"
         )
     })
-
+    
+    cluster_level <- reactive({input$cluster_size_select})
+    
     observe({
       req(!is.null(input$map_link_select)) #could be anything in the evidence atlas pane
 
@@ -529,50 +531,39 @@ shinyServer(
       
       lat_plotted <- as.numeric(unlist(data_active() %>% dplyr::select(input$map_lat_select)))
       lng_plotted <- as.numeric(unlist(data_active() %>% dplyr::select(input$map_lng_select)))
-        
-      leafletProxy("map", data = data_active()) %>%
-        leaflet::clearMarkers() %>%
-        leaflet::addCircleMarkers(lat = ~lat_plotted, lng = ~lng_plotted,
-                                  popup = ~paste(popup_string, links), 
-                                  radius = as.numeric(radiusby)
-        ) 
-      })
-      # popup_user = input$map_popup_select,
-      # links_user = input$map_link_select,
-      # cluster_size_user = input$cluster_size_select,
-      # cluster_points = input$map_cluster_select,
-      # color_user = input$atlas_color_by_select
-      # 
 
-      # 
       # if (input$atlas_color_by_select != "") {
       #   color_user <- input$atlas_color_by_select
       #   factpal <- colorFactor(RColorBrewer::brewer.pal(9, 'Set1'), data_active()$color_user)
       #   colorby <- ~factpal(data_active()$color_user)
       # } else {colorby <- "blue"}
-      # 
+            
+      if (input$map_cluster_select == T) {
+        print(paste('running at ', cluster_level()))
+        leafletProxy("map", data = data_active()) %>%
+          leaflet::clearMarkers() %>%
+          leaflet::clearMarkerClusters() %>%
+          leaflet::addCircleMarkers(lat = ~lat_plotted, lng = ~lng_plotted,
+                                    popup = ~paste(popup_string, links),
+                                    radius = ~as.numeric(radiusby * 3),
+                                    # color = colorby,
+                                    stroke = FALSE, fillOpacity = 0.7,
+                                    clusterOptions = markerClusterOptions(freezeAtZoom = cluster_level())
+                                    )
+      } else {
+        leafletProxy("map", data = data_active()) %>%
+          leaflet::clearMarkers() %>%
+          leaflet::clearMarkerClusters() %>%
+          leaflet::addCircleMarkers(lat = ~lat_plotted, lng = ~lng_plotted,
+                                    popup = ~paste(popup_string, links),
+                                    radius = ~as.numeric(radiusby),
+                                    # color = colorby,
+                                    label = ~popup_string %>% lapply(shiny::HTML)
+          )
+      }
+        
+      })
 
-      # 
-      # if (input$map_cluster_select == T) {
-      #   leafletProxy("map") %>%
-      #     leaflet::addCircleMarkers(lat = ~lat_plotted, lng = ~lng_plotted,
-      #                               popup = ~paste(popup_string, links),
-      #                               radius = ~as.numeric(radiusby * 3),
-      #                               color = colorby,
-      #                               stroke = FALSE, fillOpacity = 0.7,
-      #                               clusterOptions = markerClusterOptions(freezeAtZoom = input$cluster_size_select) )
-      # } else {
-      #   leafletProxy("map") %>%
-      #     leaflet::addCircleMarkers(lat = ~lat_plotted, lng = ~lng_plotted,
-      #                               popup = ~paste(popup_string, links),
-      #                               radius = ~as.numeric(radiusby),
-      #                               color = colorby,
-      #                               label = ~popup_string %>% lapply(shiny::HTML)
-      #     )
-      # }
-      
-      
-    # })
     
     observeEvent(input$map_title_select, {
       
@@ -593,30 +584,6 @@ shinyServer(
       
     })
   
-    # colorpal <- reactive({
-    #   color_column <- input$atlas_color_by_select
-    #   
-    #   if (color_column != "") {
-    #     factpal <- colorFactor(RColorBrewer::brewer.pal(9, 'Set1'), color_column)
-    #     colorby <- ~factpal(data_active()$color_column)
-    #     } else {
-    #       colorby <- "blue"
-    #     }
-    #   colorby
-    # })
-    # 
-    # observeEvent(input$atlas_color_by_select, {
-    #   
-    #   lat_plotted <- as.numeric(unlist(data_active() %>% dplyr::select(Latitude)))
-    #   lng_plotted <- as.numeric(unlist(data_active() %>% dplyr::select(Longitude)))
-    #   
-    #   leafletProxy("map") %>%
-    #     leaflet::removeMarker("atlas_marker") %>%
-    #     leaflet::addCircleMarkers(lat = 45, lng = 45,
-    #                               color = colorpal(),
-    #                               layerId = "atlas_marker")
-    # })
-
     outputOptions(output, "cluster_columns", suspendWhenHidden = FALSE)  
     
   })
