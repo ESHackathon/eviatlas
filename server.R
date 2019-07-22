@@ -79,9 +79,11 @@ shinyServer(
       for(i in 1:nrow(shpdf)){
         file.rename(shpdf$datapath[i], paste0(tempdirname, "/", shpdf$name[i]))
       }
-      data_internal$raw=sf::st_read(paste(tempdirname, 
-                                          shpdf$name[grep(pattern = "*.shp$", shpdf$name)], 
-                                          sep="/"))
+      data_internal$raw <- sf::st_read(
+        paste(tempdirname,
+              shpdf$name[grep(pattern = "*.shp$", shpdf$name)],
+              sep="/")
+        )
       
       data_internal$cols <- colnames(data_internal$raw)
       data_internal$filtered <- data_internal$raw #instantiate filtered table with raw values
