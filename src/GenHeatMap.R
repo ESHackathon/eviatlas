@@ -13,6 +13,10 @@
 #' @export
 
 GenHeatMap = function(idata, selcols, axis_txt_lim = 60){
+  
+  # if  df is a shapefile, remove geometry column
+  if (any(class(idata) == 'sf')) {idata <- sf::st_drop_geometry(idata)}
+  
 
   # Convert columns to factors to allow for categorical classification for both numeric and character data -------
   tmp <- as.data.frame(sapply(idata[selcols], function(x) as.factor(x)))
@@ -43,3 +47,4 @@ GenHeatMap = function(idata, selcols, axis_txt_lim = 60){
 
   heatmp
 }
+

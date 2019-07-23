@@ -13,6 +13,9 @@
 
 GenLocationTrend = function(df, location_column, axis_txt_lim = 60){
 
+  # if  df is a shapefile, remove geometry column
+  if (any(class(df) == 'sf')) {df <- sf::st_drop_geometry(df)}
+  
   # Count per locations --------
   location_counts <- as.data.frame(table(df[location_column])) # table() tabulates frequency
   colnames(location_counts)<-c(location_column, "n")

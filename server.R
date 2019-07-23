@@ -5,6 +5,7 @@ source("src/GenHeatMap.R")
 source("src/GenLocationTrend.R")
 source("src/GenTimeTrend.R")
 source("src/sys_map.R")
+source("src/sys_map_shapefile.R")
 source("src/get_link_cols.R")
 source("src/get_coord_cols.R")
 source("src/get_histogram_viable_cols.R")
@@ -56,7 +57,7 @@ shinyServer(
     # })
 
 
-    # if data are supplied, add them to data_internal
+    # if CSV data are supplied, add them to data_internal
     observeEvent(input$sysmapdata_upload, {
       data_internal$raw <- read.csv(
         file = input$sysmapdata_upload$datapath,
@@ -69,6 +70,32 @@ shinyServer(
       data_internal$cols <- colnames(data_internal$raw)
       data_internal$filtered <- data_internal$raw #instantiate filtered table with raw values
     })
+    
+    # if shapefile data are supplied, add them to data_internal
+    observeEvent(input$shape, {
+      req(input$shape)
+      shpdf <- input$shape
+      tempdirname <- dirname(shpdf$datapath[1])
+      for(i in 1:nrow(shpdf)){
+        file.rename(shpdf$datapath[i], paste0(tempdirname, "/", shpdf$name[i]))
+      }
+      data_internal$raw <- sf::st_read(
+        paste(tempdirname,
+              shpdf$name[grep(pattern = "*.shp$", shpdf$name)],
+              sep="/")
+        )
+      
+      data_internal$cols <- colnames(data_internal$raw)
+      data_internal$filtered <- data_internal$raw #instantiate filtered table with raw values
+    })
+    
+    data_active <- reactive({
+      req(data_internal$raw)
+      req(!is.null(input$map_filtered_select))
+
+      d_out <- if(input$map_filtered_select == TRUE) {data_internal$filtered} else {data_internal$raw}
+      d_out
+    })
 
     # if user switches back to internal data, supply info on that instead
     observeEvent(input$sample_or_real, {
@@ -76,7 +103,7 @@ shinyServer(
         data_internal$raw <- eviatlas_pilotdata
         data_internal$cols <- colnames(eviatlas_pilotdata)
         data_internal$filtered <- data_internal$raw #instantiate filtered table with raw values
-      }else{
+      } else {
         data_internal$raw <- NULL
         data_internal$filtered <- NULL
         data_internal$cols <- NULL
@@ -89,7 +116,8 @@ shinyServer(
         cat(paste0(
           "You've uploaded a dataset containing ", nrow(data_internal$raw),
           " rows and ", ncol(data_internal$raw),
-          " columns. If this is not what you expected, you might want to adjust the CSV properties settings on the right and try again.<br>",
+          " columns. If this is not what you expected, you might want to",
+          " adjust the CSV properties settings on the right and try again.<br>",
           "<br> Detected column names as follows:<br>",
           paste(data_internal$cols, collapse = "<br>")
         ))
@@ -130,8 +158,8 @@ shinyServer(
     })
     
     output$filtered_table <- DT::renderDataTable(
-      DT::datatable(data_internal$filtered, filter = c('top'),
-                    caption = "Use the boxes below column headers to filter data",
+      DT::datatable(data_active(), #filter = c('top'),
+                    # caption = "Use the boxes below column headers to filter data",
                     class = c('display', 'compact'), 
                     style='bootstrap',
                     options = list(scrollX = TRUE, 
@@ -159,22 +187,24 @@ shinyServer(
     # map UI
     
     output$map_columns <- renderUI({
+      req(input$sample_or_real != 'shapefile')
+      
       if(!is.null(data_internal$cols)) {
         div(list(
           div(
             selectInput(
               inputId = "map_lat_select",
               label = "Select Latitude Column",
-              choices = data_internal$cols,
-              selected = get_latitude_cols(data_internal$raw)
+              choices = colnames(data_active()),
+              selected = get_latitude_cols(data_active())
             )
           ),
           div(
             selectInput(
               inputId = "map_lng_select",
               label = "Select Longitude Column",
-              choices = data_internal$cols,
-              selected = get_longitude_cols(data_internal$raw)
+              choices = colnames(data_active()),
+              selected = get_longitude_cols(data_active())
             )
           ))
         )
@@ -182,7 +212,8 @@ shinyServer(
     })
     
     output$atlas_filter <- renderUI({
-      req(data_internal$raw)
+      # req(data_internal$raw)
+      
       div(
         title = "Use the Map Database tab to subset data",
         shinyWidgets::materialSwitch(
@@ -196,7 +227,8 @@ shinyServer(
     })
 
     output$atlas_link_popup <- renderUI({
-      req(data_internal$raw)
+      req(input$sample_or_real != "shapefile") #does not work for shapefiles currently
+      
       div(
         title = "If your dataset has a link to each study, you can include it in the popup when a point is clicked with the mouse. If you have any hyperlinks you wish to display in the pop-up (e.g. email addresses or URLs), select them here.",
         selectInput(
@@ -212,21 +244,22 @@ shinyServer(
     
     output$atlas_selectmap <- renderUI({                                       
             req(data_internal$raw)
+      
             div(
-                    title = "You can change the default basemap, for example to change the language",
-                    selectInput(
-                            inputId = "map_basemap_select",                      
-                            label = "Select Basemap",                            
-                            choices = c("", "OpenStreetMap", "OpenTopoMap", "Stamen.TonerLite", "Esri.WorldStreetMap"),
-                            selected = ""
-                    )
-            )
-    
-    })
+              title = "You can change the default basemap to highlight different geographical features or change the language of map labels",
+              selectInput(
+                inputId = "map_basemap_select",
+                label = "Select Basemap",
+                choices = c("OpenStreetMap", "OpenTopoMap", "Stamen.TonerLite", "Esri.WorldStreetMap"),
+                selected = "OpenStreetMap"
+                )
+              )
+            })
 
     
     output$atlas_popups <- renderUI({
-      req(data_internal$raw)
+      # req(data_internal$raw)
+      
       div(
         title = "Multiple columns are allowed as popups",
         selectizeInput(
@@ -241,6 +274,8 @@ shinyServer(
 
     output$cluster_columns <- renderUI({
       req(data_internal$raw)
+      req(input$sample_or_real != "shapefile") #does not work for shapefiles currently
+      
       div(
         title = "Toggle displaying points in relative geographic clusters",
         shinyWidgets::materialSwitch(
@@ -253,27 +288,30 @@ shinyServer(
     })
     
     output$cluster_size <- renderUI({
-      # req(data_internal$raw)
+      req(input$sample_or_real != "shapefile") #does not work for shapefiles currently
+      
       div(
-        title = "Adjust cluster size",
+        title = "Adjust cluster sensitivity. Higher numbers correspond to smaller distances",
           shinyWidgets::noUiSliderInput(
             inputId = "cluster_size_select",
-            label = "Cluster Distance",
+            label = "Cluster Sensitivity",
             value = 4,
             step = 1,
             min = 4,
-            max = 8)
+            max = 16)
       )
     })
     
     output$atlas_color_by <- renderUI({
       req(data_internal$raw)
+      req(input$sample_or_real != "shapefile") #does not work for shapefiles currently
+      
       div(
         title="Select variable to color points by",
         selectInput(
           inputId = "atlas_color_by_select",
           label = "Color points by:",
-          choices = c("", data_internal$cols),
+          choices = c("", colnames(data_active())),
           selected = ""
         )
       )
@@ -285,54 +323,25 @@ shinyServer(
       updateSelectInput(
         session,
         "map_lat_select",
-        choices = if (input$map_filtered_select) {
-          colnames(data_internal$filtered)
-        } else {
-          colnames(data_internal$raw)
-        },
-        selected = if (input$map_filtered_select) {
-          get_latitude_cols(data_internal$filtered)
-        } else {
-          get_latitude_cols(data_internal$raw)
-        }
+        choices = colnames(data_active()),
+        selected = get_latitude_cols(data_active())
       )
       
       updateSelectInput(
         session,
         "map_lng_select",
-        choices = if (input$map_filtered_select) {
-          colnames(data_internal$filtered)
-        } else {
-          colnames(data_internal$raw)
-        },
-        selected = if (input$map_filtered_select) {
-          get_longitude_cols(data_internal$filtered)
-        } else {
-          get_longitude_cols(data_internal$raw)
-        }
+        choices = colnames(data_active()),
+        selected = get_longitude_cols(data_active())
       )
       
       updateSelectInput(session, "map_link_select",
-                        choices = c("", if (input$map_filtered_select) {
-                          get_link_cols(data_internal$filtered)
-                        } else {
-                          get_link_cols(data_internal$raw)
-                        }))
+                        choices = c("", get_link_cols(data_active()) )
+                        )
       
-      updateSelectInput(
-        session,
-        "map_popup_select",
-        choices = if (input$map_filtered_select) {
-          colnames(data_internal$filtered)
-        } else {
-          data_internal$cols
-        },
-        selected = if (input$map_filtered_select) {
-          colnames(data_internal$filtered)[1]
-        } else {
-          data_internal$cols[1]
-        }
-      )
+      updateSelectInput(session, "map_popup_select",
+        choices = colnames(data_active()),
+        selected = colnames(data_active())[1]
+        )
     })
     
     # BARPLOT
@@ -341,7 +350,7 @@ shinyServer(
         selectInput(
           inputId = "select_timetrend_col",
           label = "Select variable 1",
-          choices = c("", get_histogram_viable_columns(data_internal$raw)),
+          choices = c("", get_histogram_viable_columns(data_active())),
           selected = ""
         )
       }
@@ -353,7 +362,7 @@ shinyServer(
         selectInput(
           inputId = "select_loc_col",
           label = "Select Variable 2",
-          choices = c("", get_histogram_viable_columns(data_internal$raw)),
+          choices = c("", get_histogram_viable_columns(data_active())),
           selected = ""
         )
       }
@@ -374,7 +383,7 @@ shinyServer(
               selectInput(
                 inputId = "heat_select_x",
                 label = "Select X variable",
-                choices = c("", get_histogram_viable_columns(data_internal$raw)),
+                choices = c("", get_histogram_viable_columns(data_active())),
                 selected = ""
               )
             ),
@@ -384,7 +393,7 @@ shinyServer(
               selectInput(
                 inputId = "heat_select_y",
                 label = "Select Y variable",
-                choices = c("", get_histogram_viable_columns(data_internal$raw)),
+                choices = c("", get_histogram_viable_columns(data_active())),
                 selected = ""
               )
             )
@@ -395,11 +404,11 @@ shinyServer(
 
     #geom_bar rather than geom_histogram so that non-continous variables can be plotted
     gen_time_trend_plot <- reactive({
-      GenTimeTrend(data_internal$raw, input$select_timetrend_col)
+      GenTimeTrend(data_active(), input$select_timetrend_col)
     })
     
     gen_location_trend_plot <- reactive({
-      GenLocationTrend(data_internal$raw, input$select_loc_col)
+      GenLocationTrend(data_active(), input$select_loc_col)
     })
     
     output$plot1 <- renderPlot({
@@ -435,7 +444,7 @@ shinyServer(
     )
     
     gen_heatmap <- reactive({
-      GenHeatMap(data_internal$raw, c(input$heat_select_x, input$heat_select_y))
+      GenHeatMap(data_active(), c(input$heat_select_x, input$heat_select_y))
     })
     
     output$heatmap <- renderPlot({
@@ -459,49 +468,13 @@ shinyServer(
     )
     
     generate_systematic_map <- reactive({
-      # Try to generate map; if that fails, show blank map
-      tryCatch(
-        sys_map(if(input$map_filtered_select) {data_internal$filtered[input$filtered_table_rows_all, , drop = FALSE]} else {data_internal$raw},
-                input$map_lat_select,
-                input$map_lng_select,
-                popup_user = input$map_popup_select,
-                links_user = input$map_link_select,
-                cluster_size_user = input$cluster_size_select,
-                cluster_points = input$map_cluster_select,
-                color_user = input$atlas_color_by_select,
-                basemap_user = input$map_basemap_select,
-                map_title=input$map_title_select), 
-        error = function(x) {
-          leaflet::leaflet() %>%
-            leaflet::addTiles()
-        }
-      )
+      # Generate basemap
+      if (input$sample_or_real == "shapefile") {
+        sys_map_shapefile(data_active(), popups = popup_string())
+      } else {
+        sys_map(data_active() )
+      }
     })
-    
-    output$savemap_interactive <- downloadHandler(
-      filename = "eviatlasMap.html",
-      content = function(file){
-        saveWidget(
-          widget = generate_systematic_map(), file = file
-        )
-      }
-    )
-    
-    output$savemap_pdf <- downloadHandler(
-      filename = 'eviatlasMap.pdf',
-      content = function(file) {
-        mapview::mapshot(generate_systematic_map(), 
-                         file = file)
-      }
-    )
-    
-    output$savemap_png <- downloadHandler(
-      filename = 'eviatlasMap.png',
-      content = function(file) {
-        mapview::mapshot(generate_systematic_map(), 
-                         file = file)
-      }
-    )
 
     output$map <- renderLeaflet({
       generate_systematic_map() %>%
@@ -517,12 +490,172 @@ shinyServer(
         )
     })
     
+    cluster_level <- reactive({input$cluster_size_select})
     
+    popup_string <- reactive({
+      popup_string <- ''
 
+      for (popup in input$map_popup_select) {
+        popup_string = paste0(popup_string, "<strong>", popup, '</strong>: ',
+                              data_active()[[popup]], "<br/>")
+      }
+      popup_string
+    })
+    
+    atlas_point_links <- reactive({
+      if (input$map_link_select != "") {
+        links_input <- sapply(data_active()[input$map_link_select], as.character)
+        links = paste0("<strong><a target='_blank' rel='noopener noreferrer' href='", 
+                       links_input, "'>Link to paper</a></strong>")
+      } else {links <- ""}
+      links
+    })
+    
+    cluster_options <- reactive({
+      if_else(input$map_cluster_select,
+             parse(text=paste0('markerClusterOptions(freezeAtZoom = ', input$cluster_size_select, ')')),
+             NULL)
+    })
+    
     observe({
-      leafletProxy("map")
+      req(!is.null(input$map_link_select)) #could be anything in the evidence atlas pane
+      req(!is.null(input$atlas_color_by_select)) #could be anything in the evidence atlas pane
+      req(input$sample_or_real != 'shapefile') #shapefiles are handled differently by leaflet, so they have their own section
+
+      radiusby <- input$atlas_radius_select
+
+      lat_plotted <- as.numeric(unlist(data_active() %>% dplyr::select(input$map_lat_select)))
+      lng_plotted <- as.numeric(unlist(data_active() %>% dplyr::select(input$map_lng_select)))
+
+      if (input$atlas_color_by_select != "") {
+        color_user <- input$atlas_color_by_select
+        factpal <- colorFactor(RColorBrewer::brewer.pal(9, 'Set1'), data_active()$color_user)
+        colorby <- ~factpal(data_active()[[color_user]])
+      } else {colorby <- "blue"}
+      
+      leafletProxy("map", data = data_active()) %>%
+          leaflet::clearMarkers() %>%
+          leaflet::clearMarkerClusters() %>%
+          leaflet::addCircleMarkers(lat = ~lat_plotted, lng = ~lng_plotted,
+                                    popup = ~paste(popup_string(), atlas_point_links()),
+                                    radius = ~as.numeric(radiusby * 3),
+                                    color = colorby,
+                                    stroke = FALSE, fillOpacity = 0.7,
+                                    label = ~popup_string() %>% lapply(shiny::HTML),
+                                    clusterOptions = eval(cluster_options())
+                                    )
+        
+      })
+    
+    observeEvent(input$map_title_select, {
+      
+      leafletProxy("map") %>%
+        leaflet::removeControl("atlas_title") %>%
+        leaflet::addControl(input$map_title_select, 
+                            position = "topright", 
+                            className="map-title",
+                            layerId = "atlas_title")
+      
+    })    
+    
+    observeEvent(input$map_basemap_select, {
+      leafletProxy("map") %>%
+        leaflet::removeTiles("atlas_basemap") %>%
+        leaflet::addProviderTiles(input$map_basemap_select, 
+                                  layerId = "atlas_basemap")
+      
     })
 
+    atlas_for_saving <- reactive({
+      # This is redundant to everything in the app, but the is best solution I could find
+      # for saving a map that's been heavily edited with leafletProxy
+      if(input$sample_or_real == 'shapefile') {
+        return(
+          sys_map_shapefile(data_active(), 
+                            popups = popup_string()) %>%
+          setView(
+            lng = input$map_center$lng,
+            lat = input$map_center$lat,
+            zoom = input$map_zoom
+          ) %>%
+          leaflet::addControl(
+            input$map_title_select,
+            position = "topright",
+            className = "map-title",
+            layerId = "atlas_title"
+          ) %>%
+          leaflet::addProviderTiles(input$map_basemap_select,
+                                    layerId = "atlas_basemap")
+        )
+          
+        }
+      
+      radiusby <- input$atlas_radius_select
+      
+      lat_plotted <- as.numeric(unlist(data_active() %>% dplyr::select(input$map_lat_select)))
+      lng_plotted <- as.numeric(unlist(data_active() %>% dplyr::select(input$map_lng_select)))
+      
+      if (input$atlas_color_by_select != "") {
+        color_user <- input$atlas_color_by_select
+        factpal <- colorFactor(RColorBrewer::brewer.pal(9, 'Set1'), data_active()$color_user)
+        colorby <- ~factpal(data_active()[[color_user]])
+      } else {colorby <- "blue"}
+      
+      # call the foundational Leaflet map
+      generate_systematic_map() %>%
+        # store the view based on UI
+        setView(
+          lng = input$map_center$lng,
+          lat = input$map_center$lat,
+          zoom = input$map_zoom
+        ) %>%
+        leaflet::addControl(input$map_title_select, 
+                            position = "topright", 
+                            className="map-title",
+                            layerId = "atlas_title") %>%
+        leaflet::addProviderTiles(input$map_basemap_select, 
+                                  layerId = "atlas_basemap") %>%
+        leaflet::addCircleMarkers(lat = ~lat_plotted, lng = ~lng_plotted,
+                                  popup = ~paste(popup_string(), atlas_point_links()),
+                                  radius = ~as.numeric(radiusby * 3),
+                                  color = colorby,
+                                  stroke = FALSE, fillOpacity = 0.7,
+                                  label = ~popup_string() %>% lapply(shiny::HTML),
+                                  clusterOptions = eval(cluster_options())
+        )
+      
+    })
+    
+    output$savemap_interactive <- downloadHandler(
+      filename = paste0('eviAtlasMap', Sys.Date(), '.html'),
+      content = function(file){
+        saveWidget(
+          widget = atlas_for_saving(),
+          file = file)
+      }
+    )
+    
+    output$savemap_pdf <- downloadHandler(
+      filename = paste0('eviAtlasMap', Sys.Date(), '.pdf'),
+      content = function(file) {
+        mapview::mapshot(x = atlas_for_saving(), 
+                         file = file,
+                         cliprect = 'viewport',
+                         selfcontained = FALSE)
+      }
+    )
+    
+    output$savemap_png <- downloadHandler(
+      filename = paste0('eviAtlasMap', Sys.Date(), '.png'),
+      content = function(file) {
+        mapview::mapshot(x = atlas_for_saving(), 
+                         file = file,
+                         cliprect = 'viewport',
+                         selfcontained = FALSE)
+      }
+    )
+    
+      
     outputOptions(output, "cluster_columns", suspendWhenHidden = FALSE)  
     
   })
