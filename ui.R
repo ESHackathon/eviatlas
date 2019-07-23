@@ -189,6 +189,11 @@ body <- dashboardBody(
                                                                ticks = F)))
                          ))
                 ),
+                tabPanel('Advanced Options',
+                         column(2,
+                                textInput('atlas_opacity_select', 'Placeholder for Opacity')),
+                         h4("List of Input Events"),
+                         verbatimTextOutput( outputId = "text")),
                 tabPanel('Save Map',
                          wellPanel(
                            downloadButton(outputId = "savemap_interactive", 

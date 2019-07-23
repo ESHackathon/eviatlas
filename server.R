@@ -477,27 +477,33 @@ shinyServer(
     })
     
     output$savemap_interactive <- downloadHandler(
-      filename = "eviatlasMap.html",
+      filename = paste0('eviAtlasMap', Sys.Date(), '.html'),
       content = function(file){
         saveWidget(
-          widget = generate_systematic_map, file = file
-        )
+          mapview::mapshot(x = atlas_for_saving(), 
+                           file = file,
+                           cliprect = 'viewport',
+                           selfcontained = FALSE)        )
       }
     )
     
     output$savemap_pdf <- downloadHandler(
-      filename = 'eviatlasMap.pdf',
+      filename = paste0('eviAtlasMap', Sys.Date(), '.pdf'),
       content = function(file) {
-        mapview::mapshot(generate_systematic_map(), 
-                         file = file)
+        mapview::mapshot(x = atlas_for_saving(), 
+                         file = file,
+                         cliprect = 'viewport',
+                         selfcontained = FALSE)
       }
     )
     
     output$savemap_png <- downloadHandler(
-      filename = 'eviatlasMap.png',
+      filename = paste0('eviAtlasMap', Sys.Date(), '.png'),
       content = function(file) {
-        mapview::mapshot(generate_systematic_map(), 
-                         file = file)
+        mapview::mapshot(x = atlas_for_saving(), 
+                         file = file,
+                         cliprect = 'viewport',
+                         selfcontained = FALSE)
       }
     )
 
@@ -513,6 +519,49 @@ shinyServer(
             }).addTo(this);
             }"
         )
+    })
+    
+
+    
+    atlas_for_saving <- reactive({
+      # This is redundant to everything in the app, but the is best solution I could find
+      # for saving a map that's been heavily edited with leafletProxy
+      
+      # call the foundational Leaflet map
+      generate_systematic_map() %>%
+        # store the view based on UI
+        setView(
+          lng = input$map_center$lng,
+          lat = input$map_center$lat,
+          zoom = input$map_zoom
+        ) %>%
+        leaflet::addControl(input$map_title_select, 
+                            position = "topright", 
+                            className="map-title",
+                            layerId = "atlas_title") %>%
+        leaflet::addProviderTiles(input$map_basemap_select, 
+                                  layerId = "atlas_basemap") #%>%
+        # if (input$map_cluster_select == T) {
+        #   leaflet::clearMarkers() %>%
+        #   leaflet::clearMarkerClusters() %>%
+        #   leaflet::addCircleMarkers(lat = ~lat_plotted, lng = ~lng_plotted,
+        #                             popup = ~paste(popup_string(), atlas_point_links()),
+        #                             radius = ~as.numeric(radiusby * 3),
+        #                             color = colorby,
+        #                             stroke = FALSE, fillOpacity = 0.7,
+        #                             clusterOptions = markerClusterOptions(freezeAtZoom = cluster_level())
+        #     )
+        # } else {
+        #   leaflet::clearMarkers() %>%
+        #   leaflet::clearMarkerClusters() %>%
+        #   leaflet::addCircleMarkers(lat = ~lat_plotted, lng = ~lng_plotted,
+        #                             popup = ~paste(popup_string(), atlas_point_links()),
+        #                             radius = ~as.numeric(radiusby),
+        #                             color = colorby,
+        #                             label = ~popup_string() %>% lapply(shiny::HTML)
+        #     )
+        # }
+      
     })
     
     cluster_level <- reactive({input$cluster_size_select})
@@ -536,6 +585,12 @@ shinyServer(
       links
     })
     
+    cluster_options <- reactive({
+      if_else(input$map_cluster_select,
+             parse(text=paste0('markerClusterOptions(freezeAtZoom = ', input$cluster_size_select, ')')),
+             NULL)
+    })
+    
     observe({
       req(!is.null(input$map_link_select)) #could be anything in the evidence atlas pane
       req(!is.null(input$atlas_color_by_select)) #could be anything in the evidence atlas pane
@@ -545,15 +600,15 @@ shinyServer(
 
       lat_plotted <- as.numeric(unlist(data_active() %>% dplyr::select(input$map_lat_select)))
       lng_plotted <- as.numeric(unlist(data_active() %>% dplyr::select(input$map_lng_select)))
-
+      print(input$map_cluster_select)
+      print(cluster_level())
       if (input$atlas_color_by_select != "") {
         color_user <- input$atlas_color_by_select
         factpal <- colorFactor(RColorBrewer::brewer.pal(9, 'Set1'), data_active()$color_user)
         colorby <- ~factpal(data_active()[[color_user]])
       } else {colorby <- "blue"}
       
-      if (input$map_cluster_select == T) {
-        leafletProxy("map", data = data_active()) %>%
+      leafletProxy("map", data = data_active()) %>%
           leaflet::clearMarkers() %>%
           leaflet::clearMarkerClusters() %>%
           leaflet::addCircleMarkers(lat = ~lat_plotted, lng = ~lng_plotted,
@@ -561,19 +616,9 @@ shinyServer(
                                     radius = ~as.numeric(radiusby * 3),
                                     color = colorby,
                                     stroke = FALSE, fillOpacity = 0.7,
-                                    clusterOptions = markerClusterOptions(freezeAtZoom = cluster_level())
+                                    label = ~popup_string() %>% lapply(shiny::HTML),
+                                    clusterOptions = eval(cluster_options())
                                     )
-      } else {
-        leafletProxy("map", data = data_active()) %>%
-          leaflet::clearMarkers() %>%
-          leaflet::clearMarkerClusters() %>%
-          leaflet::addCircleMarkers(lat = ~lat_plotted, lng = ~lng_plotted,
-                                    popup = ~paste(popup_string(), atlas_point_links()),
-                                    radius = ~as.numeric(radiusby),
-                                    color = colorby,
-                                    label = ~popup_string() %>% lapply(shiny::HTML)
-          )
-      }
         
       })
     
@@ -597,5 +642,8 @@ shinyServer(
     })
   
     outputOptions(output, "cluster_columns", suspendWhenHidden = FALSE)  
+    
+    # print list of input events
+    output$text <- renderPrint({reactiveValuesToList(input)})
     
   })
