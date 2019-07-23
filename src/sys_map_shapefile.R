@@ -2,7 +2,7 @@ sys_map_shapefile <- function(shp, popups = "") {
   
   leaflet(shp) %>%
     addTiles(layerId = "atlas_basemap") %>% 
-    addFeatures(data = shp, 
+    leafem::addFeatures(data = shp, 
                 group = 'atlas_shapefile', 
                 fillColor = "green",
                 fillOpacity = 0.5,
