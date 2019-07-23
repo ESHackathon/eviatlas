@@ -204,10 +204,10 @@ body <- dashboardBody(
                                      title = "Save an interactive HTML version of the map using the current display settings. This HTML map can then be easily hosted on your own website", 
                                      placement = "bottom", trigger = "hover"),
                            bsTooltip("savemap_png", 
-                                     title = "Save a static version of the map using the current display settings. Currently only saves global (zoomed-out) view. To download a smaller view, use the save button in the upper left-hand corner of the map.", 
+                                     title = "Save a static version of the map using the current display settings.", 
                                      placement = "bottom", trigger = "hover"),
                            bsTooltip("savemap_pdf", 
-                                     title = "Save a static version of the map using the current display settings.  Currently only saves global (zoomed-out) view. To download a smaller view, use the save button in the upper left-hand corner of the map.", 
+                                     title = "Save a static version of the map using the current display settings.", 
                                      placement = "bottom", trigger = "hover")
                            
                          )))
