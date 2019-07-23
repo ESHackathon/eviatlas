@@ -657,8 +657,5 @@ shinyServer(
     
       
     outputOptions(output, "cluster_columns", suspendWhenHidden = FALSE)  
-  
-    # print list of input events
-    output$text <- renderPrint({reactiveValuesToList(input)})
     
   })
