@@ -72,6 +72,7 @@ shinyServer(
     # if shapefile data are supplied, add them to data_internal
     observeEvent(input$shape, {
       req(input$shape)
+      
       shpdf <- input$shape
       tempdirname <- dirname(shpdf$datapath[1])
       for(i in 1:nrow(shpdf)){
@@ -88,9 +89,14 @@ shinyServer(
     
     data_active <- reactive({
       req(data_internal$raw)
-      req(!is.null(input$map_filtered_select))
-
-      d_out <- if(input$map_filtered_select == TRUE) {data_internal$filtered} else {data_internal$raw}
+      
+      dataset_gateway <- (!is.null(input$map_filtered_select))
+      d_out <- if (dataset_gateway && input$map_filtered_select == TRUE) {
+        data_internal$filtered
+      } else {
+          data_internal$raw
+        }
+      
       d_out
     })
 
@@ -663,9 +669,8 @@ shinyServer(
     })
     
     observe({
-      req(!is.null(input$map_link_select)) #could be anything in the evidence atlas pane
       req(!is.null(input$atlas_color_by_select)) #could be anything in the evidence atlas pane
-      req(input$sample_or_real != 'shapefile') #shapefiles are handled differently by leaflet, so they have their own section
+      req(input$sample_or_real != 'shapefile') #shapefiles are handled differently, so they have their own section
 
       radiusby <- input$atlas_radius_select
 
@@ -802,5 +807,5 @@ shinyServer(
     
       
     outputOptions(output, "cluster_columns", suspendWhenHidden = FALSE)  
-    
+
   })
