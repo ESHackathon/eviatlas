@@ -14,6 +14,7 @@ source("src/get_histogram_viable_cols.R")
 load("data/pilotdata.rdata")
 start_text <- read_file("html/AboutEvi.html")
 about_sysmap_text <- read_file("html/AboutSysMap.html")
+how_cite_text <- read_file("html/HowCiteEvi.html")
 how_works_text <- read_file("html/HowEviWorks.html")
 
 # maximum upload size 100 MB-- could be increased if proves problematic for users and we have server space
@@ -43,6 +44,10 @@ shinyServer(
     output$how_works_text <- renderPrint({
       cat(how_works_text)
     })
+    output$how_cite_text <- renderPrint({
+      cat(how_cite_text)
+    })
+    
     output$uploaded_attributes <- renderPrint({
       if(is.null(data_internal$raw) & input$sample_or_real == 'user'){
         cat("Upload a dataset using the panel to the right -->")

@@ -62,7 +62,8 @@ body <- dashboardBody(
                 tabsetPanel(
                   tabPanel(title = 'About EviAtlas', htmlOutput("start_text")),
                   tabPanel(title = 'About Systematic Maps', htmlOutput("about_sysmap_text")),
-                  tabPanel(title = 'How to Use EviAtlas', htmlOutput("how_works_text"))
+                  tabPanel(title = 'How to Use EviAtlas', htmlOutput("how_works_text")),
+                  tabPanel(title = 'How to Cite EviAtlas', htmlOutput("how_cite_text"))
                 )),
                 wellPanel(tabsetPanel(
                   tabPanel(title = 'Data Attributes', htmlOutput("uploaded_attributes"), 
