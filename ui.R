@@ -116,7 +116,8 @@ body <- dashboardBody(
                                        label = "Select File Encoding",
                                        choices = list("Default" = "", 
                                                       "UTF-8", 
-                                                      "latin1"),
+                                                      "latin1",
+                                                      "mac"),
                                        selected = ""
                           )
                         ),
@@ -224,12 +225,31 @@ body <- dashboardBody(
       fluidRow(
         column(width = 3,
                wellPanel(
-                 uiOutput("filter_selector"),
-                 uiOutput("go_button")
-               )), 
-        column(width=1,
-               downloadButton('download_filtered', 'Download Filtered Data')
-        )),
+                 uiOutput("filter_selector")
+               )),
+        #dynamic filter
+        column(width = 9,
+               wellPanel(
+                 # select first filter column from fields vector 
+                 shiny::uiOutput("filter1eval"),
+                 # reference a uiOutput that will offer values for first column
+                 shiny::uiOutput("filter1choice"),
+                 # offer a checkbox to allow user to select a second filter
+                 shiny::checkboxInput("filter2req", "Add second filter?"),
+                 # set further conditional panels to appear in the same fashion
+                 shiny::conditionalPanel(condition = 'input.filter2req', 
+                                         shiny::uiOutput("filter2eval"),
+                                         shiny::uiOutput("filter2choice"),
+                                         shiny::checkboxInput("filter3req", 
+                                                              "Add third filter?")),
+                 shiny::conditionalPanel(condition = 'input.filter3req & 
+                                       input.filter2req', 
+                                         shiny::uiOutput("filter3eval"),
+                                         shiny::uiOutput("filter3choice")),
+                 uiOutput("go_button"),
+                 downloadButton('download_filtered', 'Download Filtered Data')
+               ))
+        ),
       fluidRow(
         column(12,
                DT::dataTableOutput("filtered_table")

@@ -11,7 +11,7 @@ source("src/get_coord_cols.R")
 source("src/get_histogram_viable_cols.R")
 
 # load data + text
-load("data/pilotdata.rda")
+load("data/pilotdata.rdata")
 start_text <- read_file("html/AboutEvi.html")
 about_sysmap_text <- read_file("html/AboutSysMap.html")
 how_works_text <- read_file("html/HowEviWorks.html")
@@ -97,7 +97,7 @@ shinyServer(
       d_out
     })
 
-    # if user switches back to internal data, supply info on that instead
+    # if user switches to internal data, clear in-app data
     observeEvent(input$sample_or_real, {
       if(input$sample_or_real == "sample"){
         data_internal$raw <- eviatlas_pilotdata
@@ -141,24 +141,146 @@ shinyServer(
     output$go_button <- renderUI({
       if(any(names(input) == "selected_variable")){
         if(!is.null(input$selected_variable)){
-          actionButton("go_subset", "Apply Subset")
+          actionButton("go_subset", "Apply Filter")
         }
       } else {wellPanel('To start, upload data in the "About EviAtlas" tab.')}
     })
 
     observeEvent(input$go_subset, {
-      if(any(names(input) == "selected_variable")){
-        if(input$selected_variable != ""){
-          data_internal$filtered <- data_internal$raw %>% 
-            select(!!!input$selected_variable)
-        }else{
-          data_internal$filtered
-        }
-      }
+      data_internal$filtered <- filtered_df()
+      # if(any(names(input) == "selected_variable")){
+      #   if(input$selected_variable != ""){
+      #     data_internal$filtered <- data_internal$raw %>% 
+      #       select(!!!input$selected_variable)
+      #   }else{
+      #     data_internal$filtered
+      #   }
+      # }
     })
     
+    ##### begin dynamic filter #####
+
+    fields <- reactive({
+      c("", colnames(data_internal$raw))
+    })
+    # filter_by <- function (df, ...) {
+    #   filter_conditions <- quos(...)
+    #   df %>% dplyr::filter(!!!filter_conditions)
+    # }
+
+    # filter on 1 column
+    filter1_by <- function(df, fcol1, fv1) {
+    filter_var1 <- dplyr::quo(fcol1)
+    df %>% 
+      filter_at(vars(!!filter_var1), all_vars(. == fv1))
+    }
+    
+    # filter on 2 columns
+    filter2_by <- function(df, fcol1, fv1, fcol2, fv2) {
+      filter_var1 <- dplyr::quo(fcol1)
+      filter_var2 <- dplyr::quo(fcol2)
+      
+      df %>%
+        filter_at(vars(!!filter_var1), all_vars(. == fv1)) %>%
+        filter_at(vars(!!filter_var2), all_vars(. == fv2))
+      }
+    
+    # filter on 3 columns
+    filter3_by <- function(df, fcol1, fv1, fcol2, fv2, fcol3, fv3) {
+      filter_var1 <- dplyr::quo(fcol1)
+      filter_var2 <- dplyr::quo(fcol2)
+      filter_var3 <- dplyr::quo(fcol3)
+      
+      df %>% 
+        filter_at(vars(!!filter_var1), all_vars(. == fv1)) %>% 
+        filter_at(vars(!!filter_var2), all_vars(. == fv2)) %>%
+        filter_at(vars(!!filter_var3), all_vars(. == fv3))
+    }
+    
+    filtered_df <- reactive({  
+      # case when all three filters are used
+      if (input$filter3req & input$filter2req) {
+        filter3_by(data_internal$raw, input$filter1, input$filter1val, 
+                   input$filter2, input$filter2val,
+                   input$filter3, input$filter3val) 
+      } else if (input$filter2req) {
+        # case when two filters are used
+        filter2_by(data_internal$raw, input$filter1, input$filter1val, 
+                   input$filter2, input$filter2val) 
+      } else {
+        # case when only one filter is used   
+        filter1_by(data_internal$raw, input$filter1, input$filter1val)
+      }})
+    
+    # vector of picklist values for the first selected filter 
+    choicevec1 <- reactive({
+      req(data_internal$raw)
+      
+      data_internal$raw %>%  
+        dplyr::select(input$filter1) %>% 
+        unique() %>% 
+        dplyr::arrange_(input$filter1)
+    })
+    
+  
+    # select first filter column from fields vector 
+    output$filter1eval <- renderUI({
+      selectInput("filter1", "Select filter criteria 1:", choices = fields())
+    })
+    # renders the picklist for the first selected filter
+    output$filter1choice <- renderUI(
+      selectizeInput(
+        "filter1val",
+        "Select filter 1 condition:",
+        choices = choicevec1(),
+        multiple = TRUE
+      )
+    )
+    # second column chosen from all remaining fields
+    output$filter2eval <- renderUI({
+      selectInput("filter2", "Select filter criteria 2:", 
+                  choices = sort(fields()[fields() != input$filter1]))
+    })
+    # vector of picklist values for the second selected filter
+    choicevec2 <- reactive({
+      filter1_by(data_internal$raw, input$filter1, input$filter1val) %>% 
+        dplyr::select(input$filter2) %>% 
+        unique() %>% 
+        dplyr::arrange_(input$filter2)
+    })
+    # renders picklist for filter 2
+    output$filter2choice <- renderUI(
+      selectizeInput(
+        "filter2val",
+        "Select filter 2 condition:",
+        choices = choicevec2(),
+        multiple = TRUE
+      )
+    )
+    # third column selected from remaining fields
+    output$filter3eval <- renderUI({
+      selectInput("filter3", 
+                  "Select filter criteria 3:",
+                  choices = sort(fields()[!fields() %in% c(input$filter1, input$filter2)]))
+    })
+    # vector of picklist values for third selected column
+    choicevec3 <- reactive({
+      filter2_by(data_internal$raw, input$filter1, input$filter1val, 
+                 input$filter2, input$filter2val) %>% 
+        dplyr::select(input$filter3) %>% 
+        unique() %>% 
+        dplyr::arrange_(input$filter3)
+    })
+    
+    # render picklist for filter 3
+    output$filter3choice <- renderUI(
+      selectizeInput("filter3val", "Select filter 3 condition:", choices = choicevec3(), multiple = TRUE)
+    )
+        
+    ##### end dynamic filter ####
+    
     output$filtered_table <- DT::renderDataTable(
-      DT::datatable(data_active(), #filter = c('top'),
+      DT::datatable(data_active(), filter = c('top'),
                     # caption = "Use the boxes below column headers to filter data",
                     class = c('display', 'compact'), 
                     style='bootstrap',
