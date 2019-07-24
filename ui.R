@@ -6,7 +6,7 @@ easyprint_js_file <- "https://rawgit.com/rowanwins/leaflet-easyPrint/gh-pages/di
 sidebar <- dashboardSidebar(
   
   # sidebarUserPanel("EviAtlas Nav"),
-  sidebarMenu(
+  sidebarMenu(id = "main_sidebar",
     menuItem("About EviAtlas", tabName = "about", 
              icon = icon("question")),
     menuItem("Evidence Atlas", tabName = "home", 
@@ -62,7 +62,8 @@ body <- dashboardBody(
                 tabsetPanel(
                   tabPanel(title = 'About EviAtlas', htmlOutput("start_text")),
                   tabPanel(title = 'About Systematic Maps', htmlOutput("about_sysmap_text")),
-                  tabPanel(title = 'How to Use EviAtlas', htmlOutput("how_works_text"))
+                  tabPanel(title = 'How to Use EviAtlas', htmlOutput("how_works_text")),
+                  tabPanel(title = 'How to Cite EviAtlas', htmlOutput("how_cite_text"))
                 )),
                 wellPanel(tabsetPanel(
                   tabPanel(title = 'Data Attributes', htmlOutput("uploaded_attributes"), 
@@ -106,42 +107,42 @@ body <- dashboardBody(
                         )),
                       
                       fluidRow(
-                        h5(strong("CSV Properties")),
-                        column(
-                          6,
-                          # Input: Checkbox if file has header ----
-                          checkboxInput("header", "Header row?", TRUE),
-                          
-                          radioButtons("upload_encoding",
-                                       label = "Select File Encoding",
-                                       choices = list("Default" = "", 
-                                                      "UTF-8", 
-                                                      "latin1"),
-                                       selected = ""
-                          )
-                        ),
-                        column(6,
+                        column(12,
+                               wellPanel(
+                               h5(strong("CSV Properties")),
+                               # Input: Checkbox if file has header ----
+                               checkboxInput("header", "Header row?", TRUE),
+                               
+                               selectInput("upload_encoding",
+                                           label = "Select File Encoding",
+                                           choices = list("Default" = "", 
+                                                          "UTF-8", 
+                                                          "latin1",
+                                                          "mac"),
+                                           selected = ""
+                               ),
                                # Input: Select separator ----
-                               radioButtons("sep",
-                                            "Separator",
+                               selectInput("sep",
+                                            "Field Separator",
                                             choices = c(
-                                              Comma = ",",
-                                              Semicolon = ";",
-                                              Tab = "\t"
+                                              ",",
+                                              ";",
+                                              Tab = "\t",
+                                              '|'
                                             ),
                                             selected = ","
                                ),
                                # Input: Select quotes ----
-                               radioButtons(
+                               selectInput(
                                  "quote",
                                  "Quote Delimiter",
                                  choices = c(
                                    None = "",
-                                   "Double Quote" = '"',
-                                   "Single Quote" = "'"
+                                   '"',
+                                   "'"
                                  ),
                                  selected = '"'
-                               )))
+                               ))))
                     )),
                   conditionalPanel(condition = "input.sample_or_real == 'shapefile'",
                                    fluidRow(column(
@@ -222,14 +223,35 @@ body <- dashboardBody(
     tabItem(
       tabName = "data",
       fluidRow(
-        column(width = 3,
+        #dynamic filter
+        column(width = 12,
                wellPanel(
-                 uiOutput("filter_selector"),
-                 uiOutput("go_button")
-               )), 
-        column(width=1,
-               downloadButton('download_filtered', 'Download Filtered Data')
-        )),
+                 # select first filter column from fields vector 
+                 shiny::uiOutput("filter1eval"),
+                 # reference a uiOutput that will offer values for first column
+                 shiny::uiOutput("filter1choice"),
+                 # offer a checkbox to allow user to select a second filter
+                 shiny::checkboxInput("filter2req", "Add second filter?"),
+                 # set further conditional panels to appear in the same fashion
+                 shiny::conditionalPanel(condition = 'input.filter2req', 
+                                         shiny::uiOutput("filter2eval"),
+                                         shiny::uiOutput("filter2choice"),
+                                         shiny::checkboxInput("filter3req", 
+                                                              "Add third filter?")),
+                 shiny::conditionalPanel(condition = 'input.filter3req & 
+                                       input.filter2req', 
+                                         shiny::uiOutput("filter3eval"),
+                                         shiny::uiOutput("filter3choice")),
+                 uiOutput("go_button"),
+                 materialSwitch(
+                   inputId = "mapdatabase_filter_select", 
+                   label = "Use filtered data:",
+                   value = FALSE,
+                   status = "primary"
+                 ),
+                 downloadButton('download_filtered', 'Download Filtered Data')
+               ))
+        ),
       fluidRow(
         column(12,
                DT::dataTableOutput("filtered_table")
@@ -242,6 +264,14 @@ body <- dashboardBody(
                        fluidRow(
                          column(3, uiOutput("barplot_selector")),
                          column(4, uiOutput("location_plot_selector"))
+                       ),
+                       fluidRow(
+                         materialSwitch(
+                           inputId = "barplots_filter_select", 
+                           label = "Use filtered data:",
+                           value = FALSE,
+                           status = "primary"
+                         )
                        ))
             ),
             wellPanel(
@@ -255,7 +285,14 @@ body <- dashboardBody(
     ),
     tabItem(tabName = "heatmap",
             fluidRow(
-              uiOutput("heatmap_selector")
+              uiOutput("heatmap_selector")),
+              fluidRow(
+                materialSwitch(
+                inputId = "heatmap_filter_select", 
+                label = "Use filtered data:",
+                value = FALSE,
+                status = "primary"
+              )
             ),
             fluidRow(
               wellPanel(
