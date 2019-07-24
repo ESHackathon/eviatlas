@@ -51,12 +51,6 @@ shinyServer(
       }
     })    
     
-    # output$help_text <- renderPrint({
-    #   cat("<br><br><br><br>Find a bug? Have a suggestion for future improvements? Feel free to contact Neal Haddaway (Research Fellow at the Stockholm Environment Institute): <a href='mailto:neal.haddaway@sei.org'>neal.haddaway@sei.org</a></span>"
-    #     )
-    # })
-
-
     # if CSV data are supplied, add them to data_internal
     observeEvent(input$sysmapdata_upload, {
       data_internal$raw <- read.csv(
@@ -67,7 +61,6 @@ shinyServer(
         quote = input$quote,
         fileEncoding = input$upload_encoding,
         stringsAsFactors = F)
-      data_internal$cols <- colnames(data_internal$raw)
       data_internal$filtered <- data_internal$raw #instantiate filtered table with raw values
     })
     
@@ -85,7 +78,6 @@ shinyServer(
               sep="/")
         )
       
-      data_internal$cols <- colnames(data_internal$raw)
       data_internal$filtered <- data_internal$raw #instantiate filtered table with raw values
     })
     
@@ -101,12 +93,10 @@ shinyServer(
     observeEvent(input$sample_or_real, {
       if(input$sample_or_real == "sample"){
         data_internal$raw <- eviatlas_pilotdata
-        data_internal$cols <- colnames(eviatlas_pilotdata)
         data_internal$filtered <- data_internal$raw #instantiate filtered table with raw values
       } else {
         data_internal$raw <- NULL
         data_internal$filtered <- NULL
-        data_internal$cols <- NULL
       }
     })
 
@@ -119,50 +109,44 @@ shinyServer(
           " columns. If this is not what you expected, you might want to",
           " adjust the CSV properties settings on the right and try again.<br>",
           "<br> Detected column names as follows:<br>",
-          paste(data_internal$cols, collapse = "<br>")
+          paste(colnames(data_internal$raw), collapse = "<br>")
         ))
       }
     })
 
     # FILTER TAB
     output$filter_selector <- renderUI({
-      if(!is.null(data_internal$cols)){
-        shinyWidgets::pickerInput(
-          "selected_variable",
-          label = "Select Columns:",
-          choices = colnames(data_internal$raw),
-          selected = data_internal$cols[1:10],
-          width = '100%', options = list(`actions-box` = TRUE, `selectedTextFormat`='static'),
-          multiple = T
-        )
-      } 
+      req(data_internal$raw)        
+      
+      shinyWidgets::pickerInput(
+        "selected_variable",
+        label = "Select Columns:",
+        choices = colnames(data_internal$raw),
+        selected = colnames(data_active())[1:10],
+        width = '100%', options = list(`actions-box` = TRUE, `selectedTextFormat`='static'),
+        multiple = T
+      )
     })
 
     output$go_button <- renderUI({
-      if(any(names(input) == "selected_variable")){
-        if(!is.null(input$selected_variable)){
+      if(!is.null(data_internal$raw)){
           actionButton("go_subset", "Apply Filter")
-        }
       } else {wellPanel('To start, upload data in the "About EviAtlas" tab.')}
     })
 
     observeEvent(input$go_subset, {
       data_internal$filtered <- filtered_df()
-      # if(any(names(input) == "selected_variable")){
-      #   if(input$selected_variable != ""){
-      #     data_internal$filtered <- data_internal$raw %>% 
-      #       select(!!!input$selected_variable)
-      #   }else{
-      #     data_internal$filtered
-      #   }
-      # }
+      
+      updateMaterialSwitch(session = session, inputId = "mapdatabase_filter_select",
+                           value = TRUE)
     })
     
     ##### begin dynamic filter #####
 
     fields <- reactive({
-      c("", colnames(data_internal$raw))
+      c(colnames(data_internal$raw))
     })
+    
     # filter_by <- function (df, ...) {
     #   filter_conditions <- quos(...)
     #   df %>% dplyr::filter(!!!filter_conditions)
@@ -216,10 +200,11 @@ shinyServer(
     choicevec1 <- reactive({
       req(data_internal$raw)
       
+      print(input$filter1)
+      
       data_internal$raw %>%  
         dplyr::select(input$filter1) %>% 
-        unique() %>% 
-        dplyr::arrange_(input$filter1)
+        unique()
     })
     
   
@@ -239,14 +224,13 @@ shinyServer(
     # second column chosen from all remaining fields
     output$filter2eval <- renderUI({
       selectInput("filter2", "Select filter criteria 2:", 
-                  choices = sort(fields()[fields() != input$filter1]))
+                  choices = fields()[fields() != input$filter1])
     })
     # vector of picklist values for the second selected filter
     choicevec2 <- reactive({
       filter1_by(data_internal$raw, input$filter1, input$filter1val) %>% 
         dplyr::select(input$filter2) %>% 
-        unique() %>% 
-        dplyr::arrange_(input$filter2)
+        unique()
     })
     # renders picklist for filter 2
     output$filter2choice <- renderUI(
@@ -261,15 +245,14 @@ shinyServer(
     output$filter3eval <- renderUI({
       selectInput("filter3", 
                   "Select filter criteria 3:",
-                  choices = sort(fields()[!fields() %in% c(input$filter1, input$filter2)]))
+                  choices = fields()[!fields() %in% c(input$filter1, input$filter2)])
     })
     # vector of picklist values for third selected column
     choicevec3 <- reactive({
       filter2_by(data_internal$raw, input$filter1, input$filter1val, 
                  input$filter2, input$filter2val) %>% 
         dplyr::select(input$filter3) %>% 
-        unique() %>% 
-        dplyr::arrange_(input$filter3)
+        unique()
     })
     
     # render picklist for filter 3
@@ -311,7 +294,7 @@ shinyServer(
     output$map_columns <- renderUI({
       req(input$sample_or_real != 'shapefile')
       
-      if(!is.null(data_internal$cols)) {
+      if(!is.null(data_internal$raw)) {
         div(list(
           div(
             selectInput(
@@ -387,8 +370,8 @@ shinyServer(
         selectizeInput(
           inputId = "map_popup_select",
           label = "Select Popup Info",
-          selected = data_internal$cols[1],
-          choices = data_internal$cols,
+          selected = colnames(data_active())[1],
+          choices = colnames(data_active()),
           multiple = T
         )
       )
@@ -468,60 +451,59 @@ shinyServer(
     
     # BARPLOT
     output$barplot_selector <- renderUI({
-      if(!is.null(data_internal$cols)){
-        selectInput(
-          inputId = "select_timetrend_col",
-          label = "Select variable 1",
-          choices = c("", get_histogram_viable_columns(data_active())),
-          selected = ""
-        )
-      }
+      req(data_internal$raw)
+    
+      selectInput(
+        inputId = "select_timetrend_col",
+        label = "Select variable 1",
+        choices = c("", get_histogram_viable_columns(data_active())),
+        selected = ""
+      )
     })
 
     # Location Frequency Plot
     output$location_plot_selector <- renderUI({
-      if(!is.null(data_internal$cols)){
-        selectInput(
-          inputId = "select_loc_col",
-          label = "Select Variable 2",
-          choices = c("", get_histogram_viable_columns(data_active())),
-          selected = ""
-        )
-      }
+      req(data_internal$raw)
+      
+      selectInput(
+        inputId = "select_loc_col",
+        label = "Select Variable 2",
+        choices = c("", get_histogram_viable_columns(data_active())),
+        selected = ""
+      )
     })
 
     ## HEATMAP
     output$heatmap_selector <- renderUI({
-      if(!is.null(data_internal$cols)){
-        div(
-          list(
-            div(
-              style = "display: inline-block; width = '10%'",
-              br()
-            ),
-            div(
-              style = "display: inline-block; width = '40%'",
-              title = "Select which categorical variable you wish to cross tabulate along the x axis in a heat map. Values must be discrete categories (i.e. not free text and not decimal)", 
-              selectInput(
-                inputId = "heat_select_x",
-                label = "Select X variable",
-                choices = c("", get_histogram_viable_columns(data_active())),
-                selected = ""
-              )
-            ),
-            div(
-              style = "display: inline-block; width = '40%'",
-              title = "Select which categorical variable you wish to cross tabulate along the y axis in a heat map. Values must be discrete categories (i.e. not free text and not decimal)",
-              selectInput(
-                inputId = "heat_select_y",
-                label = "Select Y variable",
-                choices = c("", get_histogram_viable_columns(data_active())),
-                selected = ""
-              )
+      req(data_internal$raw)
+      div(
+        list(
+          div(
+            style = "display: inline-block; width = '10%'",
+            br()
+          ),
+          div(
+            style = "display: inline-block; width = '40%'",
+            title = "Select which categorical variable you wish to cross tabulate along the x axis in a heat map. Values must be discrete categories (i.e. not free text and not decimal)", 
+            selectInput(
+              inputId = "heat_select_x",
+              label = "Select X variable",
+              choices = c("", get_histogram_viable_columns(data_active())),
+              selected = ""
+            )
+          ),
+          div(
+            style = "display: inline-block; width = '40%'",
+            title = "Select which categorical variable you wish to cross tabulate along the y axis in a heat map. Values must be discrete categories (i.e. not free text and not decimal)",
+            selectInput(
+              inputId = "heat_select_y",
+              label = "Select Y variable",
+              choices = c("", get_histogram_viable_columns(data_active())),
+              selected = ""
             )
           )
         )
-      }
+      )
     })
 
     #geom_bar rather than geom_histogram so that non-continous variables can be plotted
@@ -577,6 +559,42 @@ shinyServer(
 
     output$heat_x_axis <- renderPrint({ input$heat_select_x })
     output$heat_y_axis <- renderPrint({ input$heat_select_y })
+    
+    observeEvent(input$map_filter_select, {
+      updateMaterialSwitch(session = session, inputId = "heatmap_filtered_select",
+                         value = as.logical(input$map_filter_select))      
+      updateMaterialSwitch(session = session, inputId = "barplots_filtered_select",
+                         value = as.logical(input$map_filter_select))
+      updateMaterialSwitch(session = session, inputId = "mapdatabase_filter_select",
+                           value = as.logical(input$map_filter_select))
+    })    
+    
+    observeEvent(input$heatmap_filter_select, {
+      updateMaterialSwitch(session = session, inputId = "map_filtered_select",
+                         value = as.logical(input$heatmap_filter_select))      
+      updateMaterialSwitch(session = session, inputId = "barplots_filtered_select",
+                         value = as.logical(input$heatmap_filter_select))
+      updateMaterialSwitch(session = session, inputId = "mapdatabase_filter_select",
+                           value = as.logical(input$heatmap_filter_select))
+    })
+    
+    observeEvent(input$barplots_filter_select, {
+      updateMaterialSwitch(session = session, inputId = "map_filtered_select",
+                           value = as.logical(input$barplots_filter_select))      
+      updateMaterialSwitch(session = session, inputId = "heatmap_filter_select",
+                           value = as.logical(input$barplots_filter_select))      
+      updateMaterialSwitch(session = session, inputId = "mapdatabase_filter_select",
+                           value = as.logical(input$barplots_filter_select))
+    })
+    
+    observeEvent(input$mapdatabase_filter_select, {
+      updateMaterialSwitch(session = session, inputId = "map_filtered_select",
+                           value = as.logical(input$mapdatabase_filter_select))      
+      updateMaterialSwitch(session = session, inputId = "heatmap_filter_select",
+                           value = as.logical(input$mapdatabase_filter_select))      
+      updateMaterialSwitch(session = session, inputId = "barplots_filter_select",
+                           value = as.logical(input$mapdatabase_filter_select))
+    })
     
     output$save_heatmap <- downloadHandler(
       filename = 'eviatlasHeatmap.png',
