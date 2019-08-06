@@ -149,9 +149,9 @@ body <- dashboardBody(
                                      12,
                                      fileInput(
                                        'shape',
-                                       'Select all files associated with the shapefile (.shp, .dbf,.sbn,.sbx,.shx and .prj)',
+                                       'Select all files associated with the shapefile (.shp, .dbf, .sbn, .sbx, .shx, .cpg, .prj)',
                                        multiple = TRUE,
-                                       accept = c('.shp', '.dbf', '.sbn', '.sbx', '.shx', ".prj"),
+                                       accept = c('.shp', '.dbf', '.sbn', '.sbx', '.shx', '.prj', '.cpg'),
                                        placeholder = "Select All Data Files At Once"
                                      )
                                    ))

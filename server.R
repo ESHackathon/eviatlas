@@ -211,11 +211,17 @@ shinyServer(
     choicevec1 <- reactive({
       req(data_internal$raw)
       
-      print(input$filter1)
+      if (any(class(data_internal$raw) == 'sf')) {
+        data_internal$raw %>%  
+          sf::st_drop_geometry() %>%
+          dplyr::select(input$filter1) %>% 
+          unique()
+      } else {
+        data_internal$raw %>%  
+          dplyr::select(input$filter1) %>% 
+          unique()
+      }
       
-      data_internal$raw %>%  
-        dplyr::select(input$filter1) %>% 
-        unique()
     })
     
   
@@ -239,9 +245,17 @@ shinyServer(
     })
     # vector of picklist values for the second selected filter
     choicevec2 <- reactive({
-      filter1_by(data_internal$raw, input$filter1, input$filter1val) %>% 
-        dplyr::select(input$filter2) %>% 
-        unique()
+      req(data_internal$raw)
+      
+      if (any(class(data_internal$raw) == 'sf')) {
+        filter1_by(sf::st_drop_geometry(data_internal$raw), input$filter1, input$filter1val) %>%
+          dplyr::select(input$filter2) %>%
+          unique()
+        } else {
+          filter1_by(data_internal$raw, input$filter1, input$filter1val) %>%
+            dplyr::select(input$filter2) %>%
+            unique()      
+        }
     })
     # renders picklist for filter 2
     output$filter2choice <- renderUI(
@@ -260,10 +274,22 @@ shinyServer(
     })
     # vector of picklist values for third selected column
     choicevec3 <- reactive({
-      filter2_by(data_internal$raw, input$filter1, input$filter1val, 
-                 input$filter2, input$filter2val) %>% 
-        dplyr::select(input$filter3) %>% 
-        unique()
+      req(data_internal$raw)
+      
+      if (any(class(data_internal$raw) == 'sf')) {
+        filter2_by(sf::st_drop_geometry(data_internal$raw), 
+                   input$filter1, input$filter1val,
+                   input$filter2, input$filter2val) %>% 
+          dplyr::select(input$filter3) %>% 
+          unique()
+      } else {
+        filter2_by(data_internal$raw, input$filter1, 
+                   input$filter1val, input$filter2, 
+                   input$filter2val) %>% 
+          dplyr::select(input$filter3) %>%
+          unique()
+      }
+      
     })
     
     # render picklist for filter 3
