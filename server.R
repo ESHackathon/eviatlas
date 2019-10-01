@@ -671,11 +671,13 @@ shinyServer(
     
     popup_string <- reactive({
       popup_string <- ''
-
+      #TODO: Vectorize this
       for (popup in input$map_popup_select) {
-        popup_string = paste0(popup_string, "<strong>", popup, '</strong>: ',
-                              data_active()[[popup]], "<br/>")
-      }
+        popup_string = paste0(
+          popup_string, "<strong>", popup, '</strong>: ',
+          str_replace_all(str_wrap(data_active()[[popup]]), coll("\n"), "<br/>"), "<br/>"
+          )
+        }
       popup_string
     })
     
@@ -714,10 +716,12 @@ shinyServer(
           leaflet::clearMarkerClusters() %>%
           leaflet::addCircleMarkers(lat = ~lat_plotted, lng = ~lng_plotted,
                                     popup = ~paste(popup_string(), atlas_point_links()),
+                                    popupOptions = popupOptions(maxWidth = 500,
+                                                                maxHeight = 200),
                                     radius = ~as.numeric(radiusby * 3),
                                     color = colorby,
                                     stroke = FALSE, fillOpacity = 0.7,
-                                    label = ~popup_string() %>% lapply(shiny::HTML),
+                                    label = ~lapply(popup_string(), shiny::HTML),
                                     clusterOptions = eval(cluster_options())
                                     )
         
