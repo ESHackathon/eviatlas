@@ -19,6 +19,10 @@ A paper describing the collaborative process used to develop EviAtlas is publish
 https://doi.org/10.1186/s13750-019-0167-1
 
 
+### Contributions
+
+Contributors, including those new to programming or R, are welcome to join the EviAtlas team and contribute code. Contact Andrew Feierman at SEI dot org to get involved. 
+
 ### Dependencies
 dplyr, stringr, DT, ggplot2, leaflet, htmltools, htmlwidgets, shiny, shinydashboard, shinyWidgets, viridis, mapview, leafem, RColorBrewer, shinyBS
 
