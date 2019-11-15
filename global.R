@@ -1,9 +1,8 @@
 ## global.R ##
 
 # load packages
-library(tidyverse) #dplyr, stringr, ...
+library(tidyverse) #dplyr, stringr, ggplot2...
 library(DT)
-library(ggplot2)
 library(leaflet)
 library(htmltools)
 library(htmlwidgets)

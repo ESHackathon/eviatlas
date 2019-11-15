@@ -671,11 +671,13 @@ shinyServer(
     
     popup_string <- reactive({
       popup_string <- ''
-
+      #TODO: Vectorize this
       for (popup in input$map_popup_select) {
-        popup_string = paste0(popup_string, "<strong>", popup, '</strong>: ',
-                              data_active()[[popup]], "<br/>")
-      }
+        popup_string = paste0(
+          popup_string, "<strong>", popup, '</strong>: ',
+          str_replace_all(str_wrap(data_active()[[popup]]), coll("\n"), "<br/>"), "<br/>"
+          )
+        }
       popup_string
     })
     
@@ -705,8 +707,21 @@ shinyServer(
 
       if (input$atlas_color_by_select != "") {
         color_user <- input$atlas_color_by_select
-        factpal <- colorFactor(RColorBrewer::brewer.pal(9, 'Set1'), data_active()$color_user)
+        factpal <- colorFactor(rev(RColorBrewer::brewer.pal(9, 'Set1')), data_active()$color_user, reverse = TRUE)
         colorby <- ~factpal(data_active()[[color_user]])
+        
+        if (length(unique(data_active()[, color_user])) < 9) {
+          leafletProxy("map", data = data_active()) %>%
+            leaflet::addLegend(title = stringr::str_to_title(stringr::str_replace_all(color_user, "\\.", " ")),
+                               position = 'topright', 
+                               pal = factpal,
+                               values = data_active()[, color_user],
+                               layerId = "color_by_legend",
+                               group = "legend",
+                               na.label = "None", 
+                               opacity = .8)
+        } else { leafletProxy("map") %>% leaflet::removeControl("color_by_legend")  }
+        
       } else {colorby <- "blue"}
       
       leafletProxy("map", data = data_active()) %>%
@@ -714,10 +729,12 @@ shinyServer(
           leaflet::clearMarkerClusters() %>%
           leaflet::addCircleMarkers(lat = ~lat_plotted, lng = ~lng_plotted,
                                     popup = ~paste(popup_string(), atlas_point_links()),
+                                    popupOptions = popupOptions(maxWidth = 500,
+                                                                maxHeight = 200),
                                     radius = ~as.numeric(radiusby * 3),
                                     color = colorby,
                                     stroke = FALSE, fillOpacity = 0.7,
-                                    label = ~popup_string() %>% lapply(shiny::HTML),
+                                    label = ~lapply(popup_string(), shiny::HTML),
                                     clusterOptions = eval(cluster_options())
                                     )
         
