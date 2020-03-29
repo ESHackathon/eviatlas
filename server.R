@@ -692,7 +692,8 @@ shinyServer(
     
     cluster_options <- reactive({
       if_else(input$map_cluster_select,
-             parse(text=paste0('markerClusterOptions(freezeAtZoom = ', input$cluster_size_select, ')')),
+             parse(text=paste0('markerClusterOptions(freezeAtZoom = ', 
+                               input$cluster_size_select, ')')),
              NULL)
     })
     
@@ -702,27 +703,40 @@ shinyServer(
 
       radiusby <- input$atlas_radius_select
 
-      lat_plotted <- as.numeric(unlist(data_active() %>% dplyr::select(input$map_lat_select)))
-      lng_plotted <- as.numeric(unlist(data_active() %>% dplyr::select(input$map_lng_select)))
+      lat_plotted <- 
+        as.numeric(unlist(data_active() %>%
+                            dplyr::select(input$map_lat_select)))
+      lng_plotted <- 
+        as.numeric(unlist(data_active() %>%
+                            dplyr::select(input$map_lng_select)))
 
       if (input$atlas_color_by_select != "") {
         color_user <- input$atlas_color_by_select
-        factpal <- colorFactor(rev(RColorBrewer::brewer.pal(9, 'Set1')), data_active()$color_user, reverse = TRUE)
+        factpal <- colorFactor(RColorBrewer::brewer.pal(9, 'Set1'), 
+                               data_active()$color_user, reverse = TRUE)
         colorby <- ~factpal(data_active()[[color_user]])
         
         if (length(unique(data_active()[, color_user])) < 9) {
           leafletProxy("map", data = data_active()) %>%
-            leaflet::addLegend(title = stringr::str_to_title(stringr::str_replace_all(color_user, "\\.", " ")),
-                               position = 'topright', 
-                               pal = factpal,
-                               values = data_active()[, color_user],
-                               layerId = "color_by_legend",
-                               group = "legend",
-                               na.label = "None", 
-                               opacity = .8)
-        } else { leafletProxy("map") %>% leaflet::removeControl("color_by_legend")  }
+            leaflet::addLegend(
+              title = stringr::str_to_title(stringr::str_replace_all(color_user, "\\.", " ")),
+              position = 'topright',
+              pal = factpal,
+              values = data_active()[, color_user],
+              layerId = "color_by_legend",
+              group = "legend",
+              na.label = "None",
+              opacity = .8
+            )
+        }
+        else { 
+          leafletProxy("map") %>% 
+            leaflet::removeControl("color_by_legend")  
+        }
         
-      } else {colorby <- "blue"}
+      } else {
+        colorby <- "blue"
+      }
       
       leafletProxy("map", data = data_active()) %>%
           leaflet::clearMarkers() %>%
@@ -745,7 +759,7 @@ shinyServer(
       leafletProxy("map") %>%
         leaflet::removeControl("atlas_title") %>%
         leaflet::addControl(input$map_title_select, 
-                            position = "topright", 
+                            position = "topleft", 
                             className="map-title",
                             layerId = "atlas_title")
       
@@ -773,7 +787,7 @@ shinyServer(
           ) %>%
           leaflet::addControl(
             input$map_title_select,
-            position = "topright",
+            position = "topleft",
             className = "map-title",
             layerId = "atlas_title"
           ) %>%
@@ -781,18 +795,26 @@ shinyServer(
                                     layerId = "atlas_basemap")
         )
           
-        }
+      } # end shapefile
       
       radiusby <- input$atlas_radius_select
       
-      lat_plotted <- as.numeric(unlist(data_active() %>% dplyr::select(input$map_lat_select)))
-      lng_plotted <- as.numeric(unlist(data_active() %>% dplyr::select(input$map_lng_select)))
+      lat_plotted <- 
+        as.numeric(unlist(data_active() %>% 
+                            dplyr::select(input$map_lat_select)))
+      lng_plotted <- 
+        as.numeric(unlist(data_active() %>% 
+                            dplyr::select(input$map_lng_select)))
       
       if (input$atlas_color_by_select != "") {
         color_user <- input$atlas_color_by_select
-        factpal <- colorFactor(RColorBrewer::brewer.pal(9, 'Set1'), data_active()$color_user)
+        factpal <- colorFactor(RColorBrewer::brewer.pal(9, 'Set1'), 
+                               data_active()$color_user, reverse = TRUE)
         colorby <- ~factpal(data_active()[[color_user]])
-      } else {colorby <- "blue"}
+        
+      } else {
+        colorby <- "blue"
+      }
       
       # call the foundational Leaflet map
       generate_systematic_map() %>%
@@ -803,7 +825,7 @@ shinyServer(
           zoom = input$map_zoom
         ) %>%
         leaflet::addControl(input$map_title_select, 
-                            position = "topright", 
+                            position = "topleft", 
                             className="map-title",
                             layerId = "atlas_title") %>%
         leaflet::addProviderTiles(input$map_basemap_select, 
@@ -815,7 +837,16 @@ shinyServer(
                                   stroke = FALSE, fillOpacity = 0.7,
                                   label = ~popup_string() %>% lapply(shiny::HTML),
                                   clusterOptions = eval(cluster_options())
-        )
+        ) %>% 
+        leaflet::addLegend(
+            title = stringr::str_to_title(stringr::str_replace_all(color_user, "\\.", " ")),
+            position = 'topright',
+            pal = factpal,
+            values = data_active()[, color_user],
+            layerId = "color_by_legend",
+            group = "legend",
+            na.label = "None",
+            opacity = .8)
       
     })
     
