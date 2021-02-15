@@ -11,14 +11,13 @@ GenHeatMap(idata, selcols, axis_txt_lim = 60)
 
 \item{selcols}{Numeric vector of column indices}
 
-\item{verbose}{Comments}
+\item{axis_txt_lim}{character limit for label text}
 }
 \value{
 Returns a heatmap object showing number of literature under different categories in user specified \code{selcols}
 }
 \description{
 Feed in a dataset and get a heatmap in return
-Created For	  : ES Hackathon 2018
 }
 \author{
 Ezgi Tanriver-Ayder and Sanita Dhaubanjar

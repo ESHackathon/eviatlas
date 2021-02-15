@@ -6,6 +6,13 @@
 \usage{
 GenTimeTrend(idata, hist_col, axis_txt_lim = 60)
 }
+\arguments{
+\item{idata}{dataset from eviatlas}
+
+\item{hist_col}{column used for histogram}
+
+\item{axis_txt_lim}{character limit for label text in axis}
+}
 \description{
 Create Histogram from dataset
 }
