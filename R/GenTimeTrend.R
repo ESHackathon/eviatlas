@@ -1,12 +1,17 @@
 #' Create Histogram from dataset
+#' @param idata dataset from eviatlas
+#' @param hist_col column used for histogram
+#' @param axis_txt_lim character limit for label text in axis
 
-GenTimeTrend = function(idata, hist_col, axis_txt_lim = 60){
+GenTimeTrend <- function(idata, hist_col, axis_txt_lim = 60) {
+  # bind variables locally to function
+  idata <- hist_col <- axis_txt_lim <- NULL
+
   UseMethod("GenTimeTrend", object = idata[hist_col][[1]])
 }
 
-GenTimeTrend.default <- function(idata, hist_col, axis_txt_lim = 60){
-
-  gttmp <- ggplot2::ggplot(idata, aes_string(x = hist_col)) +
+GenTimeTrend.default <- function(idata, hist_col, axis_txt_lim = 60) {
+  gttmp <- ggplot2::ggplot(idata, ggplot2::aes_string(x = hist_col)) +
     ggplot2::geom_bar(
       alpha = 0.9,
       stat = "count",
@@ -21,18 +26,18 @@ GenTimeTrend.default <- function(idata, hist_col, axis_txt_lim = 60){
       plot.title = ggplot2::element_text(hjust = .5),
       text = ggplot2::element_text(size = 13)
     )
-  
+
   # Rotate xaxis label if too many categories
-  if (dplyr::n_distinct(idata[hist_col]) > 15){
+  if (dplyr::n_distinct(idata[hist_col]) > 15) {
     gttmp <- gttmp + ggplot2::theme(
-      axis.text.x = element_text(angle = 40, hjust = 0.95, size = 12))
+      axis.text.x = ggplot2::element_text(angle = 40, hjust = 0.95, size = 12)
+    )
   }
   gttmp
 }
 
-GenTimeTrend.numeric <- function(idata, hist_col, axis_txt_lim = 60){
-  
-  ggplot2::ggplot(idata, aes_string(x = hist_col)) +
+GenTimeTrend.numeric <- function(idata, hist_col, axis_txt_lim = 60) {
+  ggplot2::ggplot(idata, ggplot2::aes_string(x = hist_col)) +
     ggplot2::geom_bar(
       alpha = 0.9,
       stat = "count",
