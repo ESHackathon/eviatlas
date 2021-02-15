@@ -3,6 +3,7 @@
 #' @param input input set by Shiny.
 #' @param output output set by Shiny.
 #' @param session session set by Shiny.
+#' @import shiny
 #' @export
 shiny_server <-
   function(input, output, session) {
@@ -15,8 +16,8 @@ shiny_server <-
 
     if (!exists("study_data", envir = parent.env(environment()), inherits = FALSE)) {
       message("study_data not available, using default sample data...")
-      data(eviatlas::eviatlas_pilotdata, envir = environment())
-      study_data <- eviatlas::eviatlas_pilotdata
+      data("eviatlas_pilotdata", envir = environment())
+      study_data <- eviatlas:::eviatlas_pilotdata
     }
 
     output$environment <- renderPrint(
@@ -27,16 +28,16 @@ shiny_server <-
     # DATA TAB
     # if no data are available but input$sample_or_real == 'sample', show intro text
     output$start_text <- renderPrint({
-      cat(start_text)
+      cat(readr::read_file(system.file("html_shiny", "AboutEvi.html", package = "eviatlas")))
     })
     output$about_sysmap_text <- renderPrint({
-      cat(about_sysmap_text)
+      cat(readr::read_file(system.file("html_shiny", "AboutSysMap.html", package = "eviatlas")))
     })
     output$how_works_text <- renderPrint({
-      cat(how_works_text)
+      cat(readr::read_file(system.file("html_shiny", "HowEviWorks.html", package = "eviatlas")))
     })
     output$how_cite_text <- renderPrint({
-      cat(how_cite_text)
+      cat(readr::read_file(system.file("html_shiny", "HowCiteEvi.html", package = "eviatlas")))
     })
 
     output$uploaded_attributes <- renderPrint({
@@ -164,7 +165,9 @@ shiny_server <-
     filter1_by <- function(df, fcol1, fv1) {
       filter_var1 <- dplyr::quo(fcol1)
       df %>%
-        filter_at(vars(!!filter_var1), all_vars(. == fv1))
+        dplyr::filter_at(
+          dplyr::vars(!!filter_var1), dplyr::all_vars(. == fv1)
+        )
     }
 
     # filter on 2 columns
@@ -173,8 +176,12 @@ shiny_server <-
       filter_var2 <- dplyr::quo(fcol2)
 
       df %>%
-        filter_at(vars(!!filter_var1), all_vars(. == fv1)) %>%
-        filter_at(vars(!!filter_var2), all_vars(. == fv2))
+        dplyr::filter_at(
+          dplyr::vars(!!filter_var1), dplyr::all_vars(. == fv1)
+        ) %>%
+        dplyr::filter_at(
+          dplyr::vars(!!filter_var2), dplyr::all_vars(. == fv2)
+        )
     }
 
     # filter on 3 columns
@@ -184,9 +191,15 @@ shiny_server <-
       filter_var3 <- dplyr::quo(fcol3)
 
       df %>%
-        filter_at(vars(!!filter_var1), all_vars(. == fv1)) %>%
-        filter_at(vars(!!filter_var2), all_vars(. == fv2)) %>%
-        filter_at(vars(!!filter_var3), all_vars(. == fv3))
+        dplyr::filter_at(
+          dplyr::vars(!!filter_var1), dplyr::all_vars(. == fv1)
+        ) %>%
+        dplyr::filter_at(
+          dplyr::vars(!!filter_var2), dplyr::all_vars(. == fv2)
+        ) %>%
+        dplyr::filter_at(
+          dplyr::vars(!!filter_var3), dplyr::all_vars(. == fv3)
+        )
     }
 
     filtered_df <- reactive({
@@ -250,11 +263,15 @@ shiny_server <-
       req(data_internal$raw)
 
       if (any(class(data_internal$raw) == "sf")) {
-        filter1_by(sf::st_drop_geometry(data_internal$raw), input$filter1, input$filter1val) %>%
+        filter1_by(
+          sf::st_drop_geometry(data_internal$raw), input$filter1, input$filter1val
+        ) %>%
           dplyr::select(input$filter2) %>%
           unique()
       } else {
-        filter1_by(data_internal$raw, input$filter1, input$filter1val) %>%
+        filter1_by(
+          data_internal$raw, input$filter1, input$filter1val
+        ) %>%
           dplyr::select(input$filter2) %>%
           unique()
       }
@@ -317,7 +334,7 @@ shiny_server <-
           responsive = T,
           columnDefs = list(list(
             targets = c(1:min(25, ncol(data_internal$filtered))), # will apply render function to lesser of first 25 columns or number of columns in displayed data
-            render = JS( # limits character strings longer than 50 characters to their first 30 chars, and has whole string appear as a tooltip
+            render = htmlwidgets::JS( # limits character strings longer than 50 characters to their first 30 chars, and has whole string appear as a tooltip
               "function(data, type, row, meta) {",
               "return type === 'display' && data.length > 50 ?",
               "'<span title=\"' + data + '\">' + data.substr(0, 30) + '...</span>' : data;",
@@ -585,7 +602,7 @@ shiny_server <-
             res = 300, units = "in"
           )
         }
-        ggsave(file, plot = gen_time_trend_plot(), device = device)
+        ggplot2::ggsave(file, plot = gen_time_trend_plot(), device = device)
       }
     )
 
@@ -598,7 +615,7 @@ shiny_server <-
             res = 300, units = "in"
           )
         }
-        ggsave(file, plot = gen_location_trend_plot(), device = device)
+        ggplot2::ggsave(file, plot = gen_location_trend_plot(), device = device)
       }
     )
 
@@ -688,7 +705,7 @@ shiny_server <-
             res = 300, units = "in"
           )
         }
-        ggsave(file, plot = gen_heatmap(), device = device)
+        ggplot2::ggsave(file, plot = gen_heatmap(), device = device)
       }
     )
 
@@ -703,7 +720,7 @@ shiny_server <-
 
     output$map <- leaflet::renderLeaflet({
       generate_systematic_map() %>%
-        onRender(
+        htmlwidgets::onRender(
           "function(el, x) {
             L.easyPrint({
               sizeModes: ['Current', 'A4Landscape', 'A4Portrait'],
@@ -725,7 +742,11 @@ shiny_server <-
       for (popup in input$map_popup_select) {
         popup_string <- paste0(
           popup_string, "<strong>", popup, "</strong>: ",
-          str_replace_all(str_wrap(data_active()[[popup]]), coll("\n"), "<br/>"), "<br/>"
+          stringr::str_replace_all(
+            stringr::str_wrap(
+              data_active()[[popup]]
+            ), stringr::coll("\n"), "<br/>"
+          ), "<br/>"
         )
       }
       popup_string
@@ -745,7 +766,8 @@ shiny_server <-
     })
 
     cluster_options <- reactive({
-      if_else(input$map_cluster_select,
+      dplyr::if_else(
+        input$map_cluster_select,
         parse(text = paste0(
           "markerClusterOptions(freezeAtZoom = ",
           input$cluster_size_select, ")"
@@ -769,14 +791,14 @@ shiny_server <-
 
       if (input$atlas_color_by_select != "") {
         color_user <- input$atlas_color_by_select
-        factpal <- colorFactor(RColorBrewer::brewer.pal(9, "Set1"),
+        factpal <- leaflet::colorFactor(RColorBrewer::brewer.pal(9, "Set1"),
           data_active()$color_user,
           reverse = TRUE
         )
         colorby <- ~ factpal(data_active()[[color_user]])
 
         if (length(unique(data_active()[, color_user])) < 9) {
-          leafletProxy("map", data = data_active()) %>%
+          leaflet::leafletProxy("map", data = data_active()) %>%
             leaflet::addLegend(
               title = stringr::str_to_title(stringr::str_replace_all(color_user, "\\.", " ")),
               position = "topright",
@@ -789,20 +811,20 @@ shiny_server <-
             )
         }
         else {
-          leafletProxy("map") %>%
+          leaflet::leafletProxy("map") %>%
             leaflet::removeControl("color_by_legend")
         }
       } else {
         colorby <- "blue"
       }
 
-      leafletProxy("map", data = data_active()) %>%
+      leaflet::leafletProxy("map", data = data_active()) %>%
         leaflet::clearMarkers() %>%
         leaflet::clearMarkerClusters() %>%
         leaflet::addCircleMarkers(
           lat = ~lat_plotted, lng = ~lng_plotted,
           popup = ~ paste(popup_string(), atlas_point_links()),
-          popupOptions = popupOptions(
+          popupOptions = leaflet::popupOptions(
             maxWidth = 500,
             maxHeight = 200
           ),
@@ -815,7 +837,7 @@ shiny_server <-
     })
 
     observeEvent(input$map_title_select, {
-      leafletProxy("map") %>%
+      leaflet::leafletProxy("map") %>%
         leaflet::removeControl("atlas_title") %>%
         leaflet::addControl(input$map_title_select,
           position = "topleft",
@@ -825,7 +847,7 @@ shiny_server <-
     })
 
     observeEvent(input$map_basemap_select, {
-      leafletProxy("map") %>%
+      leaflet::leafletProxy("map") %>%
         leaflet::removeTiles("atlas_basemap") %>%
         leaflet::addProviderTiles(input$map_basemap_select,
           layerId = "atlas_basemap"
@@ -834,13 +856,13 @@ shiny_server <-
 
     atlas_for_saving <- reactive({
       # This is redundant to everything in the app, but the is best solution I could find
-      # for saving a map that's been heavily edited with leafletProxy
+      # for saving a map that's been heavily edited with leaflet::leafletProxy
       if (input$sample_or_real == "shapefile") {
         return(
           eviatlas:::sys_map_shapefile(data_active(),
             popups = popup_string()
           ) %>%
-            setView(
+            leaflet::setView(
               lng = input$map_center$lng,
               lat = input$map_center$lat,
               zoom = input$map_zoom
@@ -869,7 +891,7 @@ shiny_server <-
       if (input$atlas_color_by_select != "") {
         legend <- TRUE
         color_user <- input$atlas_color_by_select
-        factpal <- colorFactor(RColorBrewer::brewer.pal(9, "Set1"),
+        factpal <- leaflet::colorFactor(RColorBrewer::brewer.pal(9, "Set1"),
           data_active()$color_user,
           reverse = TRUE
         )
@@ -883,7 +905,7 @@ shiny_server <-
       # call the foundational Leaflet map
       map_out <- generate_systematic_map() %>%
         # store the view based on UI
-        setView(
+        leaflet::setView(
           lng = input$map_center$lng,
           lat = input$map_center$lat,
           zoom = input$map_zoom
@@ -926,7 +948,7 @@ shiny_server <-
     output$savemap_interactive <- downloadHandler(
       filename = paste0("eviAtlasMap", Sys.Date(), ".html"),
       content = function(file) {
-        saveWidget(
+        htmlwidgets::saveWidget(
           widget = atlas_for_saving(),
           file = file
         )

@@ -12,28 +12,28 @@ shiny_ui <- function() {
     shinydashboard::sidebarMenu(
       id = "main_sidebar",
       shinydashboard::menuItem("About EviAtlas",
-                               tabName = "about",
-                               icon = shiny::icon("question")
+        tabName = "about",
+        icon = shiny::icon("question")
       ),
       shinydashboard::menuItem("Evidence Atlas",
-                               tabName = "home",
-                               icon = shiny::icon("map")
+        tabName = "home",
+        icon = shiny::icon("map")
       ),
       shinydashboard::menuItem("Map Database",
-                               tabName = "data",
-                               icon = shiny::icon("database")
+        tabName = "data",
+        icon = shiny::icon("database")
       ),
       shinydashboard::menuItem("Descriptive Plots",
-                               tabName = "insightplots",
-                               icon = shiny::icon("home")
+        tabName = "insightplots",
+        icon = shiny::icon("home")
       ),
       shinydashboard::menuItem("Heatmap",
-                               tabName = "heatmap",
-                               icon = shiny::icon("fire")
+        tabName = "heatmap",
+        icon = shiny::icon("fire")
       ),
       shinydashboard::menuItem("View Code",
-                               href = "https://github.com/ESHackathon/eviatlas",
-                               icon = shiny::icon("github")
+        href = "https://github.com/ESHackathon/eviatlas",
+        icon = shiny::icon("github")
       )
     )
   )
@@ -108,9 +108,9 @@ shiny_ui <- function() {
                   selected = "user"
                 ),
                 shinyBS::bsTooltip("sample_or_real",
-                                   title = "Select whether you want to try EviAtlas using the sample data from a recent systematic map, or whether you wish to upload your own data in the correct format",
-                                   placement = "left",
-                                   trigger = "hover"
+                  title = "Select whether you want to try EviAtlas using the sample data from a recent systematic map, or whether you wish to upload your own data in the correct format",
+                  placement = "left",
+                  trigger = "hover"
                 ),
                 conditionalPanel(
                   condition = "input.sample_or_real == 'user'",
@@ -139,25 +139,25 @@ shiny_ui <- function() {
                         checkboxInput("header", "Header row?", TRUE),
 
                         selectInput("upload_encoding",
-                                    label = "Select File Encoding",
-                                    choices = list(
-                                      "Default" = "",
-                                      "UTF-8",
-                                      "latin1",
-                                      "mac"
-                                    ),
-                                    selected = ""
+                          label = "Select File Encoding",
+                          choices = list(
+                            "Default" = "",
+                            "UTF-8",
+                            "latin1",
+                            "mac"
+                          ),
+                          selected = ""
                         ),
                         # Input: Select separator ----
                         selectInput("sep",
-                                    "Field Separator",
-                                    choices = c(
-                                      ",",
-                                      ";",
-                                      Tab = "\t",
-                                      "|"
-                                    ),
-                                    selected = ","
+                          "Field Separator",
+                          choices = c(
+                            ",",
+                            ";",
+                            Tab = "\t",
+                            "|"
+                          ),
+                          selected = ","
                         ),
                         # Input: Select quotes ----
                         selectInput(
@@ -229,8 +229,8 @@ shiny_ui <- function() {
                   conditionalPanel(
                     condition = "input.sample_or_real != 'shapefile'", # doesn't work for shapefiles currently
                     sliderInput("atlas_radius_select", "Point size",
-                                min = 1, max = 8, value = 3,
-                                ticks = F
+                      min = 1, max = 8, value = 3,
+                      ticks = F
                     )
                   )
                 )
@@ -255,16 +255,16 @@ shiny_ui <- function() {
                   label = "Save Map (PDF)"
                 ),
                 shinyBS::bsTooltip("savemap_interactive",
-                                   title = "Save an interactive HTML version of the map using the current display settings. This HTML map can then be easily hosted on your own website",
-                                   placement = "bottom", trigger = "hover"
+                  title = "Save an interactive HTML version of the map using the current display settings. This HTML map can then be easily hosted on your own website",
+                  placement = "bottom", trigger = "hover"
                 ),
                 shinyBS::bsTooltip("savemap_png",
-                                   title = "Save a static version of the map using the current display settings.",
-                                   placement = "bottom", trigger = "hover"
+                  title = "Save a static version of the map using the current display settings.",
+                  placement = "bottom", trigger = "hover"
                 ),
                 shinyBS::bsTooltip("savemap_pdf",
-                                   title = "Save a static version of the map using the current display settings.",
-                                   placement = "bottom", trigger = "hover"
+                  title = "Save a static version of the map using the current display settings.",
+                  placement = "bottom", trigger = "hover"
                 )
               )
             )
@@ -375,9 +375,9 @@ shiny_ui <- function() {
     )
   )
 
-    shinydashboard::dashboardPage(
-      shinydashboard::dashboardHeader(title = "EviAtlas"),
-      sidebar,
-      body
-    )
+  shinydashboard::dashboardPage(
+    shinydashboard::dashboardHeader(title = "EviAtlas"),
+    sidebar,
+    body
+  )
 }
