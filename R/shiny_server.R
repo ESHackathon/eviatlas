@@ -16,8 +16,7 @@ shiny_server <-
 
     if (!exists("study_data", envir = parent.env(environment()), inherits = FALSE)) {
       message("study_data not available, using default sample data...")
-      data("eviatlas_pilotdata", envir = environment())
-      study_data <- eviatlas:::eviatlas_pilotdata
+      study_data <- eviatlas::eviatlas_pilotdata
     }
 
     output$environment <- renderPrint(
@@ -317,7 +316,12 @@ shiny_server <-
 
     # render picklist for filter 3
     output$filter3choice <- renderUI(
-      selectizeInput("filter3val", "Select filter 3 condition:", choices = choicevec3(), multiple = TRUE)
+      selectizeInput(
+        "filter3val",
+        "Select filter 3 condition:",
+        choices = choicevec3(),
+        multiple = TRUE
+        )
     )
 
     ##### end dynamic filter ####
@@ -769,7 +773,7 @@ shiny_server <-
       dplyr::if_else(
         input$map_cluster_select,
         parse(text = paste0(
-          "markerClusterOptions(freezeAtZoom = ",
+          "leaflet::markerClusterOptions(freezeAtZoom = ",
           input$cluster_size_select, ")"
         )),
         NULL
