@@ -1,5 +1,3 @@
-
-
 #' The Shiny App UI.
 #' @export
 shiny_ui <- function() {

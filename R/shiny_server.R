@@ -1,4 +1,5 @@
 #' The Shiny App Server.
+#' @importFrom utils read.csv write.csv data
 #' @param input input set by Shiny.
 #' @param output output set by Shiny.
 #' @param session session set by Shiny.
@@ -13,11 +14,10 @@ shiny_server <-
     )
 
     if (!exists("study_data", envir = parent.env(environment()), inherits = FALSE)) {
-      message("study_data not available, using default faithful...")
+      message("study_data not available, using default sample data...")
       data(eviatlas::eviatlas_pilotdata, envir = environment())
       study_data <- eviatlas::eviatlas_pilotdata
     }
-    print(ls(envir = parent.env(environment())))
 
     output$environment <- renderPrint(
       print(ls(envir = parent.env(environment())))
