@@ -578,13 +578,12 @@ shiny_server <-
       )
     })
 
-    # geom_bar rather than geom_histogram so that non-continous variables can be plotted
     gen_time_trend_plot <- reactive({
-      GenTimeTrend(data_active(), input$select_timetrend_col)
+      eviatlas:::GenTimeTrend(data_active(), input$select_timetrend_col)
     })
 
     gen_location_trend_plot <- reactive({
-      GenLocationTrend(data_active(), input$select_loc_col)
+      eviatlas:::GenLocationTrend(data_active(), input$select_loc_col)
     })
 
     output$plot1 <- renderPlot({
@@ -624,7 +623,7 @@ shiny_server <-
     )
 
     gen_heatmap <- reactive({
-      GenHeatMap(data_active(), c(input$heat_select_x, input$heat_select_y))
+      eviatlas:::GenHeatMap(data_active(), c(input$heat_select_x, input$heat_select_y))
     })
 
     output$heatmap <- renderPlot({
