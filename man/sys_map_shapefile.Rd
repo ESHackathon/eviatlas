@@ -6,6 +6,12 @@
 \usage{
 sys_map_shapefile(shp, popups = "")
 }
+\arguments{
+\item{shp}{the shapefile used to generate atlas}
+
+\item{popups}{columns to appear in popups when clicking atlas points}
+}
 \description{
 generate systematic map atlas for shapefiles
 }
+\keyword{internal}

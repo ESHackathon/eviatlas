@@ -1,5 +1,7 @@
 #' generate systematic map atlas for shapefiles
-#' @keyword internal
+#' @param shp the shapefile used to generate atlas
+#' @param popups columns to appear in popups when clicking atlas points
+#' @keywords internal
 
 sys_map_shapefile <- function(shp, popups = "") {
   leaflet::leaflet(shp) %>%
