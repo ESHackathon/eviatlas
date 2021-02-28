@@ -5,10 +5,11 @@
 \title{Save the Shiny App to an app.R file.}
 \usage{
 save_shiny_app(
-  ui_function,
-  server_function,
-  pkgs,
+  ui_function = eviatlas::shiny_ui,
+  server_function = eviatlas::shiny_server,
+  pkgs = c("eviatlas", "tidyverse"),
   out_dir = "shiny",
+  overwrite = TRUE,
   run_app = interactive()
 )
 }
@@ -22,7 +23,7 @@ minimum the package containing the shiny app should be included.}
 
 \item{out_dir}{the directory to save the shiny app files.}
 
-\item{run_app}{whether to run the app once the files are}
+\item{run_app}{whether to run the app once the files are saved}
 }
 \description{
 This function will create three files in the \code{out_dir}: \code{server.R},

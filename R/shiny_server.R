@@ -1,4 +1,4 @@
-#' The Shiny App Server.
+#' The Eviatlas Shiny App Server.
 #' @importFrom utils read.csv write.csv data
 #' @param input input set by Shiny.
 #' @param output output set by Shiny.
@@ -528,7 +528,7 @@ shiny_server <-
       selectInput(
         inputId = "select_timetrend_col",
         label = "Select variable 1",
-        choices = c("", get_histogram_viable_columns(data_active())),
+        choices = c("", eviatlas:::get_histogram_viable_columns(data_active())),
         selected = ""
       )
     })
@@ -540,7 +540,7 @@ shiny_server <-
       selectInput(
         inputId = "select_loc_col",
         label = "Select Variable 2",
-        choices = c("", get_histogram_viable_columns(data_active())),
+        choices = c("", eviatlas:::get_histogram_viable_columns(data_active())),
         selected = ""
       )
     })
@@ -560,7 +560,7 @@ shiny_server <-
             selectInput(
               inputId = "heat_select_x",
               label = "Select X variable",
-              choices = c("", get_histogram_viable_columns(data_active())),
+              choices = c("", eviatlas:::get_histogram_viable_columns(data_active())),
               selected = ""
             )
           ),
@@ -570,7 +570,7 @@ shiny_server <-
             selectInput(
               inputId = "heat_select_y",
               label = "Select Y variable",
-              choices = c("", get_histogram_viable_columns(data_active())),
+              choices = c("", eviatlas:::get_histogram_viable_columns(data_active())),
               selected = ""
             )
           )

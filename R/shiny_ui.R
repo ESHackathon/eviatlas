@@ -1,4 +1,4 @@
-#' The Shiny App UI.
+#' The Eviatlas Shiny App UI.
 #' @export
 shiny_ui <- function() {
   ## ui.R ##

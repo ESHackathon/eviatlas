@@ -2,7 +2,7 @@
 % Please edit documentation in R/shiny_server.R
 \name{shiny_server}
 \alias{shiny_server}
-\title{The Shiny App Server.}
+\title{The Eviatlas Shiny App Server.}
 \usage{
 shiny_server(input, output, session)
 }
@@ -14,5 +14,5 @@ shiny_server(input, output, session)
 \item{session}{session set by Shiny.}
 }
 \description{
-The Shiny App Server.
+The Eviatlas Shiny App Server.
 }

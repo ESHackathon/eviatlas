@@ -2,7 +2,6 @@
 
 export("%<>%")
 export("%>%")
-export(GenLocationTrend)
 export(eviatlas)
 export(save_shiny_app)
 export(shiny_config)
