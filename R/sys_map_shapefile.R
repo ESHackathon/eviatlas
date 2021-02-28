@@ -1,3 +1,6 @@
+#' generate systematic map atlas for shapefiles
+#' @keyword internal
+
 sys_map_shapefile <- function(shp, popups = "") {
   leaflet::leaflet(shp) %>%
     leaflet::addTiles(layerId = "atlas_basemap") %>%

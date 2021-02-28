@@ -16,3 +16,4 @@ GenTimeTrend(idata, hist_col, axis_txt_lim = 60)
 \description{
 Create Histogram from dataset
 }
+\keyword{internal}

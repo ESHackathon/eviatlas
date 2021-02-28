@@ -2,6 +2,7 @@
 #' @param idata dataset from eviatlas
 #' @param hist_col column used for histogram
 #' @param axis_txt_lim character limit for label text in axis
+#' @keywords internal
 
 GenTimeTrend <- function(idata, hist_col, axis_txt_lim = 60) {
   # bind variables locally to function

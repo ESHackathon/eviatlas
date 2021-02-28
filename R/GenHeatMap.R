@@ -7,7 +7,7 @@
 #' @param axis_txt_lim character limit for label text
 #'
 #' @return Returns a heatmap object showing number of literature under different categories in user specified \code{selcols}
-#'
+#' @keywords internal
 #' @author Ezgi Tanriver-Ayder and Sanita Dhaubanjar
 
 GenHeatMap <- function(idata, selcols, axis_txt_lim = 60) {

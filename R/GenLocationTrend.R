@@ -10,7 +10,7 @@
 #'
 #' @keywords SystematicReview
 #'
-#' @export
+#' @keywords internal
 
 GenLocationTrend <- function(df, location_column, axis_txt_lim = 60) {
 

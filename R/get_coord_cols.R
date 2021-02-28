@@ -1,4 +1,5 @@
-# functions to determine if columns contain what appear to be latitude or longtude columns
+#' functions to determine if columns contain what appear to be latitude or longitude columns
+#' @keywords internal
 
 get_latitude_cols <- function(df) {
   n_out <- colnames(df)[1]
