@@ -20,10 +20,11 @@
 #' @param run_app whether to run the app once the files are saved
 #' @export
 save_shiny_app <- function(
-                           ui_function,
-                           server_function,
-                           pkgs,
+                           ui_function = eviatlas::shiny_ui,
+                           server_function = eviatlas:: shiny_server,
+                           pkgs = c("eviatlas", "tidyverse"),
                            out_dir = "shiny",
+                           overwrite = TRUE,
                            run_app = interactive()) {
   # https://bryer.org/post/2021-02-12-shiny_apps_in_r_packages/
 
@@ -35,10 +36,15 @@ save_shiny_app <- function(
   ui_txt <- ui_txt[3:(length(ui_txt) - 3)]
 
   # Add global.R file
-  global_txt <- c("library('shiny')")
+  global_txt <- c("")
 
   if (!missing(pkgs)) {
     global_txt <- c(global_txt, paste0("library('", pkgs, "')"))
+  }
+
+  if (dir.exists(out_dir)) {
+    message(paste0('folder ', out_dir, "/ already exists, deleting and overwriting because parameter overwrite=TRUE"))
+    unlink(out_dir, recursive = TRUE)
   }
   dir.create(out_dir)
   # Save the shiny app files
