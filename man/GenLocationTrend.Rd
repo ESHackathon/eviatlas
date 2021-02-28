@@ -17,7 +17,7 @@ GenLocationTrend(df, location_column, axis_txt_lim = 60)
 Returns a bar plot object showing counts of literature in systematic review for each location
 }
 \description{
-Created For	  : ES Hackathon 2018
+Created for: ES Hackathon 2018
 }
 \author{
 Sanita Dhaubanjar

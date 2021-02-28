@@ -1,6 +1,6 @@
 #' Create bar plot with distribution of studies over the region from lat/long info
 #'
-#' Created For	  : ES Hackathon 2018
+#' Created for: ES Hackathon 2018
 #' @param df Input dataframe
 #' @param location_column Column with location information (preferably country-level or higher)
 #' @param axis_txt_lim character limit for label text
@@ -9,12 +9,11 @@
 #' @author Sanita Dhaubanjar
 #'
 #' @keywords SystematicReview
-#'
 #' @keywords internal
 
 GenLocationTrend <- function(df, location_column, axis_txt_lim = 60) {
 
-  # if  df is a shapefile, remove geometry column
+  # if df is a shapefile, remove geometry column
   if (any(class(df) == "sf")) {
     df <- sf::st_drop_geometry(df)
   }
@@ -24,7 +23,7 @@ GenLocationTrend <- function(df, location_column, axis_txt_lim = 60) {
   listone <- listtwo <- n <- NULL
 
   # Count per locations --------
-  location_counts <- dplyr::as_tibble(table(df[location_column])) # table() tabulates frequency
+  location_counts <- as.data.frame(table(df[location_column])) # table() tabulates frequency
   colnames(location_counts) <- c(location_column, "n")
 
   # Plot bar chart

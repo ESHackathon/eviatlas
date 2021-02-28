@@ -18,10 +18,10 @@ GenHeatMap <- function(idata, selcols, axis_txt_lim = 60) {
   }
 
   # Bind variables locally to function (helps avoid R CMD notes)
-  listone <- listtwo <- n <- axis_txt_lim <- NULL
+  listone <- listtwo <- n <- NULL
 
   # Convert columns to factors to allow for categorical classification for both numeric and character data -------
-  tmp <- dplyr::as_tibble(sapply(idata[selcols], function(x) as.factor(x)))
+  tmp <- as.data.frame(sapply(idata[selcols], function(x) as.factor(x)))
 
 
   # Plot Heatmap ------
