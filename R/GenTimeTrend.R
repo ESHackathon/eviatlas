@@ -5,12 +5,13 @@
 #' @keywords internal
 
 GenTimeTrend <- function(idata, hist_col, axis_txt_lim = 60) {
-  # bind variables locally to function
-  idata <- hist_col <- axis_txt_lim <- NULL
-
   UseMethod("GenTimeTrend", object = idata[hist_col][[1]])
 }
 
+#' Create Histogram from dataset - default method
+#' @method GenTimeTrend default
+#' @export
+#' @keywords internal
 GenTimeTrend.default <- function(idata, hist_col, axis_txt_lim = 60) {
   gttmp <- ggplot2::ggplot(idata, ggplot2::aes_string(x = hist_col)) +
     ggplot2::geom_bar(
@@ -19,7 +20,10 @@ GenTimeTrend.default <- function(idata, hist_col, axis_txt_lim = 60) {
       fill = "dodger blue"
     ) +
     ggplot2::labs(y = "Studies") +
-    ggplot2::scale_x_discrete(name = paste(hist_col), labels = function(x) substr(x, 1, axis_txt_lim)) +
+    ggplot2::scale_x_discrete(
+      name = paste(hist_col),
+      labels = function(x) substr(x, 1, axis_txt_lim)
+    ) +
     ggplot2::theme_bw() +
     ggplot2::theme(
       axis.line = ggplot2::element_line(colour = "black"),
@@ -31,11 +35,20 @@ GenTimeTrend.default <- function(idata, hist_col, axis_txt_lim = 60) {
   # Rotate xaxis label if too many categories
   if (dplyr::n_distinct(idata[hist_col]) > 15) {
     gttmp <- gttmp + ggplot2::theme(
-      axis.text.x = ggplot2::element_text(angle = 40, hjust = 0.95, size = 12)
+      axis.text.x = ggplot2::element_text(
+        angle = 40,
+        hjust = 0.95,
+        size = 12
+      )
     )
   }
   gttmp
 }
+
+#' Create Histogram from dataset - numeric column
+#' @method GenTimeTrend numeric
+#' @export
+#' @keywords internal
 
 GenTimeTrend.numeric <- function(idata, hist_col, axis_txt_lim = 60) {
   ggplot2::ggplot(idata, ggplot2::aes_string(x = hist_col)) +
