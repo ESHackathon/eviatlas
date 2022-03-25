@@ -861,6 +861,7 @@ shiny_server <-
       # This is redundant to everything in the app, but the is best solution I could find
       # for saving a map that's been heavily edited with leaflet::leafletProxy
       if (input$sample_or_real == "shapefile") {
+        if(input$map_basemap_select=="OpenStreetMap"){
         return(
           eviatlas:::sys_map_shapefile(data_active(),
             popups = popup_string()
@@ -876,10 +877,31 @@ shiny_server <-
               className = "map-title",
               layerId = "atlas_title"
             ) %>%
+            leaflet::addTiles()
+            #leaflet::addProviderTiles(input$map_basemap_select,
+             #                             layerId = "atlas_basemap")
+        )}else{
+          return(
+            eviatlas:::sys_map_shapefile(data_active(),
+                                         popups = popup_string()
+            ) %>%
+              leaflet::setView(
+                lng = input$map_center$lng,
+                lat = input$map_center$lat,
+                zoom = input$map_zoom
+              ) %>%
+              leaflet::addControl(
+                input$map_title_select,
+                position = "topleft",
+                className = "map-title",
+                layerId = "atlas_title"
+              ) %>%
+              #leaflet::addTiles()
             leaflet::addProviderTiles(input$map_basemap_select,
-              layerId = "atlas_basemap"
-            )
-        )
+                                         layerId = "atlas_basemap")
+          )
+          
+        }
       } # end shapefile
 
       radiusby <- input$atlas_radius_select
@@ -904,6 +926,8 @@ shiny_server <-
         colorby <- "blue"
         color_user <- ""
       }
+      
+      if(input$map_basemap_select=="OpenStreetMap"){
 
       # call the foundational Leaflet map
       map_out <- generate_systematic_map() %>%
@@ -918,8 +942,9 @@ shiny_server <-
           className = "map-title",
           layerId = "atlas_title"
         ) %>%
-        leaflet::addProviderTiles(input$map_basemap_select,
-          layerId = "atlas_basemap"
+        # leaflet::addProviderTiles(input$map_basemap_select,
+        #   layerId = "atlas_basemap"
+        leaflet::addTiles(
         ) %>%
         leaflet::addCircleMarkers(
           lat = ~lat_plotted, lng = ~lng_plotted,
@@ -930,6 +955,34 @@ shiny_server <-
           label = ~ popup_string() %>% lapply(shiny::HTML),
           clusterOptions = eval(cluster_options())
         )
+      }else{
+        map_out <- generate_systematic_map() %>%
+          # store the view based on UI
+          leaflet::setView(
+            lng = input$map_center$lng,
+            lat = input$map_center$lat,
+            zoom = input$map_zoom
+          ) %>%
+          leaflet::addControl(input$map_title_select,
+                              position = "topleft",
+                              className = "map-title",
+                              layerId = "atlas_title"
+          ) %>%
+           leaflet::addProviderTiles(input$map_basemap_select,
+             layerId = "atlas_basemap"
+          #leaflet::addTiles(
+          ) %>%
+          leaflet::addCircleMarkers(
+            lat = ~lat_plotted, lng = ~lng_plotted,
+            popup = ~ paste(popup_string(), atlas_point_links()),
+            radius = ~ as.numeric(radiusby * 3),
+            color = colorby,
+            stroke = FALSE, fillOpacity = 0.7,
+            label = ~ popup_string() %>% lapply(shiny::HTML),
+            clusterOptions = eval(cluster_options())
+          )
+        
+      }
 
       if (legend) {
         map_out %<>%
