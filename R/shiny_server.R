@@ -469,7 +469,7 @@ shiny_server <-
       div(
         title = "Adjust cluster sensitivity. Higher numbers correspond to smaller distances",
         shinyWidgets::noUiSliderInput(
-          inputId = "cluster_size_select",
+         inputId = "cluster_size_select",
           label = "Cluster Sensitivity",
           value = 4,
           step = 1,
