@@ -816,7 +816,9 @@ shinyServer(
         colorby <- "blue"
       }
       
-      # call the foundational Leaflet map
+      #if points are coloured then legend is needed
+      if (input$atlas_color_by_select != "") {
+        # call the foundational Leaflet map
       generate_systematic_map() %>%
         # store the view based on UI
         setView(
@@ -847,6 +849,30 @@ shinyServer(
             group = "legend",
             na.label = "None",
             opacity = .8)
+      } else { #if no legend needed...
+        # call the foundational Leaflet map
+        generate_systematic_map() %>%
+          # store the view based on UI
+          setView(
+            lng = input$map_center$lng,
+            lat = input$map_center$lat,
+            zoom = input$map_zoom
+          ) %>%
+          leaflet::addControl(input$map_title_select, 
+                              position = "topleft", 
+                              className="map-title",
+                              layerId = "atlas_title") %>%
+          leaflet::addProviderTiles(input$map_basemap_select, 
+                                    layerId = "atlas_basemap") %>%
+          leaflet::addCircleMarkers(lat = ~lat_plotted, lng = ~lng_plotted,
+                                    popup = ~paste(popup_string(), atlas_point_links()),
+                                    radius = ~as.numeric(radiusby * 3),
+                                    color = colorby,
+                                    stroke = FALSE, fillOpacity = 0.7,
+                                    label = ~popup_string() %>% lapply(shiny::HTML),
+                                    clusterOptions = eval(cluster_options())
+          )
+        }
       
     })
     
