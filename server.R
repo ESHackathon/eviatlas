@@ -57,17 +57,17 @@ shinyServer(
     })    
     
     # if CSV data are supplied, add them to data_internal
-    observeEvent(input$sysmapdata_upload, {
-      data_internal$raw <- read.csv(
-        file = input$sysmapdata_upload$datapath,
-        header = input$header,
-        sep = input$sep,
-        dec = input$dec, 
-        quote = input$quote,
-        fileEncoding = input$upload_encoding,
-        stringsAsFactors = F)
-      data_internal$filtered <- data_internal$raw #instantiate filtered table with raw values
-    })
+   observeEvent(input$sysmapdata_upload, {
+       raw <- data.frame(readr::read_delim(
+       file = input$sysmapdata_upload$datapath,
+       delim = input$sep,
+       quote = input$quote,
+       locale = readr::locale(decimal_mark = input$dec,
+                             encoding = input$upload_encoding)
+       ))
+      data_internal$raw <- data.frame(lapply(raw, function(x) iconv(x, "UTF-8", "UTF-8",sub=' ')))
+     data_internal$filtered <- data_internal$raw #instantiate filtered table with raw values
+                                             })
     
     # if shapefile data are supplied, add them to data_internal
     observeEvent(input$shape, {
