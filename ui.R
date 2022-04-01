@@ -109,43 +109,49 @@ body <- dashboardBody(
                         )),
                       
                       fluidRow(
-                        column(12,
-                               wellPanel(
-                               h5(strong("CSV Properties")),
-                               # Input: Checkbox if file has header ----
-                               checkboxInput("header", "Header row?", TRUE),
-                               
-                               selectInput("upload_encoding",
-                                           label = "Select File Encoding",
-                                           choices = list("Default" = "", 
-                                                          "UTF-8", 
-                                                          "latin1",
-                                                          "mac"),
-                                           selected = ""
-                               ),
-                               # Input: Select separator ----
-                               selectInput("sep",
-                                            "Field Separator",
-                                            choices = c(
-                                              ",",
-                                              ";",
-                                              Tab = "\t",
-                                              '|'
-                                            ),
-                                            selected = ","
-                               ),
-                               # Input: Select quotes ----
-                               selectInput(
-                                 "quote",
-                                 "Quote Delimiter",
-                                 choices = c(
-                                   None = "",
-                                   '"',
-                                   "'"
-                                 ),
-                                 selected = '"'
-                               ))))
-                    )),
+                       column(12,
+                              wellPanel(
+                              h5(strong("CSV Properties")),
+                              # Input: Checkbox if file has header ----
+                              checkboxInput("header", "Header row?", TRUE),
+                              
+                              selectInput("upload_encoding",
+                                          label = "Select File Encoding",
+                                          choices = list("UTF-8", 
+                                                         "latin1",
+                                                         "mac"),
+                                          selected = "UTF-8"
+                              ),
+                              # Input: Select separator ----
+                              selectInput("sep",
+                                           "Field Separator",
+                                           choices = c(
+                                             ",",
+                                             ";",
+                                             Tab = "\t",
+                                             '|'
+                                           ),
+                                           selected = ","
+                              ),
+                              # Input: Select quotes ----
+                              selectInput(
+                                "quote",
+                                "Quote Delimiter",
+                                choices = c(
+                                  None = "",
+                                  '"',
+                                  "'"
+                                ),
+                                selected = '"'
+                              ),
+                              selectInput(
+                                "dec",
+                                "Decimal marker",
+                                choices = c(".", ","),
+                                selected = "."
+                              ))))
+                   )),
+
                   conditionalPanel(condition = "input.sample_or_real == 'shapefile'",
                                    fluidRow(column(
                                      12,
