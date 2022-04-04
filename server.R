@@ -777,6 +777,7 @@ shinyServer(
       # This is redundant to everything in the app, but the is best solution I could find
       # for saving a map that's been heavily edited with leafletProxy
       if(input$sample_or_real == 'shapefile') {
+        if(input$map_basemap_select=="OpenStreetMap"){
         return(
           sys_map_shapefile(data_active(), 
                             popups = popup_string()) %>%
@@ -791,9 +792,28 @@ shinyServer(
             className = "map-title",
             layerId = "atlas_title"
           ) %>%
-          leaflet::addProviderTiles(input$map_basemap_select,
-                                    layerId = "atlas_basemap")
-        )
+          leaflet::addTiles()
+        )}
+        else{
+          return(
+            sys_map_shapefile(data_active(), 
+                              popups = popup_string()) %>%
+              setView(
+                lng = input$map_center$lng,
+                lat = input$map_center$lat,
+                zoom = input$map_zoom
+              ) %>%
+              leaflet::addControl(
+                input$map_title_select,
+                position = "topleft",
+                className = "map-title",
+                layerId = "atlas_title"
+              ) %>%
+              leaflet::addProviderTiles(input$map_basemap_select,
+                                        layerId = "atlas_basemap")
+          )
+          
+        }
           
       } # end shapefile
       
@@ -817,6 +837,7 @@ shinyServer(
       }
       
       #if points are coloured then legend is needed
+      if(input$map_basemap_select=="OpenStreetMap"){
       if (input$atlas_color_by_select != "") {
         # call the foundational Leaflet map
       generate_systematic_map() %>%
@@ -830,8 +851,7 @@ shinyServer(
                             position = "topleft", 
                             className="map-title",
                             layerId = "atlas_title") %>%
-        leaflet::addProviderTiles(input$map_basemap_select, 
-                                  layerId = "atlas_basemap") %>%
+        leaflet::addTiles() %>%
         leaflet::addCircleMarkers(lat = ~lat_plotted, lng = ~lng_plotted,
                                   popup = ~paste(popup_string(), atlas_point_links()),
                                   radius = ~as.numeric(radiusby * 3),
@@ -862,8 +882,7 @@ shinyServer(
                               position = "topleft", 
                               className="map-title",
                               layerId = "atlas_title") %>%
-          leaflet::addProviderTiles(input$map_basemap_select, 
-                                    layerId = "atlas_basemap") %>%
+          leaflet::addTiles() %>%
           leaflet::addCircleMarkers(lat = ~lat_plotted, lng = ~lng_plotted,
                                     popup = ~paste(popup_string(), atlas_point_links()),
                                     radius = ~as.numeric(radiusby * 3),
@@ -872,7 +891,65 @@ shinyServer(
                                     label = ~popup_string() %>% lapply(shiny::HTML),
                                     clusterOptions = eval(cluster_options())
           )
-        }
+      }
+      }else{
+        if (input$atlas_color_by_select != "") {
+          # call the foundational Leaflet map
+          generate_systematic_map() %>%
+            # store the view based on UI
+            setView(
+              lng = input$map_center$lng,
+              lat = input$map_center$lat,
+              zoom = input$map_zoom
+            ) %>%
+            leaflet::addControl(input$map_title_select, 
+                                position = "topleft", 
+                                className="map-title",
+                                layerId = "atlas_title") %>%
+            leaflet::addProviderTiles(input$map_basemap_select, 
+                                      layerId = "atlas_basemap") %>%
+            leaflet::addCircleMarkers(lat = ~lat_plotted, lng = ~lng_plotted,
+                                      popup = ~paste(popup_string(), atlas_point_links()),
+                                      radius = ~as.numeric(radiusby * 3),
+                                      color = colorby,
+                                      stroke = FALSE, fillOpacity = 0.7,
+                                      label = ~popup_string() %>% lapply(shiny::HTML),
+                                      clusterOptions = eval(cluster_options())
+            ) %>% 
+            leaflet::addLegend(
+              title = stringr::str_to_title(stringr::str_replace_all(color_user, "\\.", " ")),
+              position = 'topright',
+              pal = factpal,
+              values = data_active()[, color_user],
+              layerId = "color_by_legend",
+              group = "legend",
+              na.label = "None",
+              opacity = .8)
+        } else { #if no legend needed...
+          # call the foundational Leaflet map
+          generate_systematic_map() %>%
+            # store the view based on UI
+            setView(
+              lng = input$map_center$lng,
+              lat = input$map_center$lat,
+              zoom = input$map_zoom
+            ) %>%
+            leaflet::addControl(input$map_title_select, 
+                                position = "topleft", 
+                                className="map-title",
+                                layerId = "atlas_title") %>%
+            leaflet::addProviderTiles(input$map_basemap_select, 
+                                      layerId = "atlas_basemap") %>%
+            leaflet::addCircleMarkers(lat = ~lat_plotted, lng = ~lng_plotted,
+                                      popup = ~paste(popup_string(), atlas_point_links()),
+                                      radius = ~as.numeric(radiusby * 3),
+                                      color = colorby,
+                                      stroke = FALSE, fillOpacity = 0.7,
+                                      label = ~popup_string() %>% lapply(shiny::HTML),
+                                      clusterOptions = eval(cluster_options())
+            )
+      
+    }}
       
     })
     
