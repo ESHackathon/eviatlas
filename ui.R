@@ -168,7 +168,12 @@ body <- dashboardBody(
                 tabPanel("Configure Map",
                          wellPanel(fluidRow(
                            column(2, 
-                                  uiOutput("map_columns")
+                                  uiOutput("map_columns"),
+                                  selectInput("nonplotted",
+                                    label = "Select where to plot studies without lat/long",
+                                    choices = c('mid Atlantic', 'south Pacific', 'mid Pacific', 'Equator 0 degrees', 'Greenland'),
+                                    selected = 'mid Atlantic'
+                                  )
                            ),
                            column(4, 
                                   uiOutput("atlas_popups"),

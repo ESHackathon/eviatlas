@@ -709,6 +709,24 @@ shinyServer(
       lng_plotted <- 
         as.numeric(unlist(data_active() %>%
                             dplyr::select(input$map_lng_select)))
+      
+      # replace missing lat/long with standard locations chosen by 'nonplotted' input
+      if(input$nonplotted == 'mid Atlantic'){
+        lat_plotted[is.na(lat_plotted)] <- 0
+        lng_plotted[is.na(lng_plotted)] <- -20
+      } else if(input$nonplotted == 'south Pacific'){
+        lat_plotted[is.na(lat_plotted)] <- -65
+        lng_plotted[is.na(lng_plotted)] <- -124
+      } else if(input$nonplotted == 'mid Pacific'){
+        lat_plotted[is.na(lat_plotted)] <- 0
+        lng_plotted[is.na(lng_plotted)] <- -165
+      } else if(input$nonplotted == 'Equator 0 degrees'){
+        lat_plotted[is.na(lat_plotted)] <- 0
+        lng_plotted[is.na(lng_plotted)] <- 0
+      } else if(input$nonplotted == 'Greenland'){
+        lat_plotted[is.na(lat_plotted)] <- 75
+        lng_plotted[is.na(lng_plotted)] <- -40
+      }
 
       if (input$atlas_color_by_select != "") {
         color_user <- input$atlas_color_by_select
@@ -825,6 +843,26 @@ shinyServer(
       lng_plotted <- 
         as.numeric(unlist(data_active() %>% 
                             dplyr::select(input$map_lng_select)))
+      
+      # replace missing lat/long with standard locations chosen by 'nonplotted' input
+      if(input$nonplotted == 'mid Atlantic'){
+        lat_plotted[is.na(lat_plotted)] <- 0
+        lng_plotted[is.na(lng_plotted)] <- -20
+      } else if(input$nonplotted == 'south Pacific'){
+        lat_plotted[is.na(lat_plotted)] <- -65
+        lng_plotted[is.na(lng_plotted)] <- -124
+      } else if(input$nonplotted == 'mid Pacific'){
+        lat_plotted[is.na(lat_plotted)] <- 0
+        lng_plotted[is.na(lng_plotted)] <- -165
+      } else if(input$nonplotted == 'Equator 0 degrees'){
+        lat_plotted[is.na(lat_plotted)] <- 0
+        lng_plotted[is.na(lng_plotted)] <- 0
+      } else if(input$nonplotted == 'Greenland'){
+        lat_plotted[is.na(lat_plotted)] <- 75
+        lng_plotted[is.na(lng_plotted)] <- -40
+      }
+      
+      
       
       if (input$atlas_color_by_select != "") {
         color_user <- input$atlas_color_by_select
