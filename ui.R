@@ -171,7 +171,7 @@ body <- dashboardBody(
                                   uiOutput("map_columns"),
                                   selectInput("nonplotted",
                                     label = "Select where to plot studies without lat/long",
-                                    choices = c('mid Atlantic', 'south Pacific', 'mid Pacific', 'Equator 0 degrees', 'Greenland'),
+                                    choices = c('mid Atlantic', 'south Pacific', 'mid Pacific', 'Equator 0 degrees', 'Greenland', 'Not plotted'),
                                     selected = 'mid Atlantic'
                                   )
                            ),
