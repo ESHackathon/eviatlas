@@ -711,10 +711,13 @@ shinyServer(
                             dplyr::select(input$map_lng_select)))
       
       # replace missing lat/long with standard locations chosen by 'nonplotted' input
-      if(input$nonplotted == 'mid Atlantic'){
+      if(input$nonplotted == 'Not plotted'){
+        lat_plotted
+        lng_plotted
+      } else if(input$nonplotted == 'mid Atlantic'){
         lat_plotted[is.na(lat_plotted)] <- 0
         lng_plotted[is.na(lng_plotted)] <- -20
-      } else if(input$nonplotted == 'south Pacific'){
+        } else if(input$nonplotted == 'south Pacific'){
         lat_plotted[is.na(lat_plotted)] <- -65
         lng_plotted[is.na(lng_plotted)] <- -124
       } else if(input$nonplotted == 'mid Pacific'){
