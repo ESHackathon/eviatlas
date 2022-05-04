@@ -94,8 +94,8 @@ shinyServer(
       d_out <- if (dataset_gateway && input$map_filtered_select == TRUE) {
         data_internal$filtered
       } else {
-          data_internal$raw
-        }
+        data_internal$raw
+      }
       
       d_out
     })
