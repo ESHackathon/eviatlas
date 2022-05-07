@@ -789,7 +789,7 @@ shinyServer(
     observeEvent(input$map_basemap_select, {
       leafletProxy("map") %>%
         leaflet::removeTiles("atlas_basemap") %>%
-        leaflet::addProviderTiles(input$map_basemap_select, 
+        leaflet::addProviderTiles(input$map_basemap_select,  group=input$map_basemap_select, 
                                   layerId = "atlas_basemap")
       
     })
@@ -830,7 +830,7 @@ shinyServer(
                 className = "map-title",
                 layerId = "atlas_title"
               ) %>%
-              leaflet::addProviderTiles(input$map_basemap_select,
+              leaflet::addProviderTiles(input$map_basemap_select, group=input$map_basemap_select, 
                                         layerId = "atlas_basemap")
           )
           
@@ -947,7 +947,7 @@ shinyServer(
                                 position = "topleft", 
                                 className="map-title",
                                 layerId = "atlas_title") %>%
-            leaflet::addProviderTiles(input$map_basemap_select, 
+            leaflet::addProviderTiles(input$map_basemap_select, group=input$map_basemap_select,  
                                       layerId = "atlas_basemap") %>%
             leaflet::addCircleMarkers(lat = ~lat_plotted, lng = ~lng_plotted,
                                       popup = ~paste(popup_string(), atlas_point_links()),
@@ -979,7 +979,7 @@ shinyServer(
                                 position = "topleft", 
                                 className="map-title",
                                 layerId = "atlas_title") %>%
-            leaflet::addProviderTiles(input$map_basemap_select, 
+            leaflet::addProviderTiles(input$map_basemap_select, group=input$map_basemap_select, 
                                       layerId = "atlas_basemap") %>%
             leaflet::addCircleMarkers(lat = ~lat_plotted, lng = ~lng_plotted,
                                       popup = ~paste(popup_string(), atlas_point_links()),
