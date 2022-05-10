@@ -692,9 +692,9 @@ shinyServer(
     
     cluster_options <- reactive({
       if_else(input$map_cluster_select,
-             parse(text=paste0('markerClusterOptions(freezeAtZoom = ', 
-                               input$cluster_size_select, ')')),
-             NULL)
+              parse(text=paste0('markerClusterOptions(freezeAtZoom = ', 
+                                input$cluster_size_select, ",spiderfyDistanceMultiplier=2" ,')')),
+              NULL)
     })
     
     observe({
