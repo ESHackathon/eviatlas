@@ -181,7 +181,7 @@ body <- dashboardBody(
                                   uiOutput("atlas_link_popup")
                            ),
                            column(2, 
-                                  uiOutput("atlas_filter"),
+                                  #uiOutput("atlas_filter"),
                                   uiOutput("atlas_color_by"),
                                   uiOutput("atlas_selectmap")
                            ),
@@ -230,36 +230,36 @@ body <- dashboardBody(
     
     tabItem(
       tabName = "data",
-      fluidRow(
-        #dynamic filter
-        column(width = 12,
-               wellPanel(
-                 # select first filter column from fields vector 
-                 shiny::uiOutput("filter1eval"),
-                 # reference a uiOutput that will offer values for first column
-                 shiny::uiOutput("filter1choice"),
-                 # offer a checkbox to allow user to select a second filter
-                 shiny::checkboxInput("filter2req", "Add second filter?"),
-                 # set further conditional panels to appear in the same fashion
-                 shiny::conditionalPanel(condition = 'input.filter2req', 
-                                         shiny::uiOutput("filter2eval"),
-                                         shiny::uiOutput("filter2choice"),
-                                         shiny::checkboxInput("filter3req", 
-                                                              "Add third filter?")),
-                 shiny::conditionalPanel(condition = 'input.filter3req & 
-                                       input.filter2req', 
-                                         shiny::uiOutput("filter3eval"),
-                                         shiny::uiOutput("filter3choice")),
-                 uiOutput("go_button"),
-                 materialSwitch(
-                   inputId = "mapdatabase_filter_select", 
-                   label = "Use filtered data:",
-                   value = FALSE,
-                   status = "primary"
-                 ),
-                 downloadButton('download_filtered', 'Download Filtered Data')
-               ))
-        ),
+      # fluidRow(
+      #   #dynamic filter
+      #   column(width = 12,
+      #          wellPanel(
+      #            # select first filter column from fields vector 
+      #            shiny::uiOutput("filter1eval"),
+      #            # reference a uiOutput that will offer values for first column
+      #            shiny::uiOutput("filter1choice"),
+      #            # offer a checkbox to allow user to select a second filter
+      #            shiny::checkboxInput("filter2req", "Add second filter?"),
+      #            # set further conditional panels to appear in the same fashion
+      #            shiny::conditionalPanel(condition = 'input.filter2req', 
+      #                                    shiny::uiOutput("filter2eval"),
+      #                                    shiny::uiOutput("filter2choice"),
+      #                                    shiny::checkboxInput("filter3req", 
+      #                                                         "Add third filter?")),
+      #            shiny::conditionalPanel(condition = 'input.filter3req & 
+      #                                  input.filter2req', 
+      #                                    shiny::uiOutput("filter3eval"),
+      #                                    shiny::uiOutput("filter3choice")),
+      #            uiOutput("go_button"),
+      #            materialSwitch(
+      #              inputId = "mapdatabase_filter_select", 
+      #              label = "Use filtered data:",
+      #              value = FALSE,
+      #              status = "primary"
+      #            ),
+      #            downloadButton('download_filtered', 'Download Filtered Data')
+      #          ))
+      #   ),
       fluidRow(
         column(12,
                DT::dataTableOutput("filtered_table")
@@ -273,14 +273,15 @@ body <- dashboardBody(
                          column(3, uiOutput("barplot_selector")),
                          column(4, uiOutput("location_plot_selector"))
                        ),
-                       fluidRow(
-                         materialSwitch(
-                           inputId = "barplots_filter_select", 
-                           label = "Use filtered data:",
-                           value = FALSE,
-                           status = "primary"
-                         )
-                       ))
+                       # fluidRow(
+                       #   materialSwitch(
+                       #     inputId = "barplots_filter_select", 
+                       #     label = "Use filtered data:",
+                       #     value = FALSE,
+                       #     status = "primary"
+                       #   )
+                       # )
+                       )
             ),
             wellPanel(
               plotOutput("plot1"),
@@ -294,13 +295,13 @@ body <- dashboardBody(
     tabItem(tabName = "heatmap",
             fluidRow(
               uiOutput("heatmap_selector")),
-              fluidRow(
-                materialSwitch(
-                inputId = "heatmap_filter_select", 
-                label = "Use filtered data:",
-                value = FALSE,
-                status = "primary"
-              )
+               fluidRow(
+               #   materialSwitch(
+               #   inputId = "heatmap_filter_select", 
+               #   label = "Use filtered data:",
+               #   value = FALSE,
+               #   status = "primary"
+               # )
             ),
             fluidRow(
               wellPanel(

@@ -28,8 +28,8 @@ shinyServer(
     data_internal <- reactiveValues(
       raw = NULL,
       cols = NULL,
-      short_cols = NULL,
-      filtered = NULL
+      short_cols = NULL#,
+      #filtered = NULL
     )
 
 
@@ -66,7 +66,7 @@ shinyServer(
         quote = input$quote,
         fileEncoding = input$upload_encoding,
         stringsAsFactors = F)
-      data_internal$filtered <- data_internal$raw #instantiate filtered table with raw values
+      #data_internal$filtered <- data_internal$raw #instantiate filtered table with raw values
     })
     
     # if shapefile data are supplied, add them to data_internal
@@ -84,30 +84,30 @@ shinyServer(
               sep="/")
         )
       
-      data_internal$filtered <- data_internal$raw #instantiate filtered table with raw values
+      #data_internal$filtered <- data_internal$raw #instantiate filtered table with raw values
     })
     
     data_active <- reactive({
       req(data_internal$raw)
       
-      dataset_gateway <- (!is.null(input$map_filtered_select))
-      d_out <- if (dataset_gateway && input$map_filtered_select == TRUE) {
-        data_internal$filtered
-      } else {
-          data_internal$raw
-        }
+      #dataset_gateway <- (!is.null(input$map_filtered_select))
+      #d_out <- if (dataset_gateway && input$map_filtered_select == TRUE) {
+       # data_internal$filtered
+      #} else {
+      d_out <-data_internal$raw
+       # }
       
-      d_out
+     # d_out
     })
 
     # if user switches to internal data, clear in-app data
     observeEvent(input$sample_or_real, {
       if(input$sample_or_real == "sample"){
         data_internal$raw <- eviatlas_pilotdata
-        data_internal$filtered <- data_internal$raw #instantiate filtered table with raw values
+        #data_internal$filtered <- data_internal$raw #instantiate filtered table with raw values
       } else {
         data_internal$raw <- NULL
-        data_internal$filtered <- NULL
+        #data_internal$filtered <- NULL
       }
     })
 
@@ -126,176 +126,176 @@ shinyServer(
     })
 
     # FILTER TAB
-    output$filter_selector <- renderUI({
-      req(data_internal$raw)        
-      
-      shinyWidgets::pickerInput(
-        "selected_variable",
-        label = "Select Columns:",
-        choices = colnames(data_internal$raw),
-        selected = colnames(data_active())[1:10],
-        width = '100%', options = list(`actions-box` = TRUE, `selectedTextFormat`='static'),
-        multiple = T
-      )
-    })
+    # output$filter_selector <- renderUI({
+    #   req(data_internal$raw)        
+    #   
+    #   shinyWidgets::pickerInput(
+    #     "selected_variable",
+    #     label = "Select Columns:",
+    #     choices = colnames(data_internal$raw),
+    #     selected = colnames(data_active())[1:10],
+    #     width = '100%', options = list(`actions-box` = TRUE, `selectedTextFormat`='static'),
+    #     multiple = T
+    #   )
+    # })
 
-    output$go_button <- renderUI({
-      if(!is.null(data_internal$raw)){
-          actionButton("go_subset", "Apply Filter")
-      } else {wellPanel('To start, upload data in the "About EviAtlas" tab.')}
-    })
-
-    observeEvent(input$go_subset, {
-      data_internal$filtered <- filtered_df()
-      
-      updateMaterialSwitch(session = session, inputId = "mapdatabase_filter_select",
-                           value = TRUE)
-    })
+    # output$go_button <- renderUI({
+    #   if(!is.null(data_internal$raw)){
+    #       actionButton("go_subset", "Apply Filter")
+    #   } else {wellPanel('To start, upload data in the "About EviAtlas" tab.')}
+    # })
+    # 
+    # observeEvent(input$go_subset, {
+    #   data_internal$filtered <- filtered_df()
+    #   
+    #   updateMaterialSwitch(session = session, inputId = "mapdatabase_filter_select",
+    #                        value = TRUE)
+    # })
     
     ##### begin dynamic filter #####
 
-    fields <- reactive({
-      c(colnames(data_internal$raw))
-    })
-    
+    # fields <- reactive({
+    #   c(colnames(data_internal$raw))
+    # })
+    # 
     # filter_by <- function (df, ...) {
     #   filter_conditions <- quos(...)
     #   df %>% dplyr::filter(!!!filter_conditions)
     # }
 
-    # filter on 1 column
-    filter1_by <- function(df, fcol1, fv1) {
-    filter_var1 <- dplyr::quo(fcol1)
-    df %>% 
-      filter_at(vars(!!filter_var1), all_vars(. == fv1))
-    }
+    # # filter on 1 column
+    # filter1_by <- function(df, fcol1, fv1) {
+    # filter_var1 <- dplyr::quo(fcol1)
+    # df %>% 
+    #   filter_at(vars(!!filter_var1), all_vars(. == fv1))
+    # }
+    # 
+    # # filter on 2 columns
+    # filter2_by <- function(df, fcol1, fv1, fcol2, fv2) {
+    #   filter_var1 <- dplyr::quo(fcol1)
+    #   filter_var2 <- dplyr::quo(fcol2)
+    #   
+    #   df %>%
+    #     filter_at(vars(!!filter_var1), all_vars(. == fv1)) %>%
+    #     filter_at(vars(!!filter_var2), all_vars(. == fv2))
+    #   }
+    # 
+    # # filter on 3 columns
+    # filter3_by <- function(df, fcol1, fv1, fcol2, fv2, fcol3, fv3) {
+    #   filter_var1 <- dplyr::quo(fcol1)
+    #   filter_var2 <- dplyr::quo(fcol2)
+    #   filter_var3 <- dplyr::quo(fcol3)
+    #   
+    #   df %>% 
+    #     filter_at(vars(!!filter_var1), all_vars(. == fv1)) %>% 
+    #     filter_at(vars(!!filter_var2), all_vars(. == fv2)) %>%
+    #     filter_at(vars(!!filter_var3), all_vars(. == fv3))
+    # }
+    # 
+    # filtered_df <- reactive({  
+    #   # case when all three filters are used
+    #   if (input$filter3req & input$filter2req) {
+    #     filter3_by(data_internal$raw, input$filter1, input$filter1val, 
+    #                input$filter2, input$filter2val,
+    #                input$filter3, input$filter3val) 
+    #   } else if (input$filter2req) {
+    #     # case when two filters are used
+    #     filter2_by(data_internal$raw, input$filter1, input$filter1val, 
+    #                input$filter2, input$filter2val) 
+    #   } else {
+    #     # case when only one filter is used   
+    #     filter1_by(data_internal$raw, input$filter1, input$filter1val)
+    #   }})
     
-    # filter on 2 columns
-    filter2_by <- function(df, fcol1, fv1, fcol2, fv2) {
-      filter_var1 <- dplyr::quo(fcol1)
-      filter_var2 <- dplyr::quo(fcol2)
-      
-      df %>%
-        filter_at(vars(!!filter_var1), all_vars(. == fv1)) %>%
-        filter_at(vars(!!filter_var2), all_vars(. == fv2))
-      }
-    
-    # filter on 3 columns
-    filter3_by <- function(df, fcol1, fv1, fcol2, fv2, fcol3, fv3) {
-      filter_var1 <- dplyr::quo(fcol1)
-      filter_var2 <- dplyr::quo(fcol2)
-      filter_var3 <- dplyr::quo(fcol3)
-      
-      df %>% 
-        filter_at(vars(!!filter_var1), all_vars(. == fv1)) %>% 
-        filter_at(vars(!!filter_var2), all_vars(. == fv2)) %>%
-        filter_at(vars(!!filter_var3), all_vars(. == fv3))
-    }
-    
-    filtered_df <- reactive({  
-      # case when all three filters are used
-      if (input$filter3req & input$filter2req) {
-        filter3_by(data_internal$raw, input$filter1, input$filter1val, 
-                   input$filter2, input$filter2val,
-                   input$filter3, input$filter3val) 
-      } else if (input$filter2req) {
-        # case when two filters are used
-        filter2_by(data_internal$raw, input$filter1, input$filter1val, 
-                   input$filter2, input$filter2val) 
-      } else {
-        # case when only one filter is used   
-        filter1_by(data_internal$raw, input$filter1, input$filter1val)
-      }})
-    
-    # vector of picklist values for the first selected filter 
-    choicevec1 <- reactive({
-      req(data_internal$raw)
-      
-      if (any(class(data_internal$raw) == 'sf')) {
-        data_internal$raw %>%  
-          sf::st_drop_geometry() %>%
-          dplyr::select(input$filter1) %>% 
-          unique()
-      } else {
-        data_internal$raw %>%  
-          dplyr::select(input$filter1) %>% 
-          unique()
-      }
-      
-    })
-    
-  
-    # select first filter column from fields vector 
-    output$filter1eval <- renderUI({
-      selectInput("filter1", "Select filter criteria 1:", choices = fields())
-    })
-    # renders the picklist for the first selected filter
-    output$filter1choice <- renderUI(
-      selectizeInput(
-        "filter1val",
-        "Select filter 1 condition:",
-        choices = choicevec1(),
-        multiple = TRUE
-      )
-    )
-    # second column chosen from all remaining fields
-    output$filter2eval <- renderUI({
-      selectInput("filter2", "Select filter criteria 2:", 
-                  choices = fields()[fields() != input$filter1])
-    })
-    # vector of picklist values for the second selected filter
-    choicevec2 <- reactive({
-      req(data_internal$raw)
-      
-      if (any(class(data_internal$raw) == 'sf')) {
-        filter1_by(sf::st_drop_geometry(data_internal$raw), input$filter1, input$filter1val) %>%
-          dplyr::select(input$filter2) %>%
-          unique()
-        } else {
-          filter1_by(data_internal$raw, input$filter1, input$filter1val) %>%
-            dplyr::select(input$filter2) %>%
-            unique()      
-        }
-    })
-    # renders picklist for filter 2
-    output$filter2choice <- renderUI(
-      selectizeInput(
-        "filter2val",
-        "Select filter 2 condition:",
-        choices = choicevec2(),
-        multiple = TRUE
-      )
-    )
-    # third column selected from remaining fields
-    output$filter3eval <- renderUI({
-      selectInput("filter3", 
-                  "Select filter criteria 3:",
-                  choices = fields()[!fields() %in% c(input$filter1, input$filter2)])
-    })
-    # vector of picklist values for third selected column
-    choicevec3 <- reactive({
-      req(data_internal$raw)
-      
-      if (any(class(data_internal$raw) == 'sf')) {
-        filter2_by(sf::st_drop_geometry(data_internal$raw), 
-                   input$filter1, input$filter1val,
-                   input$filter2, input$filter2val) %>% 
-          dplyr::select(input$filter3) %>% 
-          unique()
-      } else {
-        filter2_by(data_internal$raw, input$filter1, 
-                   input$filter1val, input$filter2, 
-                   input$filter2val) %>% 
-          dplyr::select(input$filter3) %>%
-          unique()
-      }
-      
-    })
-    
-    # render picklist for filter 3
-    output$filter3choice <- renderUI(
-      selectizeInput("filter3val", "Select filter 3 condition:", choices = choicevec3(), multiple = TRUE)
-    )
+    # # vector of picklist values for the first selected filter 
+    # choicevec1 <- reactive({
+    #   req(data_internal$raw)
+    #   
+    #   if (any(class(data_internal$raw) == 'sf')) {
+    #     data_internal$raw %>%  
+    #       sf::st_drop_geometry() %>%
+    #       dplyr::select(input$filter1) %>% 
+    #       unique()
+    #   } else {
+    #     data_internal$raw %>%  
+    #       dplyr::select(input$filter1) %>% 
+    #       unique()
+    #   }
+    #   
+    # })
+    # 
+    # 
+    # # select first filter column from fields vector 
+    # output$filter1eval <- renderUI({
+    #   selectInput("filter1", "Select filter criteria 1:", choices = fields())
+    # })
+    # # renders the picklist for the first selected filter
+    # output$filter1choice <- renderUI(
+    #   selectizeInput(
+    #     "filter1val",
+    #     "Select filter 1 condition:",
+    #     choices = choicevec1(),
+    #     multiple = TRUE
+    #   )
+    # )
+    # # second column chosen from all remaining fields
+    # output$filter2eval <- renderUI({
+    #   selectInput("filter2", "Select filter criteria 2:", 
+    #               choices = fields()[fields() != input$filter1])
+    # })
+    # # vector of picklist values for the second selected filter
+    # choicevec2 <- reactive({
+    #   req(data_internal$raw)
+    #   
+    #   if (any(class(data_internal$raw) == 'sf')) {
+    #     filter1_by(sf::st_drop_geometry(data_internal$raw), input$filter1, input$filter1val) %>%
+    #       dplyr::select(input$filter2) %>%
+    #       unique()
+    #     } else {
+    #       filter1_by(data_internal$raw, input$filter1, input$filter1val) %>%
+    #         dplyr::select(input$filter2) %>%
+    #         unique()      
+    #     }
+    # })
+    # # renders picklist for filter 2
+    # output$filter2choice <- renderUI(
+    #   selectizeInput(
+    #     "filter2val",
+    #     "Select filter 2 condition:",
+    #     choices = choicevec2(),
+    #     multiple = TRUE
+    #   )
+    # )
+    # # third column selected from remaining fields
+    # output$filter3eval <- renderUI({
+    #   selectInput("filter3", 
+    #               "Select filter criteria 3:",
+    #               choices = fields()[!fields() %in% c(input$filter1, input$filter2)])
+    # })
+    # # vector of picklist values for third selected column
+    # choicevec3 <- reactive({
+    #   req(data_internal$raw)
+    #   
+    #   if (any(class(data_internal$raw) == 'sf')) {
+    #     filter2_by(sf::st_drop_geometry(data_internal$raw), 
+    #                input$filter1, input$filter1val,
+    #                input$filter2, input$filter2val) %>% 
+    #       dplyr::select(input$filter3) %>% 
+    #       unique()
+    #   } else {
+    #     filter2_by(data_internal$raw, input$filter1, 
+    #                input$filter1val, input$filter2, 
+    #                input$filter2val) %>% 
+    #       dplyr::select(input$filter3) %>%
+    #       unique()
+    #   }
+    #   
+    # })
+    # 
+    # # render picklist for filter 3
+    # output$filter3choice <- renderUI(
+    #   selectizeInput("filter3val", "Select filter 3 condition:", choices = choicevec3(), multiple = TRUE)
+    # )
         
     ##### end dynamic filter ####
     
@@ -317,14 +317,14 @@ shinyServer(
                                      )))),
       server = T)
     
-    # download the filtered data
-    output$download_filtered = downloadHandler(
-      'eviatlas-datatable-filtered.csv',
-      content = function(file) {
-        s = input$filtered_table_rows_all
-        write.csv(data_internal$filtered[s, , drop = FALSE], file)
-        }
-      )
+    # # download the filtered data
+    # output$download_filtered = downloadHandler(
+    #   'eviatlas-datatable-filtered.csv',
+    #   content = function(file) {
+    #     s = input$filtered_table_rows_all
+    #     write.csv(data_internal$filtered[s, , drop = FALSE], file)
+    #     }
+    #   )
     
     # map UI
     
@@ -353,20 +353,20 @@ shinyServer(
       } else {wellPanel('To use the map, upload data in the "About EviAtlas" tab.')}
     })
     
-    output$atlas_filter <- renderUI({
-      # req(data_internal$raw)
-      
-      div(
-        title = "Use the Map Database tab to subset data",
-        shinyWidgets::materialSwitch(
-          inputId = "map_filtered_select",
-          label = "Use filtered data?",
-          value = FALSE,
-          inline = T,
-          status = "primary"
-        )
-      )
-    })
+    # output$atlas_filter <- renderUI({
+    #   # req(data_internal$raw)
+    #   
+    #   div(
+    #     title = "Use the Map Database tab to subset data",
+    #     shinyWidgets::materialSwitch(
+    #       inputId = "map_filtered_select",
+    #       label = "Use filtered data?",
+    #       value = FALSE,
+    #       inline = T,
+    #       status = "primary"
+    #     )
+    #   )
+    # })
 
     output$atlas_link_popup <- renderUI({
       req(input$sample_or_real != "shapefile") #does not work for shapefiles currently
@@ -460,31 +460,31 @@ shinyServer(
     })
       
     
-    observeEvent(input$map_filtered_select, {
-      # Change values for map inputs whenever button is toggled
-      updateSelectInput(
-        session,
-        "map_lat_select",
-        choices = colnames(data_active()),
-        selected = get_latitude_cols(data_active())
-      )
-      
-      updateSelectInput(
-        session,
-        "map_lng_select",
-        choices = colnames(data_active()),
-        selected = get_longitude_cols(data_active())
-      )
-      
-      updateSelectInput(session, "map_link_select",
-                        choices = c("", get_link_cols(data_active()) )
-                        )
-      
-      updateSelectInput(session, "map_popup_select",
-        choices = colnames(data_active()),
-        selected = colnames(data_active())[1]
-        )
-    })
+    # observeEvent(input$map_filtered_select, {
+    #   # Change values for map inputs whenever button is toggled
+    #   updateSelectInput(
+    #     session,
+    #     "map_lat_select",
+    #     choices = colnames(data_active()),
+    #     selected = get_latitude_cols(data_active())
+    #   )
+    #   
+    #   updateSelectInput(
+    #     session,
+    #     "map_lng_select",
+    #     choices = colnames(data_active()),
+    #     selected = get_longitude_cols(data_active())
+    #   )
+    #   
+    #   updateSelectInput(session, "map_link_select",
+    #                     choices = c("", get_link_cols(data_active()) )
+    #                     )
+    #   
+    #   updateSelectInput(session, "map_popup_select",
+    #     choices = colnames(data_active()),
+    #     selected = colnames(data_active())[1]
+    #     )
+    # })
     
     # BARPLOT
     output$barplot_selector <- renderUI({
@@ -597,41 +597,41 @@ shinyServer(
     output$heat_x_axis <- renderPrint({ input$heat_select_x })
     output$heat_y_axis <- renderPrint({ input$heat_select_y })
     
-    observeEvent(input$map_filter_select, {
-      updateMaterialSwitch(session = session, inputId = "heatmap_filtered_select",
-                         value = as.logical(input$map_filter_select))      
-      updateMaterialSwitch(session = session, inputId = "barplots_filtered_select",
-                         value = as.logical(input$map_filter_select))
-      updateMaterialSwitch(session = session, inputId = "mapdatabase_filter_select",
-                           value = as.logical(input$map_filter_select))
-    })    
-    
-    observeEvent(input$heatmap_filter_select, {
-      updateMaterialSwitch(session = session, inputId = "map_filtered_select",
-                         value = as.logical(input$heatmap_filter_select))      
-      updateMaterialSwitch(session = session, inputId = "barplots_filtered_select",
-                         value = as.logical(input$heatmap_filter_select))
-      updateMaterialSwitch(session = session, inputId = "mapdatabase_filter_select",
-                           value = as.logical(input$heatmap_filter_select))
-    })
-    
-    observeEvent(input$barplots_filter_select, {
-      updateMaterialSwitch(session = session, inputId = "map_filtered_select",
-                           value = as.logical(input$barplots_filter_select))      
-      updateMaterialSwitch(session = session, inputId = "heatmap_filter_select",
-                           value = as.logical(input$barplots_filter_select))      
-      updateMaterialSwitch(session = session, inputId = "mapdatabase_filter_select",
-                           value = as.logical(input$barplots_filter_select))
-    })
-    
-    observeEvent(input$mapdatabase_filter_select, {
-      updateMaterialSwitch(session = session, inputId = "map_filtered_select",
-                           value = as.logical(input$mapdatabase_filter_select))      
-      updateMaterialSwitch(session = session, inputId = "heatmap_filter_select",
-                           value = as.logical(input$mapdatabase_filter_select))      
-      updateMaterialSwitch(session = session, inputId = "barplots_filter_select",
-                           value = as.logical(input$mapdatabase_filter_select))
-    })
+    # observeEvent(input$map_filter_select, {
+    #   updateMaterialSwitch(session = session, inputId = "heatmap_filtered_select",
+    #                      value = as.logical(input$map_filter_select))      
+    #   updateMaterialSwitch(session = session, inputId = "barplots_filtered_select",
+    #                      value = as.logical(input$map_filter_select))
+    #   updateMaterialSwitch(session = session, inputId = "mapdatabase_filter_select",
+    #                        value = as.logical(input$map_filter_select))
+    # })    
+    # 
+    # observeEvent(input$heatmap_filter_select, {
+    #   updateMaterialSwitch(session = session, inputId = "map_filtered_select",
+    #                      value = as.logical(input$heatmap_filter_select))      
+    #   updateMaterialSwitch(session = session, inputId = "barplots_filtered_select",
+    #                      value = as.logical(input$heatmap_filter_select))
+    #   updateMaterialSwitch(session = session, inputId = "mapdatabase_filter_select",
+    #                        value = as.logical(input$heatmap_filter_select))
+    # })
+    # 
+    # observeEvent(input$barplots_filter_select, {
+    #   updateMaterialSwitch(session = session, inputId = "map_filtered_select",
+    #                        value = as.logical(input$barplots_filter_select))      
+    #   updateMaterialSwitch(session = session, inputId = "heatmap_filter_select",
+    #                        value = as.logical(input$barplots_filter_select))      
+    #   updateMaterialSwitch(session = session, inputId = "mapdatabase_filter_select",
+    #                        value = as.logical(input$barplots_filter_select))
+    # })
+    # 
+    # observeEvent(input$mapdatabase_filter_select, {
+    #   updateMaterialSwitch(session = session, inputId = "map_filtered_select",
+    #                        value = as.logical(input$mapdatabase_filter_select))      
+    #   updateMaterialSwitch(session = session, inputId = "heatmap_filter_select",
+    #                        value = as.logical(input$mapdatabase_filter_select))      
+    #   updateMaterialSwitch(session = session, inputId = "barplots_filter_select",
+    #                        value = as.logical(input$mapdatabase_filter_select))
+    # })
     
     output$save_heatmap <- downloadHandler(
       filename = 'eviatlasHeatmap.png',
