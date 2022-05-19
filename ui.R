@@ -83,7 +83,7 @@ body <- dashboardBody(
                       label = h4("Which Data to Use?"),
                       choices = list(
                         "Sample Data" = "sample",
-                        "Upload from .csv format (spreadsheet)" = "user",
+                        "Upload from .csv, .xlsx or .xls format (spreadsheet)" = "user",
                         "Upload from .shp format (shapefile)" = "shapefile"
                       ),
                       selected = "user"
@@ -100,53 +100,22 @@ body <- dashboardBody(
                       fluidRow(
                         fileInput(
                           "sysmapdata_upload",
-                          label = "Choose CSV File",
+                          label = "Choose spreadsheet File",
                           multiple = FALSE,
                           accept = c(
-                            "text/csv",
-                            "text/comma-separated-values,text/plain",
-                            ".csv"),
+                            ".csv",".xlsx",".xls"),
                           placeholder = "Systematic Map Data (100 MB Limit)"
                         )),
                       
                       fluidRow(
                         column(12,
                                wellPanel(
-                               h5(strong("CSV Properties")),
+                               h5(strong("File Properties")),
                                # Input: Checkbox if file has header ----
                                checkboxInput("header", "Header row?", TRUE),
                                
-                               selectInput("upload_encoding",
-                                           label = "Select File Encoding",
-                                           choices = list("Default" = "", 
-                                                          "UTF-8", 
-                                                          "latin1",
-                                                          "mac"),
-                                           selected = ""
-                               ),
-                               # Input: Select separator ----
-                               selectInput("sep",
-                                            "Field Separator",
-                                            choices = c(
-                                              ",",
-                                              ";",
-                                              Tab = "\t",
-                                              '|'
-                                            ),
-                                            selected = ","
-                               ),
-                               # Input: Select quotes ----
-                               selectInput(
-                                 "quote",
-                                 "Quote Delimiter",
-                                 choices = c(
-                                   None = "",
-                                   '"',
-                                   "'"
-                                 ),
-                                 selected = '"'
-                               ))))
-                    )),
+                              )
+                    )))),
                   conditionalPanel(condition = "input.sample_or_real == 'shapefile'",
                                    fluidRow(column(
                                      12,

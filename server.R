@@ -58,16 +58,14 @@ shinyServer(
     
     # if CSV data are supplied, add them to data_internal
     observeEvent(input$sysmapdata_upload, {
-      data_internal$raw <- read.csv(
-        file = input$sysmapdata_upload$datapath,
-        header = input$header,
-        sep = input$sep,
-        dec = input$dec, 
-        quote = input$quote,
-        fileEncoding = input$upload_encoding,
-        stringsAsFactors = F)
-      #data_internal$filtered <- data_internal$raw #instantiate filtered table with raw values
-    })
+      inFile <- input$sysmapdata_upload
+      extension <- tools::file_ext(inFile$name)
+      filepath <- inFile$datapath
+      data_internal$raw <- switch(extension,
+                   csv = readr::read_csv2(filepath),
+                   xls = readxl::read_xls(filepath),
+                   xlsx = readxl::read_xlsx(filepath))
+      })
     
     # if shapefile data are supplied, add them to data_internal
     observeEvent(input$shape, {
