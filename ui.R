@@ -113,6 +113,18 @@ body <- dashboardBody(
                                h5(strong("File Properties")),
                                # Input: Checkbox if file has header ----
                                checkboxInput("header", "Header row?", TRUE),
+                               # Input: Select separator ----
+                               selectInput("sep",
+                                           "Field Separator",
+                                           choices = c(
+                                             ",",
+                                             ";"
+                                           ),
+                                           selected = ","),
+                               bsTooltip("sep", "Choose the separator. This must be selected before the file is uploaded.", 
+                                         placement = "left", 
+                                         trigger = "hover",
+                                         options = NULL)
                                
                               )
                     )))),

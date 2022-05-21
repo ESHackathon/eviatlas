@@ -62,7 +62,7 @@ shinyServer(
       extension <- tools::file_ext(inFile$name)
       filepath <- inFile$datapath
       data_internal$raw <- switch(extension,
-                   csv = readr::read_csv2(filepath),
+                   csv = read.csv(filepath, sep=input$sep),
                    xls = readxl::read_xls(filepath),
                    xlsx = readxl::read_xlsx(filepath))
       })
