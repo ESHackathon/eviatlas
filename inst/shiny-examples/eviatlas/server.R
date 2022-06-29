@@ -1,21 +1,14 @@
 ## server.R ##
 
 # load functions
-source("src/GenHeatMap.R")
-source("src/GenLocationTrend.R")
-source("src/GenTimeTrend.R")
-source("src/sys_map.R")
-source("src/sys_map_shapefile.R")
-source("src/get_link_cols.R")
-source("src/get_coord_cols.R")
-source("src/get_histogram_viable_cols.R")
+library(eviatlas)
 
 # load data + text
-load("data/pilotdata.rdata")
-start_text <- read_file("html/AboutEvi.html")
-about_sysmap_text <- read_file("html/AboutSysMap.html")
-how_cite_text <- read_file("html/HowCiteEvi.html")
-how_works_text <- read_file("html/HowEviWorks.html")
+load("www/pilotdata.rdata")
+start_text <- read_file("www/AboutEvi.html")
+about_sysmap_text <- read_file("www/AboutSysMap.html")
+how_cite_text <- read_file("www/HowCiteEvi.html")
+how_works_text <- read_file("www/HowEviWorks.html")
 
 # maximum upload size 100 MB-- could be increased if proves problematic for users and we have server space
 max_file_size_mb <- 100
