@@ -28,7 +28,7 @@ sidebar <- dashboardSidebar(
 
 home <- tags$html(
   tags$head(
-    includeHTML("google-analytics.html"),
+    includeHTML("www/google-analytics.html"),
     tags$title('EviAtlas'),
     tags$script(src=easyprint_js_file)
   ),
