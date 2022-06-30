@@ -1,12 +1,12 @@
 Package: eviatlas
-Title: EviAtlas is a shiny app for visualising the datasets produced by systematic maps
+Title: EviAtlas a Shiny App for Visualising Datasets Produced by Systematic Maps
 Version: 0.0.0.1
 Authors@R: 
     c(person("Matt", "Grainger", , "matthewjamesgrainger@gmail.com", role = c("aut", "cre"),
            comment = c(ORCID = "0000-0001-8426-6495")),
            person(given = "Neal", family = "Haddaway", role = c("aut"), email = "nealhaddaway@gmail.com",
            comment = c(ORCID = "0000-0003-3902-2234")))
-Description: EviAtlas is a shiny app for visualising the datasets produced by systematic maps. You can access the app at: https://estech.shinyapps.io/eviatlas/.
+Description: This package is a shiny app for visualising datasets produced by systematic mapping. You can access the app at: (<https://estech.shinyapps.io/eviatlas/>).
 License: GPL (>= 3) + file LICENSE
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
@@ -31,4 +31,9 @@ Imports:
     ggplot2,
     dplyr,
     stringr,
-    tidyr
+    tidyr,
+    qpdf
+Suggests: 
+    knitr,
+    rmarkdown
+VignetteBuilder: knitr
