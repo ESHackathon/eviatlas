@@ -1,18 +1,17 @@
 Package: eviatlas
-Title: EviAtlas is a shiny app for visualising the datasets produced by systematic maps.
+Title: EviAtlas is a shiny app for visualising the datasets produced by systematic maps
 Version: 0.0.0.1
 Authors@R: 
-    person("Matt", "Grainger", , "matthewjamesgrainger@gmail.com", role = c("aut", "cre"),
-           comment = c(ORCID = "0000-0001-8426-6495"))
-    person(given = "Neal", family = "Haddaway", role = c("aut", "cre"), email = "nealhaddaway@gmail.com",
-           comment = c(ORCID = "0000-0003-3902-2234")),
-Description: EviAtlas is a shiny app for visualising the datasets produced by systematic maps. You can access the app at: https://estech.shinyapps.io/eviatlas/
-License: use_gpl3_license()
+    c(person("Matt", "Grainger", , "matthewjamesgrainger@gmail.com", role = c("aut", "cre"),
+           comment = c(ORCID = "0000-0001-8426-6495")),
+           person(given = "Neal", family = "Haddaway", role = c("aut"), email = "nealhaddaway@gmail.com",
+           comment = c(ORCID = "0000-0003-3902-2234")))
+Description: EviAtlas is a shiny app for visualising the datasets produced by systematic maps. You can access the app at: https://estech.shinyapps.io/eviatlas/.
+License: GPL (>= 3) + file LICENSE
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
-RoxygenNote: 7.1.2
+RoxygenNote: 7.2.0
 Imports:
-    tidyverse,
     leaflet,
     leaflet.providers,
     htmltools,
@@ -26,4 +25,10 @@ Imports:
     shinyWidgets,
     shinyBS,
     RColorBrewer,
-    webshot
+    webshot,
+    DT,
+    magrittr,
+    ggplot2,
+    dplyr,
+    stringr,
+    tidyr

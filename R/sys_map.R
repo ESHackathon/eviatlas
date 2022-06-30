@@ -1,4 +1,11 @@
-# Map the studies included in a systematic review.
+#' Map the studies included in a systematic review.
+#' 
+#' Created For	  : ES Hackathon 2018
+#' @param studies_data Input dataframe
+#' @import leaflet
+#' @keywords SystematicReview
+#' @export
+
 
 sys_map <- function(studies_data) {
 

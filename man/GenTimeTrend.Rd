@@ -6,6 +6,20 @@
 \usage{
 GenTimeTrend(idata, hist_col, axis_txt_lim = 60)
 }
-\description{
-Create Histogram from dataset
+\arguments{
+\item{idata}{Input dataframe}
+
+\item{hist_col}{Column to be mapped to histogram}
+
+\item{axis_txt_lim}{Numeric limit of number of characters in labels}
 }
+\value{
+Returns a histogram
+}
+\description{
+Created For	  : ES Hackathon 2018
+}
+\author{
+Sanita Dhaubanjar
+}
+\keyword{SystematicReview}

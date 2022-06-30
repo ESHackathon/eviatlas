@@ -1,4 +1,9 @@
-#functions to determine if columns contain what appear to be latitude or longtude columns
+#' functions to determine if columns contain what appear to be latitude or longtude columns
+#' 
+#' Created For ES Hackathon 2018
+#'
+#' @param df Input dataframe
+#' @export
 
 get_latitude_cols <- function(df) {
   n_out <- colnames(df)[1]

@@ -1,5 +1,9 @@
-#functions to determine if columns contain what appear to be links or emails
-
+#' Functions to determine if columns contain what appear to be links or emails
+#'
+#' Created For ES Hackathon 2018
+#' @param col link colum in systematic map dataset
+#' @keywords SystematicReview
+#' @export
 is_link_col <- function(col) {
   # Takes in a character vector, and returns a boolean value if that column is suspected to
   # contain URLs/URIs or other links.

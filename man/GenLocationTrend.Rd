@@ -10,12 +10,14 @@ GenLocationTrend(df, location_column, axis_txt_lim = 60)
 \item{df}{Input dataframe}
 
 \item{location_column}{Column with location information (preferably country-level or higher)}
+
+\item{axis_txt_lim}{Numeric limit of number of characters in labels}
 }
 \value{
 Returns a bar plot object showing counts of literature in systematic review for each location
 }
 \description{
-Created For	  : ES Hackathon 2018
+Created For ES Hackathon 2018
 }
 \author{
 Sanita Dhaubanjar

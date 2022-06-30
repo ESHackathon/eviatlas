@@ -1,11 +1,13 @@
 #' Create heatmap from dataset
 #'
 #' Feed in a dataset and get a heatmap in return
-#' Created For	  : ES Hackathon 2018
+#' Created For ES Hackathon 2018
 #'
 #' @param idata Input dataframe
 #' @param selcols Numeric vector of column indices
-#' @param verbose Comments
+#' @param axis_txt_lim Numeric limit of number of characters in labels
+#' @importFrom magrittr %>%
+#' @import ggplot2
 #'
 #' @return Returns a heatmap object showing number of literature under different categories in user specified \code{selcols}
 #'
@@ -13,6 +15,8 @@
 #' @export
 
 GenHeatMap = function(idata, selcols, axis_txt_lim = 60){
+  
+  listone<-listtwo<-n<-NULL
   
   # if  df is a shapefile, remove geometry column
   if (any(class(idata) == 'sf')) {idata <- sf::st_drop_geometry(idata)}

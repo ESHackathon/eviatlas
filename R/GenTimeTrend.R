@@ -1,4 +1,13 @@
 #' Create Histogram from dataset
+#' 
+#' Created For	  : ES Hackathon 2018
+#' @param idata Input dataframe
+#' @param hist_col Column to be mapped to histogram
+#' @param axis_txt_lim Numeric limit of number of characters in labels
+#' @return Returns a histogram
+#' @author Sanita Dhaubanjar
+#' @keywords SystematicReview
+#' @export
 
 GenTimeTrend = function(idata, hist_col, axis_txt_lim = 60){
   UseMethod("GenTimeTrend", object = idata[hist_col][[1]])

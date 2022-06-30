@@ -1,8 +1,9 @@
 #' Create bar plot with distribution of studies over the region from lat/long info
 #'
-#' Created For	  : ES Hackathon 2018
+#' Created For ES Hackathon 2018
 #' @param df Input dataframe
 #' @param location_column Column with location information (preferably country-level or higher)
+#' @param axis_txt_lim Numeric limit of number of characters in labels
 #' @return Returns a bar plot object showing counts of literature in systematic review for each location
 #'
 #' @author Sanita Dhaubanjar
