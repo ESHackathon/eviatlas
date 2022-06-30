@@ -2,7 +2,9 @@
 % Please edit documentation in R/get_link_cols.R
 \name{is_link_col}
 \alias{is_link_col}
-\title{Functions to determine if columns contain what appear to be links or emails}
+\title{Functions to determine if columns contain what appear to be links or emails
+is link col
+Created For ES Hackathon 2018}
 \usage{
 is_link_col(col)
 }
@@ -10,6 +12,8 @@ is_link_col(col)
 \item{col}{link colum in systematic map dataset}
 }
 \description{
+Functions to determine if columns contain what appear to be links or emails
+is link col
 Created For ES Hackathon 2018
 }
 \keyword{SystematicReview}

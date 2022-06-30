@@ -1,5 +1,5 @@
 #' functions to determine if columns contain what appear to be latitude or longtude columns
-#' 
+#' get latitude
 #' Created For ES Hackathon 2018
 #'
 #' @param df Input dataframe
@@ -15,6 +15,15 @@ get_latitude_cols <- function(df) {
   } else if (length(agrep(pattern = "latitude", x = colnames(df)))) {n_out <- agrep(pattern = "latitude", x = colnames(df), value = T)[1]}
   n_out
 }
+
+
+#' get longitude
+#' Created For ES Hackathon 2018
+#'
+#' @param df Input dataframe
+#' @export
+
+
 
 get_longitude_cols <- function(df) {
   n_out <- colnames(df)[1]

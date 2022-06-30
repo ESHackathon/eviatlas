@@ -1,5 +1,5 @@
 #' Create Histogram from dataset
-#' 
+#' timetrend
 #' Created For	  : ES Hackathon 2018
 #' @param idata Input dataframe
 #' @param hist_col Column to be mapped to histogram
@@ -15,6 +15,7 @@ GenTimeTrend = function(idata, hist_col, axis_txt_lim = 60){
 
 GenTimeTrend.default <- function(idata, hist_col, axis_txt_lim = 60){
 
+  hist_col=as.numeric(hist_col)
   gttmp <- ggplot2::ggplot(idata, aes_string(x = hist_col)) +
     ggplot2::geom_bar(
       alpha = 0.9,
@@ -38,6 +39,17 @@ GenTimeTrend.default <- function(idata, hist_col, axis_txt_lim = 60){
   }
   gttmp
 }
+
+#' Create Histogram from dataset
+#' Numeric timetrend
+#' Created For	  : ES Hackathon 2018
+#' @param idata Input dataframe
+#' @param hist_col Column to be mapped to histogram
+#' @param axis_txt_lim Numeric limit of number of characters in labels
+#' @return Returns a histogram
+#' @author Sanita Dhaubanjar
+#' @keywords SystematicReview
+#' @export
 
 GenTimeTrend.numeric <- function(idata, hist_col, axis_txt_lim = 60){
   

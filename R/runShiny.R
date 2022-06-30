@@ -5,7 +5,6 @@
 #' @param app eviatlas 
 #' @import shiny
 #' @import shinyBS
-#' @import DT
 #' @import RColorBrewer
 #' @import htmltools
 #' @import htmlwidgets

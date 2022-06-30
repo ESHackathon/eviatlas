@@ -2,7 +2,9 @@
 % Please edit documentation in R/get_coord_cols.R
 \name{get_latitude_cols}
 \alias{get_latitude_cols}
-\title{functions to determine if columns contain what appear to be latitude or longtude columns}
+\title{functions to determine if columns contain what appear to be latitude or longtude columns
+get latitude
+Created For ES Hackathon 2018}
 \usage{
 get_latitude_cols(df)
 }
@@ -10,5 +12,7 @@ get_latitude_cols(df)
 \item{df}{Input dataframe}
 }
 \description{
+functions to determine if columns contain what appear to be latitude or longtude columns
+get latitude
 Created For ES Hackathon 2018
 }

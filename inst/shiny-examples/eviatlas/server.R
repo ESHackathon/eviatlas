@@ -1,26 +1,5 @@
 ## server.R ##
 
-# load packages
-library(tidyverse) #dplyr, stringr, ggplot2...
-library(DT)
-library(leaflet)
-library(leaflet.providers)
-library(htmltools)
-library(htmlwidgets)
-library(mapview)
-library(leafem)
-library(sf)
-library(viridis)
-library(shiny)
-library(shinydashboard)
-library(shinyWidgets)
-library(shinyBS)
-library(RColorBrewer)
-
-if(webshot::is_phantomjs_installed()==FALSE){
-  webshot::install_phantomjs()
-} 
-
 # load functions
 library(eviatlas)
 
@@ -561,6 +540,7 @@ shinyServer(
     gen_time_trend_plot <- reactive({
       GenTimeTrend(data_active(), input$select_timetrend_col)
     })
+    
     
     gen_location_trend_plot <- reactive({
       GenLocationTrend(data_active(), input$select_loc_col)
