@@ -5,7 +5,10 @@ Authors@R:
     c(person("Matt", "Grainger", , "matthewjamesgrainger@gmail.com", role = c("aut", "cre"),
            comment = c(ORCID = "0000-0001-8426-6495")),
            person(given = "Neal", family = "Haddaway", role = c("aut"), email = "nealhaddaway@gmail.com",
-           comment = c(ORCID = "0000-0003-3902-2234")))
+           comment = c(ORCID = "0000-0003-3902-2234")),
+           person(given = "Martin",family = "Westgate", role = c("aut",),  email = "martinjwestgate@gmail.com",
+           comment = c(ORCID = "0000-0003-0854-2034")),
+           person(given = "Andrew", family = "Feierman", role = c("aut")))
 Description: This package is a shiny app for visualising datasets produced by systematic mapping. You can access the app at: (<https://estech.shinyapps.io/eviatlas/>).
 License: GPL (>= 3) + file LICENSE
 Encoding: UTF-8
