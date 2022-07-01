@@ -317,7 +317,8 @@ shinyServer(
     ##### end dynamic filter ####
     
     output$filtered_table <- DT::renderDataTable(
-      DT::datatable(data_active(), filter = c('top'),
+      DT::datatable(data_active(),
+                    filter = c('top'),
                     # caption = "Use the boxes below column headers to filter data",
                     class = c('display', 'compact'), 
                     style='bootstrap',
@@ -325,7 +326,7 @@ shinyServer(
                                    scrollY = TRUE, 
                                    responsive=T,
                                    columnDefs = list(list(
-                                     targets = c(1:min(25, ncol(data_internal$filtered))), # will apply render function to lesser of first 25 columns or number of columns in displayed data
+                                     targets = c(1:min(25, ncol(data_internal$raw))), # will apply render function to lesser of first 25 columns or number of columns in displayed data
                                      render = JS( # limits character strings longer than 50 characters to their first 30 chars, and has whole string appear as a tooltip
                                        "function(data, type, row, meta) {",
                                        "return type === 'display' && data.length > 50 ?",
