@@ -32,7 +32,14 @@ Imports:
     dplyr,
     stringr,
     tidyr,
-    qpdf
+    qpdf,
+    bit,
+    bit64,
+    hms,
+    progress,
+    readr,
+    tzdb,
+    vroom
 Suggests: 
     knitr,
     rmarkdown
