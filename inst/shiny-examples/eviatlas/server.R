@@ -318,13 +318,16 @@ shinyServer(
     
     output$filtered_table <- DT::renderDataTable(
       DT::datatable(data_active(),
+                    extensions = 'Buttons',
                     filter = c('top'),
                     # caption = "Use the boxes below column headers to filter data",
-                    class = c('display', 'compact'), 
+                    #class = c('display', 'compact'), 
                     style='bootstrap',
                     options = list(scrollX = TRUE, 
                                    scrollY = TRUE, 
                                    responsive=T,
+                                   dom='Blfrtip',
+                                   buttons = c('copy', 'csv', 'excel', 'pdf', 'print'),
                                    columnDefs = list(list(
                                      targets = c(1:min(25, ncol(data_internal$raw))), # will apply render function to lesser of first 25 columns or number of columns in displayed data
                                      render = JS( # limits character strings longer than 50 characters to their first 30 chars, and has whole string appear as a tooltip
@@ -332,8 +335,10 @@ shinyServer(
                                        "return type === 'display' && data.length > 50 ?",
                                        "'<span title=\"' + data + '\">' + data.substr(0, 30) + '...</span>' : data;",
                                        "}")
-                                     )))),
-      server = T)
+                                     ))),
+                    class="display"
+                    ),
+      server = F)
     
     # # download the filtered data
     # output$download_filtered = downloadHandler(
