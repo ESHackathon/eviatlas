@@ -815,7 +815,7 @@ shinyServer(
       leafletProxy("map") %>%
         leaflet::removeTiles("atlas_basemap") %>%
         leaflet::addProviderTiles(input$map_basemap_select,  group=input$map_basemap_select, 
-                                  layerId = "atlas_basemap")
+                                  layerId = "atlas_basemap", options = providerTileOptions(noWrap=TRUE))
       
     })
 
@@ -856,7 +856,7 @@ shinyServer(
                 layerId = "atlas_title"
               ) %>%
               leaflet::addProviderTiles(input$map_basemap_select, group=input$map_basemap_select, 
-                                        layerId = "atlas_basemap")
+                                        layerId = "atlas_basemap", options = providerTileOptions(noWrap=TRUE))
           )
           
         }
@@ -973,7 +973,7 @@ shinyServer(
                                 className="map-title",
                                 layerId = "atlas_title") %>%
             leaflet::addProviderTiles(input$map_basemap_select, group=input$map_basemap_select,  
-                                      layerId = "atlas_basemap") %>%
+                                      layerId = "atlas_basemap", options = providerTileOptions(noWrap=TRUE)) %>%
             leaflet::addCircleMarkers(lat = ~lat_plotted, lng = ~lng_plotted,
                                       popup = ~paste(popup_string(), atlas_point_links()),
                                       radius = ~as.numeric(radiusby * 3),
@@ -1005,7 +1005,7 @@ shinyServer(
                                 className="map-title",
                                 layerId = "atlas_title") %>%
             leaflet::addProviderTiles(input$map_basemap_select, group=input$map_basemap_select, 
-                                      layerId = "atlas_basemap") %>%
+                                      layerId = "atlas_basemap", options = providerTileOptions(noWrap=TRUE)) %>%
             leaflet::addCircleMarkers(lat = ~lat_plotted, lng = ~lng_plotted,
                                       popup = ~paste(popup_string(), atlas_point_links()),
                                       radius = ~as.numeric(radiusby * 3),
