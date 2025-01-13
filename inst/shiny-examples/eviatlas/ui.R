@@ -293,7 +293,8 @@ body <- dashboardBody(
             tabsetPanel(
               tabPanel('Plot Inputs',
                        fluidRow(
-                         column(3, uiOutput("barplot_selector")),
+                         column(3, uiOutput("barplot_selector"),
+                                textOutput("message")),
                          column(4, uiOutput("location_plot_selector"))
                        ),
                        # fluidRow(

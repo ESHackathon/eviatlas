@@ -1050,5 +1050,9 @@ shinyServer(
     
       
     outputOptions(output, "cluster_columns", suspendWhenHidden = FALSE)  
+    
+    output$message <- renderText({
+             return("Note: This plot requires trend data (like 'publication year') to function properly.")
+      })
 
   })
